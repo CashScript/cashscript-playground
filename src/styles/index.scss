@@ -1,0 +1,79 @@
+@import 'bootstrap';
+
+body {
+  margin: 0;
+  font-family: 'Roboto Mono', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  line-height: 22px;
+  letter-spacing: 0;
+  box-sizing: border-box;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.btn-secondary {
+  color: #fff;
+
+  background-color: #ea4cbd;
+  border-color: #ea4cbd;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  color: #fff;
+  background-color: #d848af;
+  border-color: #ea4cbd;
+}
+
+.btn-secondary:focus,
+.btn-secondary.focus {
+  color: #fff;
+  background-color: #d848af;
+  border-color: #ea4cbd;
+}
+.btn-secondary.disabled,
+.btn-secondary:disabled {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-outline-secondary{
+  padding: 2px 6px;
+}
+.custom-control-input:checked ~ .custom-control-label::before {
+  background-color: #d848af;
+  border-color: #ea4cbd;
+}
+
+.App {
+  min-height: 100vh;
+  transition: color ease-in-out 0.3s, background-color ease-in-out 0.3s;
+}
+
+a,
+a:focus,
+a:active,
+a:visited,
+a:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+p {
+  margin-bottom: 0.01rem;
+  margin-top: -0.1rem;
+}
+
+h2, .h2 {
+  font-size: 1.5rem;
+}
+
+.card-header {
+  font-size: 1rem;
+}
