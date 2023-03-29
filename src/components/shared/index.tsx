@@ -56,7 +56,7 @@ export function readAsType(value: string, type: string) {
       return value;
     }
 
-    return addressInfo.hash;
+    return addressInfo.payload;
   } else {
     return value;
   }

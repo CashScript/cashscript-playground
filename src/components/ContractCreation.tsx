@@ -15,7 +15,7 @@ interface Props {
 
 const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets }) => {
   const [args, setArgs] = useState<Argument[]>([])
-  const [balance, setBalance] = useState<number | undefined>(undefined)
+  const [balance, setBalance] = useState<bigint | undefined>(undefined)
 
   useEffect(() => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -40,7 +40,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
   }, [contract])
 
   const inputFields = artifact?.constructorInputs.map((input, i) => (
-    <Form.Control size="sm" id={`constructor-arg-${i}`}
+    <Form.Control key={`constructor-arg-${i}`} size="sm" id={`constructor-arg-${i}`}
       placeholder={`${input.type} ${input.name}`}
       aria-label={`${input.type} ${input.name}`}
       onChange={(event) => {
@@ -81,9 +81,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     if (!artifact) return
     try {
       const provider = new ElectrumNetworkProvider(network)
-      const newContract = new Contract(artifact, args, provider)
+      const newContract = new Contract(artifact, args, {provider})
       setContract(newContract)
-    } catch (e) {
+    } catch (e: any) {
       alert(e.message)
       console.error(e.message)
     }
@@ -106,10 +106,10 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       {contract !==  undefined && balance !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>
           <div style={{ float: 'left', width: '70%' }}>
-            <strong>Contract address</strong>
+            <strong>Contract address (p2sh32)</strong>
             <p>{contract.address}</p>
             <strong>Contract balance</strong>
-            <p>{balance} satoshis</p>
+            <p>{balance.toString()} satoshis</p>
             <strong>Bytecode size</strong>
             <p>{contract.bytesize} bytes (max 520)</p>
             <strong>Bytecode opcount</strong>

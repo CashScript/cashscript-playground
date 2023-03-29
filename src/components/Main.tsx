@@ -10,7 +10,7 @@ interface Props {}
 
 const Main: React.FC<Props> = () => {
   const [code, setCode] = useState<string>(
-`pragma cashscript ^0.7.3;
+`pragma cashscript ^0.8.0;
 
 contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     // Require recipient's signature to match
@@ -39,7 +39,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       try {
         const artifact = compileString(newCode);
         setArtifact(artifact);
-      } catch (e) {
+      } catch (e: any) {
         alert(e.message);
         console.error(e.message);
       }
@@ -51,7 +51,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       localStorage.setItem("code", code);
       const artifact = compileString(code);
       setArtifact(artifact);
-    } catch (e) {
+    } catch (e: any) {
       alert(e.message);
       console.error(e.message);
     }

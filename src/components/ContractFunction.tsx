@@ -12,9 +12,9 @@ interface Props {
 
 const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) => {
   const [args, setArgs] = useState<Argument[]>([])
-  const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0 }])
+  const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
-  const [inputs, setInputs] = useState<NamedUtxo[]>([{txid: '', vout: 0, satoshis: 0, name: ``, isP2pkh:false}])
+  const [inputs, setInputs] = useState<NamedUtxo[]>([{txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh:false}])
   const [manualSelection, setManualSelection] = useState<boolean>(false)
   const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
   const [utxoList, setUtxoList] = useState<NamedUtxo[]>([])
@@ -56,7 +56,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
   function selectInput(i:number,inputIndex:string) {
     const inputsCopy = [...inputs];
     // if no input is selected in select form
-    if(isNaN(Number(inputIndex))) inputsCopy[i] = {txid: '', vout: 0, satoshis: 0, name: ``, isP2pkh:false}
+    if(isNaN(Number(inputIndex))) inputsCopy[i] = {txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh:false}
     else{
       inputsCopy[i] = utxoList[Number(inputIndex)];
     }
@@ -64,7 +64,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
   }
 
   const argumentFields = abi?.inputs.map((input, i) => (
-    <InputGroup>
+    <InputGroup key={`${input.name}-parameter-${i}`}>
       {input.type==='sig'? (
       <><Form.Control size="sm" id={`${input.name}-parameter-${i}`} disabled
         placeholder={`${input.type} ${input.name}`}
@@ -91,7 +91,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
   )) || []
 
   const inputFields = inputs.map((input,i) =>(
-    <InputGroup>
+    <InputGroup key={`${input.name}-input-${i}`}>
       <Form.Control size="sm"
         placeholder={i===0?"contract UTXO":"Add input"}
         aria-label={i===0?"contract UTXO":"Add input"}
@@ -107,30 +107,30 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
   ))
 
   const outputFields = outputs.map((output,index) =>(
-    <InputGroup>
-    <Form.Control size="sm"
-      placeholder="Receiver address"
-      aria-label="Receiver address"
-      onChange={(event) => {
-        const outputsCopy = [...outputs]
-        const output = outputsCopy[index]
-        output.to = event.target.value
-        outputsCopy[index] = output
-        setOutputs(outputsCopy)
-      }}
-    />
-    <Form.Control size="sm"
-      placeholder="Send amount"
-      aria-label="Send amount"
-      onChange={(event) => {
-        const outputsCopy = [...outputs]
-        const output = outputsCopy[index]
-        output.amount = Number(event.target.value)
-        outputsCopy[index] = output
-        setOutputs(outputsCopy)
-      }}
-    />
-  </InputGroup>
+    <InputGroup key={`output-${index}`}>
+      <Form.Control size="sm"
+        placeholder="Receiver address"
+        aria-label="Receiver address"
+        onChange={(event) => {
+          const outputsCopy = [...outputs]
+          const output = outputsCopy[index]
+          output.to = event.target.value
+          outputsCopy[index] = output
+          setOutputs(outputsCopy)
+        }}
+      />
+      <Form.Control size="sm"
+        placeholder="Send amount"
+        aria-label="Send amount"
+        onChange={(event) => {
+          const outputsCopy = [...outputs]
+          const output = outputsCopy[index]
+          output.amount = BigInt(event.target.value)
+          outputsCopy[index] = output
+          setOutputs(outputsCopy)
+        }}
+      />
+    </InputGroup>
   ))
 
   async function sendTransaction() {
@@ -156,7 +156,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
       alert(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
       console.log(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
-    } catch (e) {
+    } catch (e: any) {
       alert(e.message)
       console.error(e.message)
     }
@@ -164,7 +164,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
   function addOutput() {
     const outputsCopy = [...outputs]
-    outputsCopy.push({ to: '', amount: 0 })
+    outputsCopy.push({ to: '', amount: 0n })
     setOutputs(outputsCopy)
   }
   function removeOutput() {
@@ -175,7 +175,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
   function addInput() {
     const inputsCopy = [...inputs]
-    inputsCopy.push({txid: '', vout: 0, satoshis: 0, name: ``, isP2pkh:false })
+    inputsCopy.push({txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh:false })
     setInputs(inputsCopy)
   }
   function removeInput() {

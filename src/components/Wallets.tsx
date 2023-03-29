@@ -46,6 +46,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
     const privKeyHex = binToHex(privKey)
 
     const pubKey = secp256k1.derivePublicKeyCompressed(privKey)
+    if(typeof pubKey == "string") throw("error derivePublicKeyCompressed")
     const pubKeyHex = binToHex(pubKey)
 
     const pubKeyHash = ripemd160.hash(sha256.hash(pubKey))
@@ -60,10 +61,8 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
 
   function hash160ToCash(hex: string, network: number = 0x00) {
     let type: string = Base58AddressFormatVersion[network] || "p2pkh";
-    let prefix = "bitcoincash";
-    if (type.endsWith("Testnet")) prefix = "bchtest"
-    let cashType: CashAddressType = 0;
-    return encodeCashAddress(prefix, cashType, hexToBin(hex));
+    const prefix = type.endsWith("Testnet") ? "bitcoincash" :  "bchtest";
+    return encodeCashAddress(prefix, "p2pkh", hexToBin(hex));
   }
 
   function removeWallet(index:number) {
