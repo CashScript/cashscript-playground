@@ -2,12 +2,12 @@ import React, { useEffect } from 'react'
 import { Network } from 'cashscript'
 import { ColumnFlex, Wallet } from './shared'
 import { Button, Card } from 'react-bootstrap'
-import { 
+import {
   binToHex,
   hexToBin,
   instantiateSecp256k1,
-  generatePrivateKey, 
-  instantiateRipemd160, 
+  generatePrivateKey,
+  instantiateRipemd160,
   instantiateSha256,
   Base58AddressFormatVersion,
   encodeCashAddress,
@@ -30,7 +30,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
         addWallet()
       }
   }, [])
-  
+
   async function addWallet() {
     const walletsCopy = [...wallets]
 
@@ -41,7 +41,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
     const walletName = `Wallet${wallets.length+1}`
 
     const privKey = generatePrivateKey(() =>
-    window.crypto.getRandomValues(new Uint8Array(32))
+      window.crypto.getRandomValues(new Uint8Array(32))
     )
     const privKeyHex = binToHex(privKey)
 
@@ -128,10 +128,10 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           className="inputName"
           placeholder="name"
         />
-        <Button 
-          style={{float:"right", marginTop:"2px"}} 
-          onClick={() => removeWallet(index)} 
-          variant="outline-secondary" 
+        <Button
+          style={{float:"right", marginTop:"2px"}}
+          onClick={() => removeWallet(index)}
+          variant="outline-secondary"
           size="sm">
           -
         </Button>
@@ -171,7 +171,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
         {walletList}
       </div>
     </ColumnFlex>
-    
+
   )
 }
 

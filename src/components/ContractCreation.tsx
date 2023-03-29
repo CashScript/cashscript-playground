@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
-import { QRFunc } from 'react-qrbtf'
+// import { QRFunc } from 'react-qrbtf'
 import { readAsType } from './shared'
 
 interface Props {
@@ -115,9 +115,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
             <strong>Bytecode opcount</strong>
             <p>{contract.opcount} opcodes (max 201)</p>
           </div>
-          <div style={{ float: 'left', width: '30%', paddingTop: '4%' }}>
+          {/* <div style={{ float: 'left', width: '30%', paddingTop: '4%' }}>
             <QRFunc value={contract.address} />
-          </div>
+          </div> */}
         </div>
       }
     </div>

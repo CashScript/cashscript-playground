@@ -1,6 +1,10 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import '../styles/index.scss';
-import App from './App';
+import App from '../components/App';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const IndexPage = () => {
+  return (
+    <App />
+  );
+};
+
+export default IndexPage;

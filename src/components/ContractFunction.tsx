@@ -13,7 +13,7 @@ interface Props {
 const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0 }])
-  // transaction inputs, not the same as abi.inputs 
+  // transaction inputs, not the same as abi.inputs
   const [inputs, setInputs] = useState<NamedUtxo[]>([{txid: '', vout: 0, satoshis: 0, name: ``, isP2pkh:false}])
   const [manualSelection, setManualSelection] = useState<boolean>(false)
   const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
@@ -195,7 +195,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
               {argumentFields}
             </Card.Text>
             <Form style={{ marginTop: '10px',marginBottom: '5px' }}>
-              <Form.Check 
+              <Form.Check
                 type="switch"
                 id={abi?.name}
                 label="manual UTXO selection"
@@ -214,7 +214,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
               </Card.Text></>
             ):null}
             <Form style={{ marginTop: '10px',marginBottom: '5px' }}>
-              <Form.Check 
+              <Form.Check
                 type="switch"
                 id={"noAutomaticChange"+abi?.name}
                 label="disable automatic change output"
@@ -224,7 +224,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
             <Card.Subtitle style={{ marginTop: '10px',marginBottom: '5px' }}>
               Transaction outputs{' '}
               <Button variant="outline-secondary" size="sm" disabled={outputs.length<=1} onClick={removeOutput}>-</Button>
-              {' '+outputs.length+' '} 
+              {' '+outputs.length+' '}
               <Button variant="outline-secondary" size="sm" onClick={addOutput}>+</Button>
             </Card.Subtitle>
             <Card.Text>
