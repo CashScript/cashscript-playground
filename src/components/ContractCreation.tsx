@@ -108,12 +108,12 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
           <div style={{ float: 'left', width: '70%' }}>
             <strong>Contract address (p2sh32)</strong>
             <p>{contract.address}</p>
+            <strong>Contract token address (p2sh32)</strong>
+            <p>{contract.tokenAddress}</p>
             <strong>Contract balance</strong>
             <p>{balance.toString()} satoshis</p>
-            <strong>Bytecode size</strong>
-            <p>{contract.bytesize} bytes (max 520)</p>
-            <strong>Bytecode opcount</strong>
-            <p>{contract.opcount} opcodes (max 201)</p>
+            <strong>Contract size</strong>
+            <p>{contract.bytesize} bytes (max 520), {contract.opcount} opcodes (max 201)</p>
           </div>
           {/* <div style={{ float: 'left', width: '30%', paddingTop: '4%' }}>
             <QRFunc value={contract.address} />
