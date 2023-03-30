@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider } from 'cashscript'
+import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider, Utxo } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
 // import { QRFunc } from 'react-qrbtf'
 import { readAsType } from './shared'
@@ -10,12 +10,13 @@ interface Props {
   setContract: (contract?: Contract) => void
   network: Network
   setNetwork: (network: Network) => void
-  setShowWallets:(showWallets: boolean) => void
+  setShowWallets: (showWallets: boolean) => void
 }
 
 const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [balance, setBalance] = useState<bigint | undefined>(undefined)
+  const [utxos, setUtxos] = useState<Utxo[] | undefined>([])
 
   useEffect(() => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -35,6 +36,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     async function updateBalance() {
       if (!contract) return
       setBalance(await contract.getBalance())
+      setUtxos(await contract.getUtxos())
     }
     updateBalance()
   }, [contract])
@@ -81,12 +83,52 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     if (!artifact) return
     try {
       const provider = new ElectrumNetworkProvider(network)
-      const newContract = new Contract(artifact, args, {provider})
+      const newContract = new Contract(artifact, args, { provider })
       setContract(newContract)
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)
     }
+  }
+
+  function getTokenType(token: Utxo["token"]) {
+    if (!token) return "no tokens"
+    if (token.amount && token.nft) return "both fungible tokens & NFT"
+    if (token.amount) return "fungible tokens only"
+    if (token.nft) return "NFT only"
+  }
+
+  const renderInfoUtxos = utxos?.map((utxo, index) => (<div key={`utxo-index${index}`} style={{ marginLeft: "20px", marginTop: "5px" }}>
+    {`----- UTXO ${index + 1} -----`} <br />
+    {"amount: " + utxo.satoshis + "sats"} <br />
+    {(<>{"token type: " + getTokenType(utxo.token)} <br /></>)}
+    {utxo.token ?
+      (<>
+        {`token category: ${utxo.token.category.slice(0, 20)}...${utxo.token.category.slice(-10)} `}
+        <img alt="copy icon" style={{ marginBottom: "1px", cursor: "pointer" }} src="copy.svg" onClick={() => copy(utxo.token?.category)} />
+        <br />
+      </>) : ""
+    }
+    {utxo.token?.amount ?
+      (<>
+        {"token amount: " + (utxo.token.amount).toString()} <br />
+      </>) : ""
+    }
+    {utxo.token?.nft?.capability ?
+      (<>
+        {"nft capability: " + utxo.token.nft.capability} <br />
+      </>) : ""
+    }
+    {utxo.token?.nft ?
+      (<>
+        {`nft commitment: "${utxo.token.nft.commitment}"`} <br />
+      </>) : ""
+    }
+  </div>))
+
+  function copy(category: string | undefined) {
+    if (!category) return
+    navigator.clipboard.writeText(category)
   }
 
   return (
@@ -101,16 +143,24 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       padding: '8px 16px',
       color: '#000'
     }}>
-      <h2>{artifact?.contractName} <button onClick={() => setShowWallets(true)} style={{float:'right', border:'none', backgroundColor: 'transparent',outline: 'none'}}>⇆</button></h2>
+      <h2>{artifact?.contractName} <button onClick={() => setShowWallets(true)} style={{ float: 'right', border: 'none', backgroundColor: 'transparent', outline: 'none' }}>⇆</button></h2>
       {constructorForm}
-      {contract !==  undefined && balance !== undefined &&
+      {contract !== undefined && balance !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>
           <div style={{ float: 'left', width: '70%' }}>
             <strong>Contract address (p2sh32)</strong>
             <p>{contract.address}</p>
             <strong>Contract token address (p2sh32)</strong>
             <p>{contract.tokenAddress}</p>
-            <strong>Contract balance</strong>
+            <strong>Contract utxos</strong>
+            <p>{utxos?.length} {utxos?.length == 1 ? "utxo" : "utxos"}</p>
+            <details>
+              <summary>Show utxos</summary>
+              <div>
+                {renderInfoUtxos}
+              </div>
+            </details>
+            <strong>Total contract balance</strong>
             <p>{balance.toString()} satoshis</p>
             <strong>Contract size</strong>
             <p>{contract.bytesize} bytes (max 520), {contract.opcount} opcodes (max 201)</p>
