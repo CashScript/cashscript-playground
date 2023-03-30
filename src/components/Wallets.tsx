@@ -61,7 +61,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
 
   function hash160ToCash(hex: string, network: number = 0x00) {
     let type: string = Base58AddressFormatVersion[network] || "p2pkh";
-    const prefix = type.endsWith("Testnet") ? "bitcoincash" :  "bchtest";
+    const prefix = type.endsWith("Testnet") ? "bchtest" : "bitcoincash";
     return encodeCashAddress(prefix, "p2pkh", hexToBin(hex));
   }
 
