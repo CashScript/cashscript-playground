@@ -7,6 +7,7 @@ const IndexPage = () => {
     <>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
+        <title>Next-Cashscript-Playground </title>
       </Head>
       <App />
     </>
