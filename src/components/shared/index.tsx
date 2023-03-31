@@ -19,6 +19,7 @@ export interface Wallet {
   pubKeyHashHex: string
   address: string
   testnetAddress: string
+  utxos: Utxo[]
 }
 
 export interface NamedUtxo extends Utxo {

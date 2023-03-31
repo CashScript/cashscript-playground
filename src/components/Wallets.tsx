@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Network } from 'cashscript'
+import { Network, ElectrumNetworkProvider } from 'cashscript'
 import { ColumnFlex, Wallet } from './shared'
 import { Button, Card } from 'react-bootstrap'
 import {
@@ -11,8 +11,8 @@ import {
   instantiateSha256,
   Base58AddressFormatVersion,
   encodeCashAddress,
-  CashAddressType
 } from '@bitauth/libauth'
+import InfoUtxos from './InfoUtxos'
 
 interface Props {
   network: Network
@@ -55,7 +55,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
     const address = hash160ToCash(pubKeyHashHex)
     const testnetAddress = hash160ToCash(pubKeyHashHex,0x6f)
 
-    walletsCopy.push({walletName,privKey,privKeyHex,pubKeyHex,pubKeyHashHex,address,testnetAddress})
+    walletsCopy.push({walletName,privKey,privKeyHex,pubKeyHex,pubKeyHashHex,address,testnetAddress, utxos:[]})
     setWallets(walletsCopy)
   }
 
@@ -76,30 +76,19 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
     walletsCopy[i].walletName = e.target.value;
     setWallets(walletsCopy)
   };
+ 
 
   useEffect(() => {
-    const readLocalStorage = () => {
-      // Convert the string back to the wallets object
-      const localStorageData = localStorage.getItem("wallets");
-      // If the local storage is not null
-      if (localStorageData !== null) {
-        const newWallets = JSON.parse(localStorageData);
-        setWallets(newWallets);
-      }
-    };
-    // Read local storage on initialization
-    readLocalStorage();
-  }, []);
-
-  useEffect(() => {
-    const readLocalStorage = () => {
+    const readLocalStorage = async () => {
       // Convert the string back to the wallets object
       const localStorageData = localStorage.getItem("wallets");
       // If the local storage is not null
       if (localStorageData !== null) {
         const newWallets = JSON.parse(localStorageData);
         for (const wallet of newWallets){
+          const walletUtxos = await new ElectrumNetworkProvider(network).getUtxos(wallet.address);
           wallet.privKey = new Uint8Array(Object.values( wallet.privKey))
+          wallet.utxos = walletUtxos
         }
         setWallets(newWallets);
       }
@@ -110,11 +99,24 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
 
   useEffect(() => {
     const writeToLocalStorage = () => {
+      if(!wallets.length) return
+      const localStorageData = localStorage.getItem("wallets") ?? "{}";
+      const objLocalStorageData = JSON.parse(localStorageData);
+      // Deep copy except for the utxos
+      const walletsCopy = wallets.map(wallet => ({...wallet, utxos: []}));
       // Clear local storage and write the walletlist array to it as a string
-      localStorage.setItem("wallets", JSON.stringify(wallets));
+      if(JSON.stringify(walletsCopy) === JSON.stringify(objLocalStorageData)) return
+      localStorage.setItem("wallets", JSON.stringify(walletsCopy));
     };
     writeToLocalStorage();
   }, [wallets]);
+
+  async function updateUtxosWallet (wallet: Wallet, index: number) {
+    const walletUtxos = await new ElectrumNetworkProvider(network).getUtxos(wallet.address);
+    const walletsCopy = [...wallets]
+    walletsCopy[index].utxos = walletUtxos
+    setWallets(walletsCopy)
+  }
 
   const walletList = wallets.map((wallet, index) => (
     <Card style={{ marginBottom: '10px' }} key={wallet.privKeyHex}>
@@ -143,7 +145,15 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <p>{wallet.pubKeyHashHex}</p>
           <strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong>
           <p>{network==="mainnet"? wallet.address : wallet.testnetAddress}</p>
+          <strong>Wallet utxos</strong>
+          <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
         </Card.Text>
+        <details onClick={() => updateUtxosWallet(wallet,index)}>
+          <summary>Show utxos</summary>
+          <div>
+            <InfoUtxos utxos={wallet.utxos}/>
+          </div>
+        </details>
       </Card.Body>
     </Card>
   ))
