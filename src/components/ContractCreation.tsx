@@ -34,12 +34,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
   }, [artifact])
 
   useEffect(() => {
-    async function updateBalance() {
-      if (!contract) return
-      setBalance(await contract.getBalance())
-      setUtxos(await contract.getUtxos())
-    }
-    updateBalance()
+    updateUtxosContract()
   }, [contract])
 
   const inputFields = artifact?.constructorInputs.map((input, i) => (
@@ -92,6 +87,12 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     }
   }
 
+  async function updateUtxosContract () {
+    if (!contract) return
+    setBalance(await contract.getBalance())
+    setUtxos(await contract.getUtxos())
+  }
+
   return (
     <div style={{
       height: '100%',
@@ -115,7 +116,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
             <p>{contract.tokenAddress}</p>
             <strong>Contract utxos</strong>
             <p>{utxos?.length} {utxos?.length == 1 ? "utxo" : "utxos"}</p>
-            <details>
+            <details  onClick={() => updateUtxosContract()}>
               <summary>Show utxos</summary>
               <div>
                 <InfoUtxos utxos={utxos}/>
