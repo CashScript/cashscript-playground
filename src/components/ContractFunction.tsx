@@ -31,11 +31,11 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
       if(contract===undefined) return
       const utxosContract = await contract.getUtxos()
       console.log(utxosContract)
-      const namedUtxosContract:NamedUtxo[] = utxosContract.map((utxo,index)=> ({ ...utxo, name: `P2SH`, isP2pkh:false }))
+      const namedUtxosContract:NamedUtxo[] = utxosContract.map((utxo,index)=> ({ ...utxo, name: `Contract UTXO ${index+1}`, isP2pkh:false }))
       let newUtxoList= namedUtxosContract
       for(let i = 0; i < wallets.length; i++){
         const utxosWallet = await new ElectrumNetworkProvider(network).getUtxos(wallets[i].address);
-        const namedUtxosWallet:NamedUtxo[] = utxosWallet.map(utxo=> ({ ...utxo, name: `P2PKH ${wallets[i].walletName}`, isP2pkh:true, walletIndex:i }))
+        const namedUtxosWallet:NamedUtxo[] = utxosWallet.map((utxo,index)=> ({ ...utxo, name: `${wallets[i].walletName} UTXO ${index+1}`, isP2pkh:true, walletIndex:i }))
         newUtxoList = newUtxoList.concat(namedUtxosWallet)
       }
       setUtxoList(newUtxoList);
@@ -100,7 +100,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
       <Form.Control onChange={event =>selectInput(i,event.target.value)} as="select" size="sm" >
         <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
         {utxoList.map((utxo, inputIndex) => (
-            <option className="text-center" key={`${inputIndex+utxo.name}`} value={`${inputIndex}`}>{`${utxo.name} ${utxo.satoshis}sats`}</option>
+            <option className="text-center" key={`${inputIndex+utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
           ))}
       </Form.Control>
     </InputGroup>

@@ -3,6 +3,7 @@ import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider, Utxo } 
 import { InputGroup, Form, Button } from 'react-bootstrap'
 // import { QRFunc } from 'react-qrbtf'
 import { readAsType } from './shared'
+import InfoUtxos from './InfoUtxos'
 
 interface Props {
   artifact?: Artifact
@@ -91,46 +92,6 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     }
   }
 
-  function getTokenType(token: Utxo["token"]) {
-    if (!token) return "no tokens"
-    if (token.amount && token.nft) return "both fungible tokens & NFT"
-    if (token.amount) return "fungible tokens only"
-    if (token.nft) return "NFT only"
-  }
-
-  const renderInfoUtxos = utxos?.map((utxo, index) => (<div key={`utxo-index${index}`} style={{ marginLeft: "20px", marginTop: "5px" }}>
-    {`----- UTXO ${index + 1} -----`} <br />
-    {"amount: " + utxo.satoshis + "sats"} <br />
-    {(<>{"token type: " + getTokenType(utxo.token)} <br /></>)}
-    {utxo.token ?
-      (<>
-        {`token category: ${utxo.token.category.slice(0, 20)}...${utxo.token.category.slice(-10)} `}
-        <img alt="copy icon" style={{ marginBottom: "1px", cursor: "pointer" }} src="copy.svg" onClick={() => copy(utxo.token?.category)} />
-        <br />
-      </>) : ""
-    }
-    {utxo.token?.amount ?
-      (<>
-        {"token amount: " + (utxo.token.amount).toString()} <br />
-      </>) : ""
-    }
-    {utxo.token?.nft?.capability ?
-      (<>
-        {"nft capability: " + utxo.token.nft.capability} <br />
-      </>) : ""
-    }
-    {utxo.token?.nft ?
-      (<>
-        {`nft commitment: "${utxo.token.nft.commitment}"`} <br />
-      </>) : ""
-    }
-  </div>))
-
-  function copy(category: string | undefined) {
-    if (!category) return
-    navigator.clipboard.writeText(category)
-  }
-
   return (
     <div style={{
       height: '100%',
@@ -157,7 +118,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
             <details>
               <summary>Show utxos</summary>
               <div>
-                {renderInfoUtxos}
+                <InfoUtxos utxos={utxos}/>
               </div>
             </details>
             <strong>Total contract balance</strong>
