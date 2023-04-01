@@ -120,8 +120,8 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
         }}
       />
       <Form.Control size="sm"
-        placeholder="Send amount"
-        aria-label="Send amount"
+        placeholder="Satoshi amount"
+        aria-label="Satoshi amount"
         onChange={(event) => {
           const outputsCopy = [...outputs]
           const output = outputsCopy[index]
@@ -150,7 +150,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
       }
 
       // if noAutomaticChange is enabled, add this to the transaction in construction
-      if(noAutomaticChange) transaction.withoutChange()
+      if(noAutomaticChange) transaction.withoutChange().withoutTokenChange()
       transaction.to(outputs)
       const { txid } = await transaction.send()
 
