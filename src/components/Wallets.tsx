@@ -53,16 +53,16 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
     const pubKeyHashHex = binToHex(pubKeyHash)
 
     const address = hash160ToCash(pubKeyHashHex)
-    const testnetAddress = hash160ToCash(pubKeyHashHex,0x6f)
+    const testnetAddress = hash160ToCash(pubKeyHashHex, true)
 
     walletsCopy.push({walletName,privKey,privKeyHex,pubKeyHex,pubKeyHashHex,address,testnetAddress, utxos:[]})
     setWallets(walletsCopy)
   }
 
-  function hash160ToCash(hex: string, network: number = 0x00) {
-    let type: string = Base58AddressFormatVersion[network] || "p2pkh";
-    const prefix = type.endsWith("Testnet") ? "bchtest" : "bitcoincash";
-    return encodeCashAddress(prefix, "p2pkh", hexToBin(hex));
+  function hash160ToCash(hex: string, forTestnet?: boolean, tokenSupport?: boolean) {
+    const prefix = forTestnet ? "bchtest" : "bitcoincash";
+    const type = tokenSupport ? "p2pkhWithTokens" : "p2pkh";
+    return encodeCashAddress(prefix, type, hexToBin(hex));
   }
 
   function removeWallet(index:number) {
@@ -145,6 +145,8 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <p>{wallet.pubKeyHashHex}</p>
           <strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong>
           <p>{network==="mainnet"? wallet.address : wallet.testnetAddress}</p>
+          <strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong>
+          <p>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</p>
           <strong>Wallet utxos</strong>
           <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
         </Card.Text>
