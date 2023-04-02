@@ -92,10 +92,10 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
     </InputGroup>
   )) || []
 
-  const inputFields = inputs.map((input, i) => (
+  const inputFields = [...Array(inputs.length)].map((element, i) => (
     <>
     {`Input #${i}`}
-    <InputGroup key={`${input.name}-input-${i}`}>
+    <InputGroup key={`${abi?.name}-input-${i}`}>
       <Form.Control size="sm"
         placeholder={i === 0 ? "contract UTXO" : "Add input"}
         aria-label={i === 0 ? "contract UTXO" : "Add input"}
@@ -196,10 +196,10 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
   }, [outputHasFT])
 
   const outputFields = outputs.map((output, index) => (
-    <>
+    <div  key={`${abi?.name}-output-${index}`}>
       {`Output #${index}`}
       <Card.Text>
-        <InputGroup key={`output-${index}`}>
+        <InputGroup>
           <Form.Control size="sm"
             placeholder="Receiver address"
             aria-label="Receiver address"
@@ -258,7 +258,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
         </Card.Text>)
         : null}
       <br/>
-    </>
+    </div>
   ))
 
   async function sendTransaction() {
