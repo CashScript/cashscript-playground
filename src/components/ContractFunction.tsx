@@ -94,7 +94,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
   const inputFields = inputs.map((input, i) => (
     <>
-    {`Input #${i + 1}`}
+    {`Input #${i}`}
     <InputGroup key={`${input.name}-input-${i}`}>
       <Form.Control size="sm"
         placeholder={i === 0 ? "contract UTXO" : "Add input"}
@@ -197,7 +197,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
   const outputFields = outputs.map((output, index) => (
     <>
-      {`Output #${index + 1}`}
+      {`Output #${index}`}
       <Card.Text>
         <InputGroup key={`output-${index}`}>
           <Form.Control size="sm"

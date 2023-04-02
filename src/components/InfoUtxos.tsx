@@ -23,7 +23,7 @@ const InfoUtxos: React.FC<Props> = ({ utxos }) => {
     <>
       {utxos?.map((utxo, index) => (
         <div style={{ marginLeft: "20px", marginTop: "5px" }} key={`utxo-index${index}`}>
-          <b>{`----- UTXO ${index + 1} -----`}</b> <br />
+          <b>{`----- UTXO ${index} -----`}</b> <br />
           {"amount: " + utxo.satoshis + "sats"} <br />
           {(<>{"token type: " + getTokenType(utxo.token)} <br /></>)}
           {utxo.token ?
