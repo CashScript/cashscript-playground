@@ -34,11 +34,11 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
       if (contract === undefined) return
       const utxosContract = await contract.getUtxos()
       console.log(utxosContract)
-      const namedUtxosContract: NamedUtxo[] = utxosContract.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index + 1}`, isP2pkh: false }))
+      const namedUtxosContract: NamedUtxo[] = utxosContract.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
       let newUtxoList = namedUtxosContract
       for (let i = 0; i < wallets.length; i++) {
         const utxosWallet = await new ElectrumNetworkProvider(network).getUtxos(wallets[i].address);
-        const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => ({ ...utxo, name: `${wallets[i].walletName} UTXO ${index + 1}`, isP2pkh: true, walletIndex: i }))
+        const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => ({ ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, isP2pkh: true, walletIndex: i }))
         newUtxoList = newUtxoList.concat(namedUtxosWallet)
       }
       setUtxoList(newUtxoList);
