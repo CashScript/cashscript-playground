@@ -8,9 +8,10 @@ interface Props {
   abi?: AbiFunction
   network: Network
   wallets: Wallet[]
+  updateUtxosContract: () => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) => {
+const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, updateUtxosContract }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -284,6 +285,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets }) 
 
       alert(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
       console.log(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
+      updateUtxosContract()
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)

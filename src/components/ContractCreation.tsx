@@ -12,12 +12,13 @@ interface Props {
   network: Network
   setNetwork: (network: Network) => void
   setShowWallets: (showWallets: boolean) => void
+  utxos: Utxo[] | undefined
+  balance: bigint | undefined
+  updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets }) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets, balance, utxos, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
-  const [balance, setBalance] = useState<bigint | undefined>(undefined)
-  const [utxos, setUtxos] = useState<Utxo[] | undefined>([])
 
   useEffect(() => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -85,12 +86,6 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       alert(e.message)
       console.error(e.message)
     }
-  }
-
-  async function updateUtxosContract () {
-    if (!contract) return
-    setBalance(await contract.getBalance())
-    setUtxos(await contract.getUtxos())
   }
 
   return (

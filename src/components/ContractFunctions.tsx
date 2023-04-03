@@ -8,11 +8,12 @@ interface Props {
   contract?: Contract
   network: Network
   wallets: Wallet[]
+  updateUtxosContract: () => void
 }
 
-const ContractFunctions: React.FC<Props> = ({ artifact, contract, network, wallets }) => {
+const ContractFunctions: React.FC<Props> = ({ artifact, contract, network, wallets, updateUtxosContract }) => {
   const functions = artifact?.abi.map(func => (
-    <ContractFunction contract={contract} key={func.name} abi={func} network={network} wallets={wallets}/>
+    <ContractFunction contract={contract} key={func.name} abi={func} network={network} wallets={wallets} updateUtxosContract={updateUtxosContract}/>
   ))
 
   return (
