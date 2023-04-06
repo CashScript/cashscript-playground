@@ -21,15 +21,21 @@ const InfoUtxos: React.FC<Props> = ({ utxos }) => {
 
   return (
     <>
-      {utxos?.map((utxo, index) => (
+      {utxos?.map((utxo, index) => {
+        const reversedCategory = utxo.token?.category.match(/../g)?.reverse().join('') ||  "";
+
+        return (
         <div style={{ marginLeft: "20px", marginTop: "5px" }} key={`utxo-index${index}`}>
           <b>{`----- UTXO ${index} -----`}</b> <br />
           {"amount: " + utxo.satoshis + "sats"} <br />
           {(<>{"token type: " + getTokenType(utxo.token)} <br /></>)}
           {utxo.token ?
             (<>
-              {`token category: ${utxo.token.category.slice(0, 20)}...${utxo.token.category.slice(-10)} `}
+              {`token category (default): ${utxo.token.category.slice(0, 10)}...${utxo.token.category.slice(-10)} `}
               <img alt="copy icon" style={{ marginBottom: "1px", cursor: "pointer" }} src="copy.svg" onClick={() => copy(utxo.token?.category)} />
+              <br />
+              {`token category (unreversed, used in script): ${reversedCategory.slice(0, 10)}...${reversedCategory.slice(-10)} `}
+              <img alt="copy icon" style={{ marginBottom: "1px", cursor: "pointer" }} src="copy.svg" onClick={() => copy(reversedCategory)} />
               <br />
             </>) : ""
           }
@@ -48,7 +54,7 @@ const InfoUtxos: React.FC<Props> = ({ utxos }) => {
               {`nft commitment: "${utxo.token.nft.commitment}"`} <br />
             </>) : ""
           }
-        </div>))}
+        </div>)})}
     </>
   )
 }
