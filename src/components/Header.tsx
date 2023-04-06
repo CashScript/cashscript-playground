@@ -12,7 +12,7 @@ const Header: React.FC<Props> = () => {
       padding: '24px 44px',
       fontSize: '30px'
     }}>
-      <div className="header-title">CashScript Playground <strong><sup>Beta</sup></strong></div>
+      <div className="header-title">CashScript Playground</div>
     </header>
   )
 }
