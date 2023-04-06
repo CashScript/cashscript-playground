@@ -254,11 +254,10 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
         </Form>)
         : null}
       {outputHasFT[index] ? (
-        <Card.Text>
+        <Card.Text style={{marginBottom:"10px"}}>
           {tokenFields(index)}
         </Card.Text>)
         : null}
-      <br/>
     </div>
   ))
 
