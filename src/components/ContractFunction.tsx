@@ -271,10 +271,14 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
 
       // if manualSelection is enabled, add the selected inputs
       const contractInputs = inputs.filter(input => !input.isP2pkh)
-      let p2pkhInput = inputs.filter(input => input.isP2pkh)
-      if (manualSelection && p2pkhInput[0] !== undefined && p2pkhInput[0].walletIndex !== undefined) {
+      let p2pkhInputs = inputs.filter(input => input.isP2pkh)
+      if (manualSelection) {
         transaction.from(contractInputs)
-          .experimentalFromP2PKH(p2pkhInput, new SignatureTemplate(wallets[p2pkhInput[0].walletIndex].privKey))
+        p2pkhInputs.forEach(p2pkhInput => {
+          if(p2pkhInput !== undefined && p2pkhInput.walletIndex !== undefined){
+            transaction.fromP2PKH(p2pkhInput, new SignatureTemplate(wallets[p2pkhInput.walletIndex].privKey))
+          }
+        })
       }
 
       // if noAutomaticChange is enabled, add this to the transaction in construction
