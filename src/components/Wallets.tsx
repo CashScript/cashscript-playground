@@ -146,7 +146,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong>
           <p>{network==="mainnet"? wallet.address : wallet.testnetAddress}</p>
           <strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong>
-          <p>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</p>
+          <p>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</p>
           <strong>Wallet utxos</strong>
           <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
         </Card.Text>
