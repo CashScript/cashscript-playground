@@ -9,8 +9,8 @@ import {
   generatePrivateKey,
   instantiateRipemd160,
   instantiateSha256,
-  Base58AddressFormatVersion,
   encodeCashAddress,
+  encodePrivateKeyWif,
 } from '@bitauth/libauth'
 import InfoUtxos from './InfoUtxos'
 
@@ -150,6 +150,15 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <strong>Wallet utxos</strong>
           <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
         </Card.Text>
+        <details>
+          <summary>Show Private Key</summary>
+          <div>
+            WIF: {encodePrivateKeyWif(wallet.privKey, network === "mainnet" ? "mainnet" : "testnet")}
+          </div>
+          <div>
+            Hex: {wallet.privKeyHex}
+          </div>
+        </details>
         <details onClick={() => updateUtxosWallet(wallet,index)}>
           <summary>Show utxos</summary>
           <div>
