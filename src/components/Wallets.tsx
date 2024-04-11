@@ -12,6 +12,7 @@ import {
   encodeCashAddress,
   encodePrivateKeyWif,
 } from '@bitauth/libauth'
+import CopyText from './shared/CopyText'
 import InfoUtxos from './InfoUtxos'
 
 interface Props {
@@ -140,24 +141,22 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
       <Card.Body>
         <Card.Text style={{overflowWrap:'anywhere'}}>
           <strong>Pubkey hex: </strong>
-          <p>{wallet.pubKeyHex}</p>
+          <CopyText>{wallet.pubKeyHex}</CopyText>
           <strong>Pubkeyhash hex: </strong>
-          <p>{wallet.pubKeyHashHex}</p>
+          <CopyText>{wallet.pubKeyHashHex}</CopyText>
           <strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong>
-          <p>{network==="mainnet"? wallet.address : wallet.testnetAddress}</p>
+          <CopyText>{network==="mainnet"? wallet.address : wallet.testnetAddress}</CopyText>
           <strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong>
-          <p>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</p>
+          <CopyText>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
           <strong>Wallet utxos</strong>
           <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
         </Card.Text>
         <details>
           <summary>Show Private Key</summary>
-          <div>
-            WIF: {encodePrivateKeyWif(wallet.privKey, network === "mainnet" ? "mainnet" : "testnet")}
-          </div>
-          <div>
-            Hex: {wallet.privKeyHex}
-          </div>
+          <strong>WIF: </strong>
+          <CopyText>{encodePrivateKeyWif(wallet.privKey, network === "mainnet" ? "mainnet" : "testnet")}</CopyText>
+          <strong>Hex: </strong>
+          <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
         <details onClick={() => updateUtxosWallet(wallet,index)}>
           <summary>Show utxos</summary>
