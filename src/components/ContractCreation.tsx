@@ -3,6 +3,7 @@ import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider, Utxo } 
 import { InputGroup, Form, Button } from 'react-bootstrap'
 // import { QRFunc } from 'react-qrbtf'
 import { readAsType } from './shared'
+import CopyText from './shared/CopyText'
 import InfoUtxos from './InfoUtxos'
 
 interface Props {
@@ -106,9 +107,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
         <div style={{ margin: '5px', width: '100%' }}>
           <div style={{ float: 'left', width: '70%' }}>
             <strong>Contract address (p2sh32)</strong>
-            <p>{contract.address}</p>
+            <CopyText>{contract.address}</CopyText>
             <strong>Contract token address (p2sh32)</strong>
-            <p>{contract.tokenAddress}</p>
+            <CopyText>{contract.tokenAddress}</CopyText>
             <strong>Contract utxos</strong>
             <p>{utxos?.length} {utxos?.length == 1 ? "utxo" : "utxos"}</p>
             <details  onClick={() => updateUtxosContract()}>

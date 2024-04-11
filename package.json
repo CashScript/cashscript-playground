@@ -26,6 +26,7 @@
     "react-dom": "18.2.0",
     "react-qrbtf": "^1.2.1",
     "sass": "^1.60.0",
-    "typescript": "5.0.2"
+    "typescript": "5.0.2",
+    "use-copy": "^0.0.2"
   }
 }
