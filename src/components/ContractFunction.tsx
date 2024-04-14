@@ -8,10 +8,11 @@ interface Props {
   abi?: AbiFunction
   network: Network
   wallets: Wallet[]
+  utxos: Utxo[] | undefined
   updateUtxosContract: () => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, updateUtxosContract }) => {
+const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, utxos, updateUtxosContract }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -31,8 +32,8 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
   useEffect(() => {
     if (!manualSelection) return;
     async function updateUtxos() {
-      if (contract === undefined) return
-      const utxosContract = await contract.getUtxos()
+      if (contract === undefined || utxos === undefined) return
+      const utxosContract = utxos
       console.log(utxosContract)
       const namedUtxosContract: NamedUtxo[] = utxosContract.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
       let newUtxoList = namedUtxosContract
@@ -44,7 +45,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
       setUtxoList(newUtxoList);
     }
     updateUtxos()
-  }, [manualSelection])
+  }, [manualSelection, utxos])
 
   function fillPrivKey(i: number, walletIndex: string) {
     const argsCopy = [...args];
