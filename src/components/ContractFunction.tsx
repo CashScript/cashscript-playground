@@ -94,22 +94,22 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
   )) || []
 
   const inputFields = [...Array(inputs.length)].map((element, i) => (
-    <>
-    {`Input #${i}`}
-    <InputGroup key={`${abi?.name}-input-${i}`}>
-      <Form.Control size="sm"
-        placeholder={i === 0 ? "contract UTXO" : "Add input"}
-        aria-label={i === 0 ? "contract UTXO" : "Add input"}
-        disabled
-      />
-      <Form.Control onChange={event => selectInput(i, event.target.value)} as="select" size="sm" >
-        <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
-        {utxoList.map((utxo, inputIndex) => (
-          <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
-        ))}
-      </Form.Control>
-    </InputGroup>
-    </>
+    <div key={`${abi?.name}-input-${i}`}>
+      {`Input #${i}`}
+      <InputGroup>
+        <Form.Control size="sm"
+          placeholder={i === 0 ? "contract UTXO" : "Add input"}
+          aria-label={i === 0 ? "contract UTXO" : "Add input"}
+          disabled
+        />
+        <Form.Control onChange={event => selectInput(i, event.target.value)} as="select" size="sm" >
+          <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
+          {utxoList.map((utxo, inputIndex) => (
+            <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
+          ))}
+        </Form.Control>
+      </InputGroup>
+    </div>
   ))
 
   const tokenFields = (index: number) => (
@@ -143,7 +143,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
       />
     </InputGroup>
     {outputHasNFT[index] ? (
-        <Card.Text>
+        <div>
           <InputGroup key={`output-${index}-NFT`}>
             <Form.Control size="sm"
               placeholder="Token Commitment"
@@ -180,7 +180,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
               <option value={"mutable"}>mutable</option>
             </Form.Control>
           </InputGroup>
-        </Card.Text>)
+        </div>)
         : null}
     </>
   )
@@ -199,7 +199,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
   const outputFields = outputs.map((output, index) => (
     <div  key={`${abi?.name}-output-${index}`}>
       {`Output #${index}`}
-      <Card.Text>
+      <div>
         <InputGroup>
           <Form.Control size="sm"
             placeholder="Receiver address"
@@ -224,7 +224,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
             }}
           />
         </InputGroup>
-      </Card.Text>
+      </div>
       <Form style={{ marginTop: '5px', marginBottom: '5px', display: "inline-block" }}>
         <Form.Check
           type="switch"
@@ -254,9 +254,9 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
         </Form>)
         : null}
       {outputHasFT[index] ? (
-        <Card.Text style={{marginBottom:"10px"}}>
+        <div style={{marginBottom:"10px"}}>
           {tokenFields(index)}
-        </Card.Text>)
+        </div>)
         : null}
     </div>
   ))
@@ -324,9 +324,9 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
           <Card.Header>{abi?.name}</Card.Header>
           <Card.Body>
             <Card.Subtitle style={{ marginBottom: '5px' }}>Arguments</Card.Subtitle>
-            <Card.Text>
+            <div>
               {argumentFields}
-            </Card.Text>
+            </div>
             <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
               <Form.Check
                 type="switch"
@@ -342,9 +342,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
                 {' ' + inputs.length + ' '}
                 <Button variant="outline-secondary" size="sm" onClick={addInput}>+</Button>
               </Card.Subtitle>
-                <Card.Text>
-                  {inputFields}
-                </Card.Text></>
+              {inputFields}</>
             ) : null}
             <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
               <Form.Check
