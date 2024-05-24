@@ -6,10 +6,11 @@ import { ColumnFlex } from './shared'
 interface Props {
   code: string
   setCode: (value: string) => void
-  compile: () => void
+  compile: () => void,
+  needRecompile: boolean
 }
 
-const Editor: React.FC<Props> = ({ code, setCode, compile }) => {
+const Editor: React.FC<Props> = ({ code, setCode, compile, needRecompile }) => {
   const [isEditorReady, setIsEditorReady] = useState(false)
 
   function handleEditorDidMount() {
@@ -30,7 +31,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile }) => {
       />
       <Button
         variant="secondary"
-        disabled={!isEditorReady}
+        disabled={!isEditorReady || !needRecompile}
         onClick={() => compile()}
         style={{
           margin: '20px auto',
