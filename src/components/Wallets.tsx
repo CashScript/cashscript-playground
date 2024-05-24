@@ -156,7 +156,12 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong>
           <CopyText>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
           <strong>Wallet utxos</strong>
-          <p>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</p>
+          <div>
+            <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
+            <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
+              (refresh wallet utxos ⭯)
+              </span>
+          </div>
         </Card.Text>
         <details>
           <summary>Show Private Key</summary>
@@ -165,7 +170,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <strong>Hex: </strong>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
-        <details onClick={() => updateUtxosWallet(wallet,index)}>
+        <details>
           <summary>Show utxos</summary>
           <div>
             <InfoUtxos utxos={wallet.utxos}/>

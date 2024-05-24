@@ -21,7 +21,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
   const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
-  const [utxoList, setUtxoList] = useState<NamedUtxo[]>([])
+  const [namedUtxoList, setNamedUtxoList] = useState<NamedUtxo[]>([])
 
   useEffect(() => {
     // Set empty strings as default values
@@ -34,13 +34,17 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
     async function updateUtxos() {
       if (contract === undefined || contractUtxos === undefined) return
       const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
-      let newUtxoList = namedUtxosContract
-      for (let i = 0; i < wallets.length; i++) {
-        const utxosWallet = await new ElectrumNetworkProvider(network).getUtxos(wallets[i].address);
-        const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => ({ ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, isP2pkh: true, walletIndex: i }))
-        newUtxoList = newUtxoList.concat(namedUtxosWallet)
+      let newNamedUtxoList = namedUtxosContract
+      const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
+      for (let i = 0; i < (walletUtxos?.length ?? 0); i++) {
+        const utxosWallet = walletUtxos?.[i];
+        if(!utxosWallet) continue
+        const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => (
+          { ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, isP2pkh: true, walletIndex: i }
+        ))
+        newNamedUtxoList = newNamedUtxoList.concat(namedUtxosWallet)
       }
-      setUtxoList(newUtxoList);
+      setNamedUtxoList(newNamedUtxoList);
     }
     updateUtxos()
   }, [manualSelection, contractUtxos])
@@ -60,7 +64,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
     // if no input is selected in select form
     if (isNaN(Number(inputIndex))) inputsCopy[i] = { txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }
     else {
-      inputsCopy[i] = utxoList[Number(inputIndex)];
+      inputsCopy[i] = namedUtxoList[Number(inputIndex)];
     }
     setInputs(inputsCopy);
   }
@@ -103,7 +107,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
       />
       <Form.Control onChange={event => selectInput(i, event.target.value)} as="select" size="sm" >
         <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
-        {utxoList.map((utxo, inputIndex) => (
+        {namedUtxoList.map((utxo, inputIndex) => (
           <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
         ))}
       </Form.Control>
