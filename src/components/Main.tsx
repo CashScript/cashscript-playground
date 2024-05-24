@@ -30,14 +30,15 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
   const [network, setNetwork] = useState<Network>('chipnet')
   const [showWallets, setShowWallets] = useState<boolean | undefined>(false);
   const [wallets, setWallets] = useState<Wallet[]>([])
+  const [needRecompile, setNeedRecompile] = useState<boolean>(true);
 
   useEffect(() => {
-    const newCode = localStorage.getItem("code");
-    // If item code exits in local storage
-    if (newCode !== null && newCode !== undefined) {
-      setCode(newCode);
+    const codeLocalStorage = localStorage.getItem("code");
+    // If code exits in local storage, set it as new code
+    if (codeLocalStorage){
+      setCode(codeLocalStorage);
       try {
-        const artifact = compileString(newCode);
+        const artifact = compileString(codeLocalStorage);
         setArtifact(artifact);
       } catch (e: any) {
         alert(e.message);
@@ -45,6 +46,13 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if(!artifact) return
+    const previousCode = localStorage.getItem("code");
+    const changedCashScriptCode = previousCode!= code;
+    setNeedRecompile(changedCashScriptCode);
+  },[code, needRecompile, artifact])
 
   function compile() {
     try {
@@ -54,6 +62,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     } catch (e: any) {
       alert(e.message);
       console.error(e.message);
+      setArtifact(undefined);
     }
   }
 
@@ -63,7 +72,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       paddingTop: '0px',
       height: 'calc(100vh - 120px'
     }}>
-      <Editor code={code} setCode={setCode} compile={compile} />
+      <Editor code={code} setCode={setCode} compile={compile} needRecompile={needRecompile}/>
       <WalletInfo style={!showWallets?{display:'none'}:{}} network={network} setShowWallets={setShowWallets} wallets={wallets} setWallets={setWallets}/>
       <ContractInfo style={showWallets?{display:'none'}:{}} artifact={artifact} network={network} setNetwork={setNetwork} setShowWallets={setShowWallets} wallets={wallets}/>
     </RowFlex>
