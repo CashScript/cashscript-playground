@@ -59,7 +59,7 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, setShowW
       style={{ ...style, flex: 1, margin: '16px' }}
     >
       <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} setNetwork={setNetwork} setShowWallets={setShowWallets} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
-      <ContractFunctions artifact={artifact} contract={contract} network={network} wallets={wallets} updateUtxosContract={updateUtxosContract}/>
+      <ContractFunctions artifact={artifact} contract={contract} network={network} wallets={wallets} contractUtxos={utxos} updateUtxosContract={updateUtxosContract} />
     </ColumnFlex>
   )
 }

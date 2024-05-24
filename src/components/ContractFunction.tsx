@@ -8,10 +8,11 @@ interface Props {
   abi?: AbiFunction
   network: Network
   wallets: Wallet[]
+  contractUtxos: Utxo[] | undefined
   updateUtxosContract: () => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, updateUtxosContract }) => {
+const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, contractUtxos, updateUtxosContract }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -31,10 +32,8 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
   useEffect(() => {
     if (!manualSelection) return;
     async function updateUtxos() {
-      if (contract === undefined) return
-      const utxosContract = await contract.getUtxos()
-      console.log(utxosContract)
-      const namedUtxosContract: NamedUtxo[] = utxosContract.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
+      if (contract === undefined || contractUtxos === undefined) return
+      const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
       let newUtxoList = namedUtxosContract
       for (let i = 0; i < wallets.length; i++) {
         const utxosWallet = await new ElectrumNetworkProvider(network).getUtxos(wallets[i].address);
@@ -44,7 +43,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, up
       setUtxoList(newUtxoList);
     }
     updateUtxos()
-  }, [manualSelection])
+  }, [manualSelection, contractUtxos])
 
   function fillPrivKey(i: number, walletIndex: string) {
     const argsCopy = [...args];
