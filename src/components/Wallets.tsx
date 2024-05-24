@@ -67,6 +67,8 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
   }
 
   function removeWallet(index:number) {
+    const confirmDelete = confirm("Sure you want to permanently remove this wallet?")
+    if(!confirmDelete) return
     const walletsCopy = [...wallets]
     walletsCopy.splice(index, 1)
     setWallets(walletsCopy)
@@ -121,7 +123,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
 
   const walletList = wallets.map((wallet, index) => (
     <Card style={{ marginBottom: '10px' }} key={wallet.privKeyHex}>
-      <Card.Header>
+      <Card.Header style={{ display:"flex", justifyContent:"space-between"}}>
         <input
           type="text"
           id="inputName"
@@ -131,11 +133,11 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           placeholder="name"
         />
         <Button
-          style={{float:"right", marginTop:"2px"}}
+          style={{padding: "0px 6px"}}
           onClick={() => removeWallet(index)}
-          variant="outline-secondary"
+          variant="danger"
           size="sm">
-          -
+          x
         </Button>
       </Card.Header>
       <Card.Body>
