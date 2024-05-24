@@ -89,8 +89,13 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
       if (localStorageData !== null) {
         const newWallets = JSON.parse(localStorageData);
         for (const wallet of newWallets){
-          const walletUtxos = await new ElectrumNetworkProvider(network).getUtxos(wallet.address);
           wallet.privKey = new Uint8Array(Object.values( wallet.privKey))
+        }
+        setWallets(newWallets);
+        // fetch UTXOs
+        const networkProvider = new ElectrumNetworkProvider(network)
+        for (const wallet of newWallets){
+          const walletUtxos = await networkProvider.getUtxos(wallet.address);
           wallet.utxos = walletUtxos
         }
         setWallets(newWallets);
