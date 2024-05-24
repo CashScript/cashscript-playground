@@ -53,13 +53,19 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, setShowW
     setUtxos(await contract.getUtxos())
   }
 
+  useEffect(() => {
+    setTimeout(() => {
+      updateUtxosContract()
+    }, 5000);
+  }, [updateUtxosContract]);
+
   return (
     <ColumnFlex
       id="preview"
       style={{ ...style, flex: 1, margin: '16px' }}
     >
       <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} setNetwork={setNetwork} setShowWallets={setShowWallets} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
-      <ContractFunctions artifact={artifact} contract={contract} network={network} wallets={wallets} updateUtxosContract={updateUtxosContract}/>
+      <ContractFunctions artifact={artifact} contract={contract} network={network} wallets={wallets} utxos={utxos} updateUtxosContract={updateUtxosContract} />
     </ColumnFlex>
   )
 }
