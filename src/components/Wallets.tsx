@@ -146,28 +146,26 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
         </Button>
       </Card.Header>
       <Card.Body>
-        <Card.Text style={{overflowWrap:'anywhere'}}>
-          <strong>Pubkey hex: </strong>
-          <CopyText>{wallet.pubKeyHex}</CopyText>
-          <strong>Pubkeyhash hex: </strong>
-          <CopyText>{wallet.pubKeyHashHex}</CopyText>
-          <strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong>
-          <CopyText>{network==="mainnet"? wallet.address : wallet.testnetAddress}</CopyText>
-          <strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong>
-          <CopyText>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
-          <strong>Wallet utxos</strong>
-          <div>
-            <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
-            <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
-              (refresh wallet utxos ⭯)
-              </span>
-          </div>
-        </Card.Text>
+        <Card.Text><strong>Pubkey hex:</strong></Card.Text>
+        <CopyText>{wallet.pubKeyHex}</CopyText>
+        <Card.Text><strong>Pubkeyhash hex:</strong></Card.Text>
+        <CopyText>{wallet.pubKeyHashHex}</CopyText>
+        <Card.Text><strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong></Card.Text>
+        <CopyText>{network==="mainnet"? wallet.address : wallet.testnetAddress}</CopyText>
+        <Card.Text><strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong></Card.Text>
+        <CopyText>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
+        <Card.Text><strong>Wallet utxos</strong></Card.Text>
+        <div>
+          <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
+          <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
+            (refresh wallet utxos ⭯)
+          </span>
+        </div>
         <details>
           <summary>Show Private Key</summary>
-          <strong>WIF: </strong>
+          <Card.Text><strong>WIF:</strong></Card.Text>
           <CopyText>{encodePrivateKeyWif(wallet.privKey, network === "mainnet" ? "mainnet" : "testnet")}</CopyText>
-          <strong>Hex: </strong>
+          <Card.Text><strong>Hex:</strong></Card.Text>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
         <details>
