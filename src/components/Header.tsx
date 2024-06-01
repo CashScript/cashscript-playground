@@ -5,11 +5,10 @@ interface Props {}
 const Header: React.FC<Props> = () => {
   return (
     <header style={{
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      display: 'inline-flex',
       color: 'black',
-      padding: '24px 44px',
+      padding: '24px 28px',
+      width: "fit-content",
       fontSize: '30px'
     }}>
       <div className="header-title">CashScript Playground</div>

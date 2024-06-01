@@ -23,7 +23,7 @@ const CopyText: React.FC<Props> = ({ children }) => {
         style={{ cursor: 'pointer' }}
       >
         {children}
-        { copied && <Badge style={{ marginLeft: '0.5rem', padding: "5px 10px" }} pill variant="success">Copied!</Badge> }        
+        { copied && <Badge style={{ marginLeft: '0.5rem', padding: "5px 10px" }} pill bg="success">Copied!</Badge> }        
       </Card.Text>
     </>
   );

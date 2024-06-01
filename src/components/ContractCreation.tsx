@@ -12,13 +12,12 @@ interface Props {
   setContract: (contract?: Contract) => void
   network: Network
   setNetwork: (network: Network) => void
-  setShowWallets: (showWallets: boolean) => void
   utxos: Utxo[] | undefined
   balance: bigint | undefined
   updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets, balance, utxos, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, balance, utxos, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
 
   useEffect(() => {
@@ -69,13 +68,14 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
   const createButton = <Button variant="secondary" size="sm" onClick={() => createContract()}>Create</Button>
 
   const constructorForm = artifact &&
-    (<InputGroup size="sm">
-      {inputFields}
-      {networkSelector}
-      <InputGroup.Append>
+    (<>
+      <InputGroup size="sm">{inputFields}</InputGroup>
+      <p style={{margin: "4px 0"}}>And select target Network:</p>
+      <InputGroup style={{width:"350px"}}>
+        {networkSelector}
         {createButton}
-      </InputGroup.Append>
-    </InputGroup>)
+      </InputGroup>
+    </>)
 
   function createContract() {
     if (!artifact) return
@@ -91,7 +91,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
 
   return (
     <div style={{
-      height: '100%',
+      height: 'calc(100vh - 170px)',
       border: '2px solid black',
       borderBottom: '1px solid black',
       fontSize: '100%',
@@ -101,9 +101,10 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       padding: '8px 16px',
       color: '#000'
     }}>
-      <h2>{artifact?.contractName} <button onClick={() => setShowWallets(true)} style={{ float: 'right', border: 'none', backgroundColor: 'transparent', outline: 'none' }}>⇆</button></h2>
+      <h2>{artifact?.contractName}</h2>
+      <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
-      {contract !== undefined && balance !== undefined &&
+      {contract !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>
           <div style={{ float: 'left', width: '70%' }}>
             <strong>Contract address (p2sh32)</strong>
@@ -111,15 +112,24 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
             <strong>Contract token address (p2sh32)</strong>
             <CopyText>{contract.tokenAddress}</CopyText>
             <strong>Contract utxos</strong>
-            <p>{utxos?.length} {utxos?.length == 1 ? "utxo" : "utxos"}</p>
-            <details  onClick={() => updateUtxosContract()}>
-              <summary>Show utxos</summary>
-              <div>
-                <InfoUtxos utxos={utxos}/>
-              </div>
-            </details>
+            {utxos == undefined? 
+              <p>loading ...</p>:
+              (<>
+              <p>{utxos.length} {utxos.length == 1 ? "utxo" : "utxos"}</p>
+              {utxos.length ? 
+                <details>
+                  <summary>Show utxos</summary>
+                  <div>
+                    <InfoUtxos utxos={utxos}/>
+                  </div>
+              </details> : null}
+              </>)
+            }
             <strong>Total contract balance</strong>
-            <p>{balance.toString()} satoshis</p>
+            {balance == undefined? 
+              <p>loading ...</p>:
+              <p>{balance.toString()} satoshis</p>
+            }
             <strong>Contract size</strong>
             <p>{contract.bytesize} bytes (max 520), {contract.opcount} opcodes (max 201)</p>
           </div>

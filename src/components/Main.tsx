@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Artifact, Network } from 'cashscript';
+import { Artifact, Utxo } from 'cashscript';
 import { compileString } from 'cashc';
-import { RowFlex, Wallet } from './shared';
+import { RowFlex } from './shared';
 import Editor from './Editor';
-import ContractInfo from './ContractInfo';
-import WalletInfo from './Wallets';
+import ArtifactsInfo from './ArtifactsInfo';
 
-interface Props {}
+interface Props {
+  artifact: Artifact | undefined
+  setArtifact: (artifact: Artifact | undefined) => void
+}
 
-const Main: React.FC<Props> = () => {
+const Main: React.FC<Props> = ({artifact, setArtifact}) => {
   const [code, setCode] = useState<string>(
 `pragma cashscript >= 0.8.0;
 
@@ -26,10 +28,6 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 }
 `);
 
-  const [artifact, setArtifact] = useState<Artifact | undefined>(undefined);
-  const [network, setNetwork] = useState<Network>('chipnet')
-  const [showWallets, setShowWallets] = useState<boolean | undefined>(false);
-  const [wallets, setWallets] = useState<Wallet[]>([])
   const [needRecompile, setNeedRecompile] = useState<boolean>(true);
 
   useEffect(() => {
@@ -68,13 +66,11 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 
   return (
     <RowFlex style={{
-      padding: '32px',
       paddingTop: '0px',
-      height: 'calc(100vh - 120px'
+      height: 'calc(100vh - 140px)'
     }}>
       <Editor code={code} setCode={setCode} compile={compile} needRecompile={needRecompile}/>
-      <WalletInfo style={!showWallets?{display:'none'}:{}} network={network} setShowWallets={setShowWallets} wallets={wallets} setWallets={setWallets}/>
-      <ContractInfo style={showWallets?{display:'none'}:{}} artifact={artifact} network={network} setNetwork={setNetwork} setShowWallets={setShowWallets} wallets={wallets}/>
+      <ArtifactsInfo artifact={artifact} />
     </RowFlex>
   )
 }

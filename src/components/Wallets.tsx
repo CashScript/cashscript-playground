@@ -17,13 +17,11 @@ import InfoUtxos from './InfoUtxos'
 
 interface Props {
   network: Network
-  setShowWallets:(showWallets: boolean) => void
   wallets: Wallet[]
   setWallets:(wallets: Wallet[]) => void
-  style: any
 }
 
-const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWallets, style}) => {
+const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
   useEffect(() => {
     const localStorageData = localStorage.getItem("wallets");
     // If the local storage is null
@@ -137,13 +135,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           className="inputName"
           placeholder="name"
         />
-        <Button
-          style={{padding: "0px 6px"}}
-          onClick={() => removeWallet(index)}
-          variant="danger"
-          size="sm">
-          x
-        </Button>
+        <img src='./trash.svg' onClick={() => removeWallet(index)} style={{padding: "0px 6px", width: "fit-content", cursor:"pointer"}}/>
       </Card.Header>
       <Card.Body>
         <Card.Text><strong>Pubkey hex:</strong></Card.Text>
@@ -168,12 +160,13 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
           <Card.Text><strong>Hex:</strong></Card.Text>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
-        <details>
-          <summary>Show utxos</summary>
-          <div>
-            <InfoUtxos utxos={wallet.utxos}/>
-          </div>
-        </details>
+        {wallet.utxos.length ? 
+          (<details>
+            <summary>Show utxos</summary>
+            <div>
+              <InfoUtxos utxos={wallet.utxos}/>
+            </div>
+          </details>) : null}
       </Card.Body>
     </Card>
   ))
@@ -181,10 +174,10 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
   return (
     <ColumnFlex
       id="preview"
-      style={{ ...style, flex: 1, margin: '16px' }}
+      style={{ flex: 1, margin: '16px' }}
     >
       <div style={{
-        height: '100%',
+        height: 'calc(100vh - 170px)',
         border: '2px solid black',
         borderBottom: '1px solid black',
         fontSize: '100%',
@@ -194,9 +187,7 @@ const WalletInfo: React.FC<Props> = ({network, setShowWallets,  wallets, setWall
         padding: '8px 16px',
         color: '#000'
       }}>
-        <h2>Wallets <Button onClick={addWallet} variant="outline-secondary" size="sm">+</Button>
-          <button onClick={() => setShowWallets(false)} style={{float:'right', border:'none', backgroundColor: 'transparent',outline: 'none'}}>⇆</button>
-        </h2>
+        <h2>Wallets <Button onClick={addWallet} variant="outline-secondary" size="sm">+</Button></h2>
         {walletList}
       </div>
     </ColumnFlex>
