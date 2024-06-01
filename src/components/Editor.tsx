@@ -20,7 +20,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, needRecompile }) => {
   return (
     <ColumnFlex
       id="editor"
-      style={{ flex: 1, margin: '16px', border: '2px solid black', background: 'white' }}
+      style={{ flex: 3, margin: '16px', border: '2px solid black', background: 'white' }}
     >
       <ControlledEditor
         language="sol"

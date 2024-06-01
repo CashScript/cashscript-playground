@@ -3,6 +3,7 @@ import { Artifact } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex } from './shared';
 import Editor from './Editor';
+import ArtifactsInfo from './ArtifactsInfo';
 
 interface Props {
   artifact: Artifact | undefined
@@ -69,7 +70,8 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       height: 'calc(100vh - 140px)'
     }}>
       <Editor code={code} setCode={setCode} compile={compile} needRecompile={needRecompile}/>
-      </RowFlex>
+      <ArtifactsInfo artifact={artifact} />
+    </RowFlex>
   )
 }
 

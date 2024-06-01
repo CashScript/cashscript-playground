@@ -30,8 +30,8 @@ function App() {
           <Tab eventKey="editor" title="Editor">
             <Main artifact={artifact} setArtifact={setArtifact}/>
           </Tab>
-          <Tab eventKey="contracts" title="Contracts">
-            <ContractInfo artifact={artifact} network={network} setNetwork={setNetwork} wallets={wallets}/>
+          <Tab eventKey="contract" title="Contract">
+            <ContractInfo artifact={artifact} network={network} setNetwork={setNetwork}/>
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
             <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>
