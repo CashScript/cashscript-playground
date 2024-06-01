@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, Network, Utxo } from 'cashscript'
+import React from 'react'
+import { Artifact } from 'cashscript'
 
 interface Props {
   artifact?: Artifact
@@ -49,7 +49,8 @@ const ContractInfo: React.FC<Props> = ({ artifact }) => {
           download JSON file
           <img src='./downloadIcon.svg' style={{marginLeft:"5px", verticalAlign: "text-bottom", cursor:"pointer"}}/>
         </p>
-      </div>) : null }
+      </div>) : 
+      <div>Compile a CashScript contract to get started!</div> }
     </div>
   )
 }
