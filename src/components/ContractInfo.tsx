@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Artifact, Contract, Network, Utxo } from 'cashscript'
-import { ColumnFlex, Wallet } from './shared'
+import { ColumnFlex } from './shared'
 import ContractCreation from './ContractCreation'
-import ContractFunctions from './ContractFunctions'
 import { ElectrumClient, ElectrumTransport } from 'electrum-cash'
 
 interface Props {
@@ -14,7 +13,7 @@ interface Props {
 const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork }) => {
   const [contract, setContract] = useState<Contract | undefined>(undefined)
   const [balance, setBalance] = useState<bigint | undefined>(undefined)
-  const [utxos, setUtxos] = useState<Utxo[] | undefined>([])
+  const [utxos, setUtxos] = useState<Utxo[] | undefined>(undefined)
   const [electrumClient, setElectrumClient] = useState<ElectrumClient | undefined>(undefined)
 
   useEffect(() => setContract(undefined), [artifact])

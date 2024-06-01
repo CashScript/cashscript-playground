@@ -100,7 +100,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     }}>
       <h2>{artifact?.contractName}</h2>
       {constructorForm}
-      {contract !== undefined && balance !== undefined &&
+      {contract !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>
           <div style={{ float: 'left', width: '70%' }}>
             <strong>Contract address (p2sh32)</strong>
@@ -108,15 +108,24 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
             <strong>Contract token address (p2sh32)</strong>
             <CopyText>{contract.tokenAddress}</CopyText>
             <strong>Contract utxos</strong>
-            <p>{utxos?.length} {utxos?.length == 1 ? "utxo" : "utxos"}</p>
-            <details  onClick={() => updateUtxosContract()}>
-              <summary>Show utxos</summary>
-              <div>
-                <InfoUtxos utxos={utxos}/>
-              </div>
-            </details>
+            {utxos == undefined? 
+              <p>loading ...</p>:
+              (<>
+              <p>{utxos.length} {utxos.length == 1 ? "utxo" : "utxos"}</p>
+              {utxos.length ? 
+                <details>
+                  <summary>Show utxos</summary>
+                  <div>
+                    <InfoUtxos utxos={utxos}/>
+                  </div>
+              </details> : null}
+              </>)
+            }
             <strong>Total contract balance</strong>
-            <p>{balance.toString()} satoshis</p>
+            {balance == undefined? 
+              <p>loading ...</p>:
+              <p>{balance.toString()} satoshis</p>
+            }
             <strong>Contract size</strong>
             <p>{contract.bytesize} bytes (max 520), {contract.opcount} opcodes (max 201)</p>
           </div>
