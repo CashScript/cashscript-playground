@@ -9,12 +9,9 @@ interface Props {
   artifact?: Artifact
   network: Network
   setNetwork: (network: Network) => void
-  style: any
-  setShowWallets:(showWallets: boolean) => void
-  wallets: Wallet[]
 }
 
-const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, setShowWallets, style, wallets }) => {
+const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork }) => {
   const [contract, setContract] = useState<Contract | undefined>(undefined)
   const [balance, setBalance] = useState<bigint | undefined>(undefined)
   const [utxos, setUtxos] = useState<Utxo[] | undefined>([])
@@ -56,10 +53,9 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, setShowW
   return (
     <ColumnFlex
       id="preview"
-      style={{ ...style, flex: 1, margin: '16px' }}
+      style={{ flex: 1, margin: '16px' }}
     >
-      <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} setNetwork={setNetwork} setShowWallets={setShowWallets} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
-      <ContractFunctions artifact={artifact} contract={contract} network={network} wallets={wallets} contractUtxos={utxos} updateUtxosContract={updateUtxosContract} />
+      <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
     </ColumnFlex>
   )
 }

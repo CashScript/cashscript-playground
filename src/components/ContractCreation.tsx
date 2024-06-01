@@ -12,13 +12,12 @@ interface Props {
   setContract: (contract?: Contract) => void
   network: Network
   setNetwork: (network: Network) => void
-  setShowWallets: (showWallets: boolean) => void
   utxos: Utxo[] | undefined
   balance: bigint | undefined
   updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, setShowWallets, balance, utxos, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, balance, utxos, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
 
   useEffect(() => {
@@ -72,9 +71,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     (<InputGroup size="sm">
       {inputFields}
       {networkSelector}
-      <InputGroup.Append>
-        {createButton}
-      </InputGroup.Append>
+      {createButton}
     </InputGroup>)
 
   function createContract() {
@@ -91,7 +88,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
 
   return (
     <div style={{
-      height: '100%',
+      height: 'calc(100vh - 170px)',
       border: '2px solid black',
       borderBottom: '1px solid black',
       fontSize: '100%',
@@ -101,7 +98,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       padding: '8px 16px',
       color: '#000'
     }}>
-      <h2>{artifact?.contractName} <button onClick={() => setShowWallets(true)} style={{ float: 'right', border: 'none', backgroundColor: 'transparent', outline: 'none' }}>⇆</button></h2>
+      <h2>{artifact?.contractName}</h2>
       {constructorForm}
       {contract !== undefined && balance !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>
