@@ -19,7 +19,8 @@ const ContractFunctions: React.FC<Props> = ({ artifact, contract, network, walle
 
   return (
     <div style={{
-      height: '100%',
+      height: 'calc(100vh - 170px)',
+      margin: '16px',
       border: '2px solid black',
       borderTop: '1px solid black',
       fontSize: '100%',
@@ -29,11 +30,12 @@ const ContractFunctions: React.FC<Props> = ({ artifact, contract, network, walle
       padding: '8px 16px',
       color: '#000'
     }}>
-      {contract &&
-        <div>
+      {contract ?
+        (<div>
           <h2>Functions</h2>
           {functions}
-        </div>
+        </div>) : 
+        <div>No contract initialised yet...</div>
       }
     </div>
   )

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Artifact } from 'cashscript';
+import { Artifact, Utxo } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex } from './shared';
 import Editor from './Editor';
@@ -7,7 +7,7 @@ import ArtifactsInfo from './ArtifactsInfo';
 
 interface Props {
   artifact: Artifact | undefined
-  setArtifact: (artifact: Artifact) => void
+  setArtifact: (artifact: Artifact | undefined) => void
 }
 
 const Main: React.FC<Props> = ({artifact, setArtifact}) => {

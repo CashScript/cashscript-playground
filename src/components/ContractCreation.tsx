@@ -68,11 +68,14 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
   const createButton = <Button variant="secondary" size="sm" onClick={() => createContract()}>Create</Button>
 
   const constructorForm = artifact &&
-    (<InputGroup size="sm">
-      {inputFields}
-      {networkSelector}
-      {createButton}
-    </InputGroup>)
+    (<>
+      <InputGroup size="sm">{inputFields}</InputGroup>
+      <p style={{margin: "4px 0"}}>And select target Network:</p>
+      <InputGroup style={{width:"350px"}}>
+        {networkSelector}
+        {createButton}
+      </InputGroup>
+    </>)
 
   function createContract() {
     if (!artifact) return
@@ -99,6 +102,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       color: '#000'
     }}>
       <h2>{artifact?.contractName}</h2>
+      <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
       {contract !== undefined &&
         <div style={{ margin: '5px', width: '100%' }}>

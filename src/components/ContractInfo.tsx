@@ -8,12 +8,14 @@ interface Props {
   artifact?: Artifact
   network: Network
   setNetwork: (network: Network) => void
+  balance: bigint | undefined
+  utxos: Utxo[] | undefined
+  updateUtxosContract: () => void
+  contract: Contract | undefined
+  setContract: (contract: Contract | undefined) => void
 }
 
-const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork }) => {
-  const [contract, setContract] = useState<Contract | undefined>(undefined)
-  const [balance, setBalance] = useState<bigint | undefined>(undefined)
-  const [utxos, setUtxos] = useState<Utxo[] | undefined>(undefined)
+const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, contract, setContract, utxos, balance, updateUtxosContract }) => {
   const [electrumClient, setElectrumClient] = useState<ElectrumClient | undefined>(undefined)
 
   useEffect(() => setContract(undefined), [artifact])
@@ -42,12 +44,6 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork }) => {
   useEffect(() => {
     initElectrumSubscription()
   }, [contract])
-
-  async function updateUtxosContract () {
-    if (!contract) return
-    setBalance(await contract.getBalance())
-    setUtxos(await contract.getUtxos())
-  }
 
   return (
     <ColumnFlex
