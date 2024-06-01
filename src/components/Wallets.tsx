@@ -135,13 +135,7 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
           className="inputName"
           placeholder="name"
         />
-        <Button
-          style={{padding: "0px 6px"}}
-          onClick={() => removeWallet(index)}
-          variant="danger"
-          size="sm">
-          x
-        </Button>
+        <img src='./trash.svg' onClick={() => removeWallet(index)} style={{padding: "0px 6px", width: "fit-content", cursor:"pointer"}}/>
       </Card.Header>
       <Card.Body>
         <Card.Text><strong>Pubkey hex:</strong></Card.Text>
@@ -166,12 +160,13 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
           <Card.Text><strong>Hex:</strong></Card.Text>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
-        <details>
-          <summary>Show utxos</summary>
-          <div>
-            <InfoUtxos utxos={wallet.utxos}/>
-          </div>
-        </details>
+        {wallet.utxos.length ? 
+          (<details>
+            <summary>Show utxos</summary>
+            <div>
+              <InfoUtxos utxos={wallet.utxos}/>
+            </div>
+          </details>) : null}
       </Card.Body>
     </Card>
   ))

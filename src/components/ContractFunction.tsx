@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Contract, AbiFunction, Argument, Network, Recipient, SignatureTemplate, ElectrumNetworkProvider, Utxo } from 'cashscript'
+import { Contract, AbiFunction, Argument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
 import { readAsType, ExplorerString, Wallet, NamedUtxo } from './shared'
 
@@ -229,7 +229,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
         </InputGroup>
       </div>
       <Form style={{ marginTop: '5px', marginBottom: '5px', display: "inline-block" }}>
-        <Form.Check
+      <Form.Check
           type="switch"
           id={"outputHasFT" + abi?.name + "index" + index}
           label="add tokens to output"
