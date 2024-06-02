@@ -19,6 +19,22 @@ function App() {
   const [contract, setContract] = useState<Contract | undefined>(undefined)
   const [utxos, setUtxos] = useState<Utxo[] | undefined>(undefined)
   const [balance, setBalance] = useState<bigint | undefined>(undefined)
+  const [code, setCode] = useState<string>(
+`pragma cashscript >= 0.8.0;
+    
+contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
+    // Require recipient's signature to match
+    function transfer(sig recipientSig) {
+        require(checkSig(recipientSig, recipient));
+    }
+    
+    // Require timeout time to be reached and sender's signature to match
+    function timeout(sig senderSig) {
+        require(checkSig(senderSig, sender));
+        require(tx.time >= timeout);
+    }
+}
+`);
 
   async function updateUtxosContract () {
     if (!contract) return
@@ -37,7 +53,7 @@ function App() {
           style={{ display: "inline-flex", marginLeft: "calc(100vw - 1100px)" }}
         >
           <Tab eventKey="editor" title="Editor">
-            <Main artifacts={artifacts} setArtifacts={setArtifacts} />
+            <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} />
           </Tab>
           <Tab eventKey="newcontract" title="New Contract">
             <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />

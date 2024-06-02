@@ -26,7 +26,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, needRecompile }) => {
         language="sol"
         value={code}
         theme="light"
-        onChange={(ev: any, code?: string) => code && setCode(code)}
+        onChange={(ev: any, code?: string) => setCode(code?? "") }
         editorDidMount={handleEditorDidMount}
       />
       <Button

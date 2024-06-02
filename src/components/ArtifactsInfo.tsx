@@ -1,12 +1,14 @@
 import React from 'react'
 import { Artifact } from 'cashscript'
+import { Button } from 'react-bootstrap'
 
 interface Props {
+  setCode: (code: string) => void
   artifacts?: Artifact[]
   setArtifacts: (artifacts: Artifact[] | undefined) => void
 }
 
-const ContractInfo: React.FC<Props> = ({ artifacts, setArtifacts }) => {
+const ContractInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) => {
 
   const downloadArtifact = (artifact: Artifact) => {
     const element = document.createElement('a');
@@ -22,6 +24,11 @@ const ContractInfo: React.FC<Props> = ({ artifacts, setArtifacts }) => {
     const artifactToRemoveName = artifactToRemove.contractName;
     const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== artifactToRemoveName)
     setArtifacts(newArtifacts)
+  }
+
+  const loadArtifact = (artifact: Artifact) => {
+    console.log(artifact.source)
+    setCode(artifact.source)
   }
 
   return (
@@ -71,6 +78,10 @@ const ContractInfo: React.FC<Props> = ({ artifacts, setArtifacts }) => {
                 download JSON file
                 <img src='./downloadIcon.svg' style={{marginLeft:"5px", verticalAlign: "text-bottom", cursor:"pointer"}}/>
               </p>
+              <strong>Load Contract to Editor</strong>
+              <Button variant="secondary" size="sm" style={{display:"block"}} onClick={() => loadArtifact(artifact)}>
+                Load Artifact
+              </Button>
             </div>
           </details>
           ))}
