@@ -16,7 +16,7 @@ function App() {
   const [network, setNetwork] = useState<Network>('chipnet')
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
-  const [contract, setContract] = useState<Contract | undefined>(undefined)
+  const [contracts, setContracts] = useState<Contract[] | undefined>(undefined)
   const [utxos, setUtxos] = useState<Utxo[] | undefined>(undefined)
   const [balance, setBalance] = useState<bigint | undefined>(undefined)
   const [code, setCode] = useState<string>(
@@ -35,7 +35,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     }
 }
 `);
-
+  const contract = contracts?.[0] // TODO: delete this
   async function updateUtxosContract () {
     if (!contract) return
     setBalance(await contract.getBalance())
@@ -56,10 +56,10 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
             <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} />
           </Tab>
           <Tab eventKey="newcontract" title="New Contract">
-            <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
+            <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="contracts" title="Contracts">
-            <Contracts artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
+            <Contracts contracts={contracts} setContracts={setContracts} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
             <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>

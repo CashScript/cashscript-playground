@@ -10,14 +10,16 @@ interface Props {
   balance: bigint | undefined
   utxos: Utxo[] | undefined
   updateUtxosContract: () => void
-  contract: Contract | undefined
-  setContract: (contract: Contract | undefined) => void
+  contracts: Contract[] | undefined
+  setContracts: (contract: Contract[] | undefined) => void
 }
 
-const ContractInfo: React.FC<Props> = ({ artifact, network, contract, setContract, utxos, balance, updateUtxosContract }) => {
+const ContractInfo: React.FC<Props> = ({ artifact, network, contracts, setContracts, utxos, balance, updateUtxosContract }) => {
   const [electrumClient, setElectrumClient] = useState<ElectrumClient | undefined>(undefined)
 
-  useEffect(() => setContract(undefined), [artifact])
+  const contract = contracts?.[0] // TODO: delete this
+
+  useEffect(() => setContracts(undefined), [artifact])
 
   async function initElectrumSubscription(){
     if(electrumClient) electrumClient?.disconnect()
@@ -42,11 +44,11 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, contract, setContrac
 
   useEffect(() => {
     initElectrumSubscription()
-  }, [contract])
+  }, [contracts])
 
   return (
     <ColumnFlex>
-      <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
+      <ContractCreation artifact={artifact} contracts={contracts} setContracts={setContracts} network={network} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
     </ColumnFlex>
   )
 }
