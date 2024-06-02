@@ -8,7 +8,7 @@ interface Props {
   setArtifacts: (artifacts: Artifact[] | undefined) => void
 }
 
-const ContractInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) => {
+const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) => {
 
   const downloadArtifact = (artifact: Artifact) => {
     const element = document.createElement('a');
@@ -91,4 +91,4 @@ const ContractInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) => 
   )
 }
 
-export default ContractInfo
+export default ArtifactsInfo
