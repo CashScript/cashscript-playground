@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react'
 import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider, Utxo } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
-// import { QRFunc } from 'react-qrbtf'
 import { readAsType } from './shared'
-import CopyText from './shared/CopyText'
-import InfoUtxos from './InfoUtxos'
 
 interface Props {
   artifact?: Artifact
-  contract?: Contract
-  setContract: (contract?: Contract) => void
+  contracts?: Contract[]
+  setContracts: (contract?: Contract[]) => void
   network: Network
   utxos: Utxo[] | undefined
   balance: bigint | undefined
   updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, balance, utxos, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, balance, utxos, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
 
-  useEffect(() => {
+  const contract = contracts?.[0] // TODO: delete this
+
+  const resetInputFields = () => {
     // This code is suuper ugly but I haven't found any other way to clear the value
     // of the input fields.
     artifact?.constructorInputs.forEach((input, i) => {
@@ -31,7 +30,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     const newArgs = artifact?.constructorInputs.map(() => '') || []
 
     setArgs(newArgs)
-  }, [artifact])
+  }
 
   useEffect(() => {
     updateUtxosContract()
@@ -62,7 +61,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     try {
       const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(artifact, args, { provider })
-      setContract(newContract)
+      setContracts([newContract, ...contracts ?? []])
+      alert("created contract!")
+      resetInputFields()
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)
@@ -76,40 +77,6 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
       <h5>{artifact?.contractName}</h5>
       <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
-      {contract !== undefined &&
-        <div style={{ margin: '5px', width: '100%' }}>
-          <div style={{ float: 'left', width: '70%' }}>
-            <strong>Contract address (p2sh32)</strong>
-            <CopyText>{contract.address}</CopyText>
-            <strong>Contract token address (p2sh32)</strong>
-            <CopyText>{contract.tokenAddress}</CopyText>
-            <strong>Contract utxos</strong>
-            {utxos == undefined? 
-              <p>loading ...</p>:
-              (<>
-              <p>{utxos.length} {utxos.length == 1 ? "utxo" : "utxos"}</p>
-              {utxos.length ? 
-                <details>
-                  <summary>Show utxos</summary>
-                  <div>
-                    <InfoUtxos utxos={utxos}/>
-                  </div>
-              </details> : null}
-              </>)
-            }
-            <strong>Total contract balance</strong>
-            {balance == undefined? 
-              <p>loading ...</p>:
-              <p>{balance.toString()} satoshis</p>
-            }
-            <strong>Contract size</strong>
-            <p>{contract.bytesize} bytes (max 520), {contract.opcount} opcodes (max 201)</p>
-          </div>
-          {/* <div style={{ float: 'left', width: '30%', paddingTop: '4%' }}>
-            <QRFunc value={contract.address} />
-          </div> */}
-        </div>
-      }
     </div>
   )
 }

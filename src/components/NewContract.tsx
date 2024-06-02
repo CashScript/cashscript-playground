@@ -10,11 +10,11 @@ interface Props {
   balance: bigint | undefined
   utxos: Utxo[] | undefined
   updateUtxosContract: () => void
-  contract: Contract | undefined
-  setContract: (contract: Contract | undefined) => void
+  contracts: Contract[] | undefined
+  setContracts: (contract: Contract[] | undefined) => void
 }
 
-const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract, setContract, utxos, balance, updateUtxosContract }) => {
+const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contracts, setContracts, utxos, balance, updateUtxosContract }) => {
 
   const [selectedArifact, setSelectedArtifact] = useState<Artifact | undefined>(undefined);
 
@@ -76,11 +76,11 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
             <span>Select target Network:</span> {networkSelector}
           </div>
           {selectedArifact !== undefined ?
-            <ContractInfo artifact={selectedArifact} network={network} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
+            <ContractInfo artifact={selectedArifact} network={network} utxos={utxos} balance={balance} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
             : null
           }
         </>
-        : <p> Create a Artifact first.</p>
+        : <p> Create an Artifact first.</p>
       }
     </div>
   )
