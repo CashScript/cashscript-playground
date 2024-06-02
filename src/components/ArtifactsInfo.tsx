@@ -36,9 +36,10 @@ const ContractInfo: React.FC<Props> = ({ artifacts, setArtifacts }) => {
       background: '#fffffe',
       padding: '8px 16px',
       color: '#000'
-    }}>{ artifacts?.length?
+    }}>
+      <h2>Contract Artifacts</h2>
+      { artifacts?.length?
       (<div>
-        <h2>Contract Artifacts</h2>
         {artifacts.map(artifact => (
           <details key={artifact.contractName} style={{margin:"10px 0"}}>
             <summary style={{fontSize: "1rem"}}>

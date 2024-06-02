@@ -65,9 +65,10 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
       color: '#000',
       margin: "16px"
     }}>
-      <p>Initialise new contract with Arifact and contract constructor arguments:</p>
+      <h2>New Contract</h2>
       {artifacts?.length ?
         <>
+          <p style={{margin: "10px 0"}}>Initialise new contract with Arifact and contract constructor arguments:</p>
           <div style={{margin: "10px 0"}}>
             <span>Select Artifact:</span> {artifactSelector}
           </div>

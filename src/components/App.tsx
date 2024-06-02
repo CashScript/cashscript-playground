@@ -9,6 +9,8 @@ import Tabs from 'react-bootstrap/Tabs';
 import WalletInfo from './Wallets';
 import { Wallet } from './shared';
 import NewContract from './NewContract';
+import Contracts from './Contracts';
+import TransactionBuilder from './TransactionBuilder';
 
 function App() {
   const [network, setNetwork] = useState<Network>('chipnet')
@@ -41,11 +43,13 @@ function App() {
             <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="contracts" title="Contracts">
+            <Contracts artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
             <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>
           </Tab>
           <Tab eventKey="transactionBuilder" title="TransactionBuilder">
+            <TransactionBuilder artifacts={artifacts} network={network} wallets={wallets} utxos={utxos} contract={contract} updateUtxosContract={updateUtxosContract}/>
           </Tab>
         </Tabs>
       </div>

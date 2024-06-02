@@ -18,18 +18,7 @@ const ContractFunctions: React.FC<Props> = ({ artifact, contract, network, walle
   ))
 
   return (
-    <div style={{
-      height: 'calc(100vh - 170px)',
-      margin: '16px',
-      border: '2px solid black',
-      borderTop: '1px solid black',
-      fontSize: '100%',
-      lineHeight: 'inherit',
-      overflow: 'auto',
-      background: '#fffffe',
-      padding: '8px 16px',
-      color: '#000'
-    }}>
+    <div>
       {contract ?
         (<div>
           <h2>Functions</h2>
