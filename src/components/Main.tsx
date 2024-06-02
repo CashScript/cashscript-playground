@@ -6,11 +6,11 @@ import Editor from './Editor';
 import ArtifactsInfo from './ArtifactsInfo';
 
 interface Props {
-  artifact: Artifact | undefined
-  setArtifact: (artifact: Artifact | undefined) => void
+  artifacts: Artifact[] | undefined
+  setArtifacts: (artifacts: Artifact[] | undefined) => void
 }
 
-const Main: React.FC<Props> = ({artifact, setArtifact}) => {
+const Main: React.FC<Props> = ({artifacts, setArtifacts}) => {
   const [code, setCode] = useState<string>(
 `pragma cashscript >= 0.8.0;
 
@@ -29,7 +29,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 `);
 
   const [needRecompile, setNeedRecompile] = useState<boolean>(true);
-
+  /*
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
     // If code exits in local storage, set it as new code
@@ -51,16 +51,19 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     const changedCashScriptCode = previousCode!= code;
     setNeedRecompile(changedCashScriptCode);
   },[code, needRecompile, artifact])
+  */
 
   function compile() {
     try {
       localStorage.setItem("code", code);
-      const artifact = compileString(code);
-      setArtifact(artifact);
+      const newArtifact = compileString(code);
+      const nameNewArtifact = newArtifact.contractName
+      const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== nameNewArtifact)
+      setArtifacts([newArtifact, ...newArtifacts ?? []]);
     } catch (e: any) {
       alert(e.message);
       console.error(e.message);
-      setArtifact(undefined);
+      setArtifacts(undefined);
     }
   }
 
@@ -70,7 +73,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       height: 'calc(100vh - 140px)'
     }}>
       <Editor code={code} setCode={setCode} compile={compile} needRecompile={needRecompile}/>
-      <ArtifactsInfo artifact={artifact} />
+      <ArtifactsInfo artifacts={artifacts} setArtifacts={setArtifacts}/>
     </RowFlex>
   )
 }
