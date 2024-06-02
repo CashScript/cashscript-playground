@@ -1,32 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Artifact, Utxo } from 'cashscript';
+import { Artifact } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex } from './shared';
 import Editor from './Editor';
 import ArtifactsInfo from './ArtifactsInfo';
 
 interface Props {
+  code: string
+  setCode: (code: string) => void
   artifacts: Artifact[] | undefined
   setArtifacts: (artifacts: Artifact[] | undefined) => void
 }
 
-const Main: React.FC<Props> = ({artifacts, setArtifacts}) => {
-  const [code, setCode] = useState<string>(
-`pragma cashscript >= 0.8.0;
-
-contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
-    // Require recipient's signature to match
-    function transfer(sig recipientSig) {
-        require(checkSig(recipientSig, recipient));
-    }
-
-    // Require timeout time to be reached and sender's signature to match
-    function timeout(sig senderSig) {
-        require(checkSig(senderSig, sender));
-        require(tx.time >= timeout);
-    }
-}
-`);
+const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts}) => {
 
   const [needRecompile, setNeedRecompile] = useState<boolean>(true);
   /*
@@ -58,12 +44,16 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       localStorage.setItem("code", code);
       const newArtifact = compileString(code);
       const nameNewArtifact = newArtifact.contractName
+      const sameArifactExists = artifacts?.find(artifact => nameNewArtifact === artifact.contractName)
+      if(sameArifactExists){
+        const confirmOverwrite = confirm("About to overwite existing artifact with same name")
+        if(!confirmOverwrite) return
+      }
       const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== nameNewArtifact)
       setArtifacts([newArtifact, ...newArtifacts ?? []]);
     } catch (e: any) {
       alert(e.message);
       console.error(e.message);
-      setArtifacts(undefined);
     }
   }
 
@@ -73,7 +63,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
       height: 'calc(100vh - 140px)'
     }}>
       <Editor code={code} setCode={setCode} compile={compile} needRecompile={needRecompile}/>
-      <ArtifactsInfo artifacts={artifacts} setArtifacts={setArtifacts}/>
+      <ArtifactsInfo setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts}/>
     </RowFlex>
   )
 }
