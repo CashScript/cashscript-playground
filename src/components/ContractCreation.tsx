@@ -13,10 +13,8 @@ interface Props {
   updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, balance, utxos, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
-
-  const contract = contracts?.[0] // TODO: delete this
 
   const resetInputFields = () => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -33,8 +31,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
   }
 
   useEffect(() => {
-    updateUtxosContract()
-  }, [contract])
+    //updateUtxosContract()
+    setArgs([])
+  }, [artifact])
 
   const inputFields = artifact?.constructorInputs.map((input, i) => (
     <Form.Control key={`constructor-arg-${i}`} size="sm" id={`constructor-arg-${i}`}

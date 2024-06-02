@@ -19,7 +19,7 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, contracts, setContra
 
   const contract = contracts?.[0] // TODO: delete this
 
-  useEffect(() => setContracts(undefined), [artifact])
+  /*
 
   async function initElectrumSubscription(){
     if(electrumClient) electrumClient?.disconnect()
@@ -45,6 +45,7 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, contracts, setContra
   useEffect(() => {
     initElectrumSubscription()
   }, [contracts])
+  */
 
   return (
     <ColumnFlex>

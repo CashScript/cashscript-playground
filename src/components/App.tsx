@@ -65,7 +65,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
             <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>
           </Tab>
           <Tab eventKey="transactionBuilder" title="TransactionBuilder">
-            <TransactionBuilder artifacts={artifacts} network={network} wallets={wallets} utxos={utxos} contract={contract} updateUtxosContract={updateUtxosContract}/>
+            <TransactionBuilder network={network} wallets={wallets} utxos={utxos} contracts={contracts} updateUtxosContract={updateUtxosContract}/>
           </Tab>
         </Tabs>
       </div>
