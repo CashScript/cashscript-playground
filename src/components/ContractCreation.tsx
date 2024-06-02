@@ -11,13 +11,12 @@ interface Props {
   contract?: Contract
   setContract: (contract?: Contract) => void
   network: Network
-  setNetwork: (network: Network) => void
   utxos: Utxo[] | undefined
   balance: bigint | undefined
   updateUtxosContract: () => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, setNetwork, balance, utxos, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, network, balance, utxos, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
 
   useEffect(() => {
@@ -50,31 +49,12 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
     />
   )) || []
 
-  const networkSelector = (
-    <Form.Control size="sm" id="network-selector"
-      as="select"
-      value={network}
-      onChange={(event) => {
-        setNetwork(event.target.value as Network)
-      }}
-    >
-      <option>mainnet</option>
-      <option>testnet3</option>
-      <option>testnet4</option>
-      <option>chipnet</option>
-    </Form.Control>
-  )
-
   const createButton = <Button variant="secondary" size="sm" onClick={() => createContract()}>Create</Button>
 
   const constructorForm = artifact &&
     (<>
       <InputGroup size="sm">{inputFields}</InputGroup>
-      <p style={{margin: "4px 0"}}>And select target Network:</p>
-      <InputGroup style={{width:"350px"}}>
-        {networkSelector}
-        {createButton}
-      </InputGroup>
+      <div style={{ margin: "10px 0px"}}>{ createButton }</div>
     </>)
 
   function createContract() {
@@ -91,17 +71,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contract, setContract, ne
 
   return (
     <div style={{
-      height: 'calc(100vh - 170px)',
-      border: '2px solid black',
-      borderBottom: '1px solid black',
-      fontSize: '100%',
-      lineHeight: 'inherit',
-      overflow: 'auto',
-      background: '#fffffe',
-      padding: '8px 16px',
-      color: '#000'
+      marginTop: "15px"
     }}>
-      <h2>{artifact?.contractName}</h2>
+      <h5>{artifact?.contractName}</h5>
       <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
       {contract !== undefined &&

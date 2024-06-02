@@ -8,8 +8,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import WalletInfo from './Wallets';
 import { Wallet } from './shared';
-import ContractInfo from './ContractInfo';
-import ContractFunctions from './ContractFunctions'
+import NewContract from './NewContract';
 
 function App() {
   const [network, setNetwork] = useState<Network>('chipnet')
@@ -33,12 +32,15 @@ function App() {
           defaultActiveKey="editor"
           id="uncontrolled-tab-example"
           className="mb-2 mt-4 justify-content-center"
-          style={{ display: "inline-flex", marginLeft: "calc(100vw - 1000px)" }}
+          style={{ display: "inline-flex", marginLeft: "calc(100vw - 1100px)" }}
         >
           <Tab eventKey="editor" title="Editor">
             <Main artifacts={artifacts} setArtifacts={setArtifacts} />
           </Tab>
-          <Tab eventKey="contract" title="Contract">
+          <Tab eventKey="newcontract" title="New Contract">
+            <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} contract={contract} setContract={setContract} updateUtxosContract={updateUtxosContract} />
+          </Tab>
+          <Tab eventKey="contracts" title="Contracts">
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
             <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>

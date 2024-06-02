@@ -7,7 +7,6 @@ import { ElectrumClient, ElectrumTransport } from 'electrum-cash'
 interface Props {
   artifact?: Artifact
   network: Network
-  setNetwork: (network: Network) => void
   balance: bigint | undefined
   utxos: Utxo[] | undefined
   updateUtxosContract: () => void
@@ -15,7 +14,7 @@ interface Props {
   setContract: (contract: Contract | undefined) => void
 }
 
-const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, contract, setContract, utxos, balance, updateUtxosContract }) => {
+const ContractInfo: React.FC<Props> = ({ artifact, network, contract, setContract, utxos, balance, updateUtxosContract }) => {
   const [electrumClient, setElectrumClient] = useState<ElectrumClient | undefined>(undefined)
 
   useEffect(() => setContract(undefined), [artifact])
@@ -46,11 +45,8 @@ const ContractInfo: React.FC<Props> = ({ artifact, network, setNetwork, contract
   }, [contract])
 
   return (
-    <ColumnFlex
-      id="preview"
-      style={{ flex: 1, margin: '16px' }}
-    >
-      <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} setNetwork={setNetwork} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
+    <ColumnFlex>
+      <ContractCreation artifact={artifact} contract={contract} setContract={setContract} network={network} utxos={utxos} balance={balance} updateUtxosContract={updateUtxosContract}/>
     </ColumnFlex>
   )
 }
