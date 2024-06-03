@@ -1,5 +1,5 @@
 import React from 'react'
-import { Artifact, Contract, Network, Utxo } from 'cashscript'
+import { Contract, Utxo } from 'cashscript'
 import CopyText from './shared/CopyText'
 import { Card } from 'react-bootstrap'
 
