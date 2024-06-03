@@ -51,11 +51,14 @@ const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, utxo
     }}>
       <h2>TransactionBuilder</h2>
       <div style={{margin: "10px 0"}}>
-        <span>Select Contract:</span> {contractSelector}
+      {contracts?.length ?
+        <><span>Select Contract:</span> {contractSelector}</>
+        : <div>No contract initialised yet...</div>
+      }
       </div>
       {selectedContract !== undefined ?
         <ContractFunctions contract={selectedContract} network={network} wallets={wallets} contractUtxos={utxos} updateUtxosContract={updateUtxosContract} />
-        : <div>No contract initialised yet...</div>
+        : null
       }
     </div>
   )
