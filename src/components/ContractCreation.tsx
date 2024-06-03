@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider, Utxo } from 'cashscript'
+import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
-import { readAsType } from './shared'
+import { readAsType, ContractInfo } from './shared'
 
 interface Props {
   artifact?: Artifact
-  contracts?: Contract[]
-  setContracts: (contract?: Contract[]) => void
+  contracts?: ContractInfo[]
+  setContracts: (contracts?: ContractInfo[]) => void
   network: Network
-  utxos: Utxo[] | undefined
-  balance: bigint | undefined
-  updateUtxosContract: () => void
+  updateUtxosContract: (contractName: string) => void
 }
 
 const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [nameContract, setNameContract] = useState<string>("");
+  const [createdContract, setCreatedContract] = useState(false);
 
   const resetInputFields = () => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -24,17 +23,11 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       const el = document.getElementById(`constructor-arg-${i}`)
       if (el) (el as any).value = ''
     })
-
     // Set empty strings as default values
     const newArgs = artifact?.constructorInputs.map(() => '') || []
-
     setArgs(newArgs)
+    setNameContract("")
   }
-
-  useEffect(() => {
-    //updateUtxosContract()
-    setArgs([])
-  }, [artifact])
 
   const inputFields = artifact?.constructorInputs.map((input, i) => (
     <Form.Control key={`constructor-arg-${i}`} size="sm" id={`constructor-arg-${i}`}
@@ -62,14 +55,22 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(artifact, args, { provider })
       newContract.name = nameContract
-      setContracts([newContract, ...contracts ?? []])
+      const contractInfo = {contract: newContract, utxos: undefined}
+      setContracts([contractInfo, ...contracts ?? []])
       alert("created contract!")
-      resetInputFields()
+      setCreatedContract(true)
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)
     }
   }
+
+  useEffect(() => {
+    if(!createdContract) return
+    updateUtxosContract(nameContract)
+    resetInputFields()
+    setCreatedContract(false)
+ }, [createdContract]);
 
   return (
     <div style={{
