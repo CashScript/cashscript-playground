@@ -30,7 +30,9 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
         const confirmOverwrite = confirm("About to overwite existing artifact with same name")
         if(!confirmOverwrite) return
       }
-      setArtifacts([importedArtifact, ...artifacts ?? []])
+      const newArtifacts = [importedArtifact, ...artifacts ?? []]
+      setArtifacts(newArtifacts)
+      localStorage.setItem("artifacts", JSON.stringify(newArtifacts , null, 2));
       alert("imported!")
     } catch(error){
       console.log(error)
@@ -42,6 +44,7 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
     const artifactToRemoveName = artifactToRemove.contractName;
     const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== artifactToRemoveName)
     setArtifacts(newArtifacts)
+    localStorage.setItem("artifacts", JSON.stringify(newArtifacts , null, 2));
   }
 
   const loadArtifact = (artifact: Artifact) => {
