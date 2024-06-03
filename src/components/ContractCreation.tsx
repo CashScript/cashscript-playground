@@ -55,7 +55,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(artifact, args, { provider })
       newContract.name = nameContract
-      const contractInfo = {contract: newContract, utxos: undefined}
+      const contractInfo = {contract: newContract, utxos: undefined, args}
       setContracts([contractInfo, ...contracts ?? []])
       alert("created contract!")
       setCreatedContract(true)

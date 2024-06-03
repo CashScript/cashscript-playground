@@ -39,15 +39,14 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     if (contractIndex == undefined) return
     const currentContract = contracts?.[contractIndex].contract
     if (!currentContract) return
-    // create two separate lists (deep copies) and mutate utxos
-    // map best way to deep clone
+    // create a separate lists for utxos and mutate entry
     const utxosList = contracts.map(contract => contract.utxos ?? [])
-    const contractsList = contracts.map(contract => contract.contract)
     const contractUtxos = await currentContract.getUtxos();
     utxosList[contractIndex] = contractUtxos
-    const newContracts: ContractInfo[] = contractsList.map((contract,index) =>
-      ({contract,utxos:utxosList[index]})
-    )
+    // map is the best way to deep clone array of complex objects
+    const newContracts: ContractInfo[] = contracts.map((contractInfo,index) => (
+      { ...contractInfo, utxos:utxosList[index] }
+    ))
     setContracts(newContracts)
   }
 
