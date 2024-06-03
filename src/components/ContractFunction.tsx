@@ -35,7 +35,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
     if (!manualSelection) return;
     async function updateUtxos() {
       if (contractInfo.contract === undefined || contractUtxos === undefined) return
-      const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
+      const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `${contract.name} UTXO ${index}`, isP2pkh: false }))
       let newNamedUtxoList = namedUtxosContract
       const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
       for (let i = 0; i < (walletUtxos?.length ?? 0); i++) {
