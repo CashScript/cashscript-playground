@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { SignatureTemplate, Utxo } from 'cashscript';
+import { Contract, SignatureTemplate, Utxo } from 'cashscript';
 import { decodeCashAddress, decodeCashAddressFormatWithoutPrefix } from '@bitauth/libauth';
 
 export const ColumnFlex = styled.div`
@@ -20,6 +20,11 @@ export interface Wallet {
   address: string
   testnetAddress: string
   utxos: Utxo[]
+}
+
+export interface ContractInfo {
+  contract: Contract
+  utxos: Utxo[] | undefined
 }
 
 export interface NamedUtxo extends Utxo {

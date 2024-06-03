@@ -1,20 +1,19 @@
 import React, { useState } from 'react'
-import { Artifact, Contract, Network, Utxo } from 'cashscript'
+import { Artifact, Network } from 'cashscript'
 import { Form } from 'react-bootstrap'
-import ContractInfo from './ContractInfo';
+import ContractCreation from './ContractCreation';
+import { ContractInfo } from './shared'
 
 interface Props {
   artifacts?: Artifact[]
   network: Network
   setNetwork: (network: Network) => void
-  balance: bigint | undefined
-  utxos: Utxo[] | undefined
-  updateUtxosContract: () => void
-  contracts: Contract[] | undefined
-  setContracts: (contract: Contract[] | undefined) => void
+  updateUtxosContract: (contractName: string) => void
+  contracts: ContractInfo[] | undefined
+  setContracts: (contract: ContractInfo[] | undefined) => void
 }
 
-const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contracts, setContracts, utxos, balance, updateUtxosContract }) => {
+const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contracts, setContracts, updateUtxosContract }) => {
 
   const [selectedArifact, setSelectedArtifact] = useState<Artifact | undefined>(undefined);
 
@@ -76,7 +75,7 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
             <span>Select target Network:</span> {networkSelector}
           </div>
           {selectedArifact !== undefined ?
-            <ContractInfo artifact={selectedArifact} network={network} utxos={utxos} balance={balance} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
+            <ContractCreation artifact={selectedArifact} network={network} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
             : null
           }
         </>

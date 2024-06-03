@@ -150,9 +150,12 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
         <div>
           <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
           <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
-            (refresh wallet utxos ⭯)
+            <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
           </span>
         </div>
+        <Card.Text><strong>Wallet Balance</strong></Card.Text>
+        <div>{wallet.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</div>
+        <strong>Private Key</strong>
         <details>
           <summary>Show Private Key</summary>
           <Card.Text><strong>WIF:</strong></Card.Text>

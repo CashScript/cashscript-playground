@@ -1,36 +1,34 @@
 import React, {useState} from 'react'
-import { Artifact, Contract, Network, Utxo } from 'cashscript'
+import { Network } from 'cashscript'
 import ContractFunctions from './ContractFunctions';
-import { Wallet } from './shared'
+import { Wallet, ContractInfo } from './shared'
 import { Form } from 'react-bootstrap'
 
 interface Props {
-  artifacts?: Artifact[]
   network: Network
   wallets: Wallet[]
-  utxos: Utxo[] | undefined
-  updateUtxosContract: () => void
-  contracts: Contract[] | undefined
+  updateUtxosContract: (contractName: string) => void
+  contracts: ContractInfo[] | undefined
 }
 
-const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, utxos, updateUtxosContract }) => {
+const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, updateUtxosContract }) => {
 
-  const [selectedContract, setSelectedContract] = useState<Contract | undefined>(undefined);
+  const [selectedContract, setSelectedContract] = useState<ContractInfo | undefined>(undefined);
 
   const contractSelector = (
     <Form.Control size="sm" id="artifact-selector" style={{width:"350px", display:"inline-block"}}
       as="select"
-      value={selectedContract?.address ?? "select"}
+      value={selectedContract?.contract.address ?? "select"}
       onChange={(event) => {
         const contractAddress = event.target.value
-        const newSelectedContract = contracts?.find(contract => contract?.address === contractAddress)
+        const newSelectedContract = contracts?.find(contractInfo => contractInfo.contract?.address === contractAddress)
         setSelectedContract(newSelectedContract)
       }}
     >
       <option>--- select ---</option> 
-      {contracts?.map(contract => (
-        <option key={contract.address}>
-          {contract.address}
+      {contracts?.map(contractInfo => (
+        <option key={contractInfo.contract.address}>
+          {contractInfo.contract.address}
         </option>
       ))}
     </Form.Control>
@@ -57,7 +55,7 @@ const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, utxo
       }
       </div>
       {selectedContract !== undefined ?
-        <ContractFunctions contract={selectedContract} network={network} wallets={wallets} contractUtxos={utxos} updateUtxosContract={updateUtxosContract} />
+        <ContractFunctions contractInfo={selectedContract} network={network} wallets={wallets} updateUtxosContract={updateUtxosContract} />
         : null
       }
     </div>

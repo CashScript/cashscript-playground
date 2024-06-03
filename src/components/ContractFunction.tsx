@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { Contract, AbiFunction, Argument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
+import { AbiFunction, Argument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
-import { readAsType, ExplorerString, Wallet, NamedUtxo } from './shared'
+import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './shared'
 
 interface Props {
-  contract?: Contract
+  contractInfo: ContractInfo
   abi?: AbiFunction
   network: Network
   wallets: Wallet[]
-  contractUtxos: Utxo[] | undefined
-  updateUtxosContract: () => void
+  updateUtxosContract: (contractName: string) => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, contractUtxos, updateUtxosContract }) => {
+const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets, updateUtxosContract }) => {
   const [args, setArgs] = useState<Argument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -23,6 +22,9 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
   const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
   const [namedUtxoList, setNamedUtxoList] = useState<NamedUtxo[]>([])
 
+  const contract = contractInfo.contract
+  const contractUtxos = contractInfo.utxos
+
   useEffect(() => {
     // Set empty strings as default values
     const newArgs = abi?.inputs.map(() => '') || [];
@@ -32,7 +34,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
   useEffect(() => {
     if (!manualSelection) return;
     async function updateUtxos() {
-      if (contract === undefined || contractUtxos === undefined) return
+      if (contractInfo.contract === undefined || contractUtxos === undefined) return
       const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `Contract UTXO ${index}`, isP2pkh: false }))
       let newNamedUtxoList = namedUtxosContract
       const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
@@ -47,7 +49,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
       setNamedUtxoList(newNamedUtxoList);
     }
     updateUtxos()
-  }, [manualSelection, contractUtxos])
+  }, [manualSelection, contractInfo])
 
   function fillPrivKey(i: number, walletIndex: string) {
     const argsCopy = [...args];
@@ -291,7 +293,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, network, wallets, co
 
       alert(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
       console.log(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
-      updateUtxosContract()
+      updateUtxosContract(contract.name)
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)
