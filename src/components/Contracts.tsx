@@ -50,6 +50,17 @@ const Contracts: React.FC<Props> = ({ contracts, setContracts, updateUtxosContra
               <CopyText>{contractInfo.contract.tokenAddress}</CopyText>
               <strong>Contract artifact</strong>
               <p>{contractInfo.contract.artifact.contractName}</p>
+              <strong>Contract arguments</strong>
+              <details>
+                <summary>Details</summary>
+                  <div>
+                    {contractInfo.args.map((arg, index) => (<div key={`${contractInfo.contract.name}-arg-${index}`}>
+                        {contractInfo.contract.artifact.constructorInputs[index]?.type} {contractInfo.contract.artifact.constructorInputs[index]?.name + ": "} 
+                        {typeof arg == "bigint" ? arg.toString() : null}
+                        {typeof arg == "string" || typeof arg == "number" ? arg : null}
+                    </div>))}
+                  </div>
+              </details>
               <strong>Contract utxos</strong>
               {contractInfo?.utxos == undefined? 
                 <p>loading ...</p>:
