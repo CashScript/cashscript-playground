@@ -1,6 +1,7 @@
 import React from 'react'
 import { Artifact } from 'cashscript'
 import { Button } from 'react-bootstrap'
+import FileUploader from './FileUploader'
 
 interface Props {
   setCode: (code: string) => void
@@ -20,6 +21,23 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
     document.body.removeChild(element);
   }
 
+  const importArtifactFile = (fileText: string) => {
+    try{
+      const importedArtifact: Artifact = JSON.parse(fileText)
+      const nameNewArtifact = importedArtifact.contractName
+      const sameArifactExists = artifacts?.find(artifact => nameNewArtifact === artifact.contractName)
+      if(sameArifactExists){
+        const confirmOverwrite = confirm("About to overwite existing artifact with same name")
+        if(!confirmOverwrite) return
+      }
+      setArtifacts([importedArtifact, ...artifacts ?? []])
+      alert("imported!")
+    } catch(error){
+      console.log(error)
+      alert("import failed")
+    }
+  };
+
   const removeArtifact = (artifactToRemove: Artifact) => {
     const artifactToRemoveName = artifactToRemove.contractName;
     const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== artifactToRemoveName)
@@ -27,7 +45,6 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
   }
 
   const loadArtifact = (artifact: Artifact) => {
-    console.log(artifact.source)
     setCode(artifact.source)
   }
 
@@ -44,7 +61,11 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
       padding: '8px 16px',
       color: '#000'
     }}>
-      <h2>Contract Artifacts</h2>
+      <div style={{display:"flex", justifyContent:"space-between"}}>
+        <h2 style={{width:"fit-content"}}>Contract Artifacts</h2>
+        <FileUploader handleFile={importArtifactFile} />
+      </div>
+
       { artifacts?.length?
       (<div>
         {artifacts.map(artifact => (
