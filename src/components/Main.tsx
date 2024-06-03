@@ -15,22 +15,19 @@ interface Props {
 const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts}) => {
 
   const [needRecompile, setNeedRecompile] = useState<boolean>(true);
-  /*
+  
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
+    const artifactsLocalStorage = localStorage.getItem("artifacts");
     // If code exits in local storage, set it as new code
-    if (codeLocalStorage){
-      setCode(codeLocalStorage);
-      try {
-        const artifact = compileString(codeLocalStorage);
-        setArtifact(artifact);
-      } catch (e: any) {
-        alert(e.message);
-        console.error(e.message);
-      }
+    if (codeLocalStorage) setCode(codeLocalStorage);
+    if (artifactsLocalStorage){
+      try{
+         setArtifacts(JSON.parse(artifactsLocalStorage));
+      } catch(error){ console.log(error) }
     }
   }, [])
-
+  /*
   useEffect(() => {
     if(!artifact) return
     const previousCode = localStorage.getItem("code");
@@ -49,8 +46,10 @@ const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts}) => {
         const confirmOverwrite = confirm("About to overwite existing artifact with same name")
         if(!confirmOverwrite) return
       }
-      const newArtifacts = artifacts?.filter(artifact => artifact.contractName !== nameNewArtifact)
-      setArtifacts([newArtifact, ...newArtifacts ?? []]);
+      const otherArtifacts = artifacts?.filter(artifact => artifact.contractName !== nameNewArtifact)
+      const newArtifacts = [newArtifact, ...otherArtifacts ?? []]
+      localStorage.setItem("artifacts", JSON.stringify(newArtifacts , null, 2));
+      setArtifacts(newArtifacts);
     } catch (e: any) {
       alert(e.message);
       console.error(e.message);
