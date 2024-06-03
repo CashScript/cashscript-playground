@@ -1,21 +1,27 @@
 import { useRef } from "react";
 
-const FileUploader = ({ handleFile }) => {
+interface Props {
+  handleFile: (fileText: string) => void
+}
+
+const FileUploader: React.FC<Props> = ({ handleFile }) => {
   // Create a reference to the hidden file input element
-  const hiddenFileInput = useRef(null);
+  const hiddenFileInput = useRef(null as any);
 
   // Programatically click the hidden file input element
   // when the Button component is clicked
-  const handleClick = (event) => {
+  const handleClick = () => {
+    if(!hiddenFileInput?.current) return
     hiddenFileInput.current.click();
   };
   // Call a function (passed as a prop from the parent component)
   // to handle the user-selected file
-  const handleChange = (event) => {
+  const handleChange = (event: any) => {
     const fileUploaded = event.target.files[0];
     const fileReader = new FileReader();
     fileReader.onload = function(e) {
-      handleFile(e.target.result);
+      if(!e.target?.result) return
+      handleFile(e.target.result as string);
     }
     fileReader.readAsText(fileUploaded);
   };
