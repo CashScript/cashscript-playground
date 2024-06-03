@@ -48,6 +48,8 @@ const Contracts: React.FC<Props> = ({ contracts, setContracts, utxos, balance, u
               <CopyText>{contract.address}</CopyText>
               <strong>Contract token address (p2sh32)</strong>
               <CopyText>{contract.tokenAddress}</CopyText>
+              <strong>Contract artifact</strong>
+              <p>{contract.artifact.contractName}</p>
               <strong>Contract utxos</strong>
               {utxos == undefined? 
                 <p>loading ...</p>:

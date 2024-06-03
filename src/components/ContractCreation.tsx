@@ -15,6 +15,7 @@ interface Props {
 
 const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, updateUtxosContract}) => {
   const [args, setArgs] = useState<Argument[]>([])
+  const [nameContract, setNameContract] = useState<string>("");
 
   const resetInputFields = () => {
     // This code is suuper ugly but I haven't found any other way to clear the value
@@ -60,6 +61,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
     try {
       const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(artifact, args, { provider })
+      newContract.name = nameContract
       setContracts([newContract, ...contracts ?? []])
       alert("created contract!")
       resetInputFields()
@@ -74,6 +76,14 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       marginTop: "15px"
     }}>
       <h5>{artifact?.contractName}</h5>
+      <p>Contract Name:</p>
+      <InputGroup size="sm" style={{width:"350px"}}>
+        <Form.Control key={`contractName`} size="sm" id={nameContract}
+          placeholder={`contractName`}
+          aria-label={`contractName`}
+          onChange={(event) => setNameContract(event.target.value)}
+        />
+      </InputGroup>
       <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
     </div>

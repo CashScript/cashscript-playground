@@ -68,7 +68,7 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
       <h2>New Contract</h2>
       {artifacts?.length ?
         <>
-          <p style={{margin: "10px 0"}}>Initialise new contract with Arifact and contract constructor arguments:</p>
+          <p style={{margin: "10px 0"}}>Choose the contract Arifact and network to use:</p>
           <div style={{margin: "10px 0"}}>
             <span>Select Artifact:</span> {artifactSelector}
           </div>
