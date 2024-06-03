@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Contract, SignatureTemplate, Utxo, Argument } from 'cashscript';
+import { Contract, SignatureTemplate, Utxo, Argument, Network } from 'cashscript';
 import { decodeCashAddress, decodeCashAddressFormatWithoutPrefix } from '@bitauth/libauth';
 
 export const ColumnFlex = styled.div`
@@ -25,13 +25,20 @@ export interface Wallet {
 export interface ContractInfo {
   contract: Contract
   utxos: Utxo[] | undefined
-  args: Argument[]
+  args: Array<Argument | string>
 }
 
 export interface NamedUtxo extends Utxo {
   name: string;
   isP2pkh: boolean;
   walletIndex?: number;
+}
+
+export interface TinyContractObj {
+  contractName: string
+  artifactName: string
+  network: Network
+  args: (string | Argument)[]
 }
 
 export function readAsType(value: string, type: string) {
