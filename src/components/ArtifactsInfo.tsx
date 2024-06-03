@@ -87,7 +87,7 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
           
             <div style={{paddingLeft: "15px"}}>
               <strong>Last Updated</strong>
-              <p>{artifact.updatedAt}</p>
+              <p>{artifact.updatedAt.split('T')[0]} {artifact.updatedAt.split('T')[1].slice(0,5)}</p>
               <strong>Artifact Bytecode</strong>
               <details>
                 <summary>
@@ -98,9 +98,9 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
               <strong>Compiler Version</strong>
               <p>{artifact.compiler.version}</p>
               <strong>Download Artifact</strong>
-              <p onClick={() => downloadArtifact(artifact)}>
+              <p onClick={() => downloadArtifact(artifact)} style={{cursor:"pointer"}}>
                 download JSON file
-                <img src='./downloadIcon.svg' style={{marginLeft:"5px", verticalAlign: "text-bottom", cursor:"pointer"}}/>
+                <img src='./downloadIcon.svg' style={{marginLeft:"5px", verticalAlign: "text-bottom"}}/>
               </p>
               <strong>Load Contract to Editor</strong>
               <Button variant="secondary" size="sm" style={{display:"block"}} onClick={() => loadArtifact(artifact)}>
