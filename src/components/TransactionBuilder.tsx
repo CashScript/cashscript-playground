@@ -18,17 +18,17 @@ const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, upda
   const contractSelector = (
     <Form.Control size="sm" id="artifact-selector" style={{width:"350px", display:"inline-block"}}
       as="select"
-      value={selectedContract?.contract.address ?? "select"}
+      value={selectedContract?.contract.name ?? "select"}
       onChange={(event) => {
-        const contractAddress = event.target.value
-        const newSelectedContract = contracts?.find(contractInfo => contractInfo.contract?.address === contractAddress)
+        const contractName = event.target?.value
+        const newSelectedContract = contracts?.find(contractInfo => contractInfo.contract?.name === contractName)
         setSelectedContract(newSelectedContract)
       }}
     >
       <option>--- select ---</option> 
       {contracts?.map(contractInfo => (
-        <option key={contractInfo.contract.address}>
-          {contractInfo.contract.address}
+        <option key={contractInfo.contract.name} value={contractInfo.contract.name}>
+          {contractInfo.contract.name} {`(${contractInfo.contract.address.slice(0, 20)}...)`}
         </option>
       ))}
     </Form.Control>
