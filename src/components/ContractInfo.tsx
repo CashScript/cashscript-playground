@@ -17,9 +17,8 @@ interface Props {
 const ContractInfo: React.FC<Props> = ({ artifact, network, contracts, setContracts, utxos, balance, updateUtxosContract }) => {
   const [electrumClient, setElectrumClient] = useState<ElectrumClient | undefined>(undefined)
 
-  const contract = contracts?.[0] // TODO: delete this
-
   /*
+  const contract = contracts?.[0] // TODO: delete this
 
   async function initElectrumSubscription(){
     if(electrumClient) electrumClient?.disconnect()
