@@ -7,10 +7,9 @@ interface Props {
   code: string
   setCode: (value: string) => void
   compile: () => void,
-  needRecompile: boolean
 }
 
-const Editor: React.FC<Props> = ({ code, setCode, compile, needRecompile }) => {
+const Editor: React.FC<Props> = ({ code, setCode, compile }) => {
   const [isEditorReady, setIsEditorReady] = useState(false)
 
   function handleEditorDidMount() {
@@ -31,7 +30,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, needRecompile }) => {
       />
       <Button
         variant="secondary"
-        disabled={!isEditorReady || !needRecompile}
+        disabled={!isEditorReady}
         onClick={() => compile()}
         style={{
           margin: '20px auto',

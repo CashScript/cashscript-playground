@@ -50,6 +50,21 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     setContracts(newContracts)
   }
 
+  async function updateAllUtxosContracts () {
+    if(!contracts) return
+
+    const utxosPromises = contracts.map(contractInfo => {
+      const contractUtxos = contractInfo.contract.getUtxos();
+      return contractUtxos ?? []
+    })
+    const utxosContracts = await Promise.all(utxosPromises)
+    // map is the best way to deep clone array of complex objects
+    const newContracts: ContractInfo[] = contracts.map((contractInfo,index) => (
+      { ...contractInfo, utxos:utxosContracts?.[index]}
+    ))
+    setContracts(newContracts)
+  }
+
   return (
     <>
       <div className="App" style={{ backgroundColor: '#eee', color: '#000', padding: '0px 32px' }}>
@@ -61,7 +76,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
           style={{ display: "inline-flex", marginLeft: "calc(100vw - 1100px)" }}
         >
           <Tab eventKey="editor" title="Editor">
-            <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} />
+            <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} setContracts={setContracts} updateAllUtxosContracts={updateAllUtxosContracts}/>
           </Tab>
           <Tab eventKey="newcontract" title="New Contract">
             <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />

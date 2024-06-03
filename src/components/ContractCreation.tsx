@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
-import { readAsType, ContractInfo } from './shared'
+import { readAsType, ContractInfo, TinyContractObj } from './shared'
 
 interface Props {
   artifact?: Artifact
@@ -65,9 +65,28 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
     }
   }
 
+  function addContractInfoToLocalStorage(){
+    if(!contracts) return
+    const contractListlocalStorage = contracts.map(contractInfo => {
+      const { contract } = contractInfo;
+      const strifiedArgs = contractInfo.args.map(arg => 
+        typeof arg == "bigint" ? "bigint"+arg.toString() : arg
+      )
+      const tinyContractObj: TinyContractObj = {
+        contractName: contract.name,
+        artifactName: contract.artifact.contractName,
+        network: contract.provider.network,
+        args: strifiedArgs
+      }
+      return tinyContractObj
+    })
+    localStorage.setItem("contracts", JSON.stringify(contractListlocalStorage));
+  }
+
   useEffect(() => {
     if(!createdContract) return
     updateUtxosContract(nameContract)
+    addContractInfoToLocalStorage()
     resetInputFields()
     setCreatedContract(false)
  }, [createdContract]);
