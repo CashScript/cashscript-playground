@@ -44,6 +44,7 @@ export interface TinyContractObj {
 export function readAsType(value: string, type: string) {
   if (type === 'int') {
     try{
+      if(value == "-") return "" // don't error on minus sign
       return BigInt(value);
     } catch(error){ 
       alert("Should only have numbers in the integer field")
