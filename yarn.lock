@@ -1222,10 +1222,10 @@
   resolved "https://registry.yarnpkg.com/@bitauth/libauth/-/libauth-2.1.0.tgz#e618706092fe9ea5e4103a2cf427cd5ae5287e1e"
   integrity sha512-O0cIN7/UPUHg6gaWHuePXIYRkvNPrc3zHfi80guZkkO4Ke9nSaN5mSITqhC5lKFBwAakr6OSToClXHN/IxiOfA==
 
-"@cashscript/utils@^0.10.0-next.5":
-  version "0.10.0-next.5"
-  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.10.0-next.5.tgz#207d6410cdef2de1388cac3a19a5f85ec080ab64"
-  integrity sha512-Y16/JIGljRy6qKJ+KWkFRaTuWVXhpk20SADgOAsVKVCHJwnpFBVgq/5Gxn3gHT5z9S9oJD8RbMOH0L9bwZqKcQ==
+"@cashscript/utils@^0.10.0-next.6":
+  version "0.10.0-next.6"
+  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.10.0-next.6.tgz#d5ae86df16c9342ece4942cbba1924aa46dfcc49"
+  integrity sha512-ekzGwwvV3rr9v9arUTOxLC/3CejVSYImKieJ/0KAJ4Bx8DouA5kVJ6JGssL5axiCidTGjFnKsc2vQAzTQ0d4XA==
   dependencies:
     "@bitauth/libauth" "^2.0.0"
     hash.js "^1.1.7"
@@ -3447,24 +3447,24 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==
 
-cashc@^0.10.0-next.5:
-  version "0.10.0-next.5"
-  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.10.0-next.5.tgz#a5da2dac08d8d9bd9eb865592afb176536fe8667"
-  integrity sha512-uUTVLonOPwO6hfeG7Un96ko2Ds1uqQL04tCiv4135ZtgBtnPFjGrs69jjkjIEUAtyNnMX66fbD38NbdvbCH7kg==
+cashc@^0.10.0-next.6:
+  version "0.10.0-next.6"
+  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.10.0-next.6.tgz#5a651b416658ebca6fa12f278475c9ad8ef4ebff"
+  integrity sha512-2/fMhVQsZMps4nxnH8KMza1RcaObaNmPzK15+8809LOiQ/NqaGSGOP8KUm4baJa7StKIytLbNUj70UgHr0NHnA==
   dependencies:
     "@bitauth/libauth" "^2.0.0"
-    "@cashscript/utils" "^0.10.0-next.5"
+    "@cashscript/utils" "^0.10.0-next.6"
     antlr4 "^4.13.1-patch-1"
     commander "^7.1.0"
     semver "^7.5.4"
 
-cashscript@^0.10.0-next.5:
-  version "0.10.0-next.5"
-  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.10.0-next.5.tgz#1256797a88e3c95c600b9cada61df47263dcfa43"
-  integrity sha512-qYrBY4gAsJu8ZfZfVpute1rWtu0u432gsneSv3PpDelQ4WMJLNVakxmGGLceMPEpZD6STHqCu/nlSYpewM7uWA==
+cashscript@^0.10.0-next.6:
+  version "0.10.0-next.6"
+  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.10.0-next.6.tgz#5581b7f501135dec2dd7ab35c6c1fa72c3bcaaef"
+  integrity sha512-hiJguHkzYwVpMakjCZPujIQlntMaoRRbVixCzCJzZFNlqXsqdkPzDDWnYlhyZxm7e/PVaFqHpgoa1qf3KDvT7g==
   dependencies:
     "@bitauth/libauth" "^2.0.0"
-    "@cashscript/utils" "^0.10.0-next.5"
+    "@cashscript/utils" "^0.10.0-next.6"
     bip68 "^1.0.4"
     bitcoin-rpc-promise-retry "^1.3.0"
     delay "^5.0.0"
