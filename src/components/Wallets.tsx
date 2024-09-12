@@ -61,7 +61,7 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
   function hash160ToCash(hex: string, forTestnet?: boolean, tokenSupport?: boolean) {
     const prefix = forTestnet ? "bchtest" : "bitcoincash";
     const type = tokenSupport ? "p2pkhWithTokens" : "p2pkh";
-    return encodeCashAddress(prefix, type, hexToBin(hex));
+    return encodeCashAddress({ prefix, type, payload: hexToBin(hex) }).address;
   }
 
   function removeWallet(index:number) {
