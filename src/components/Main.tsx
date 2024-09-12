@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Argument, Artifact, Contract, ElectrumNetworkProvider } from 'cashscript';
+import { Artifact, Contract, ElectrumNetworkProvider } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex, ContractInfo, TinyContractObj } from './shared';
 import Editor from './Editor';

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Contract, SignatureTemplate, Utxo, Argument, Network } from 'cashscript';
+import { Contract, SignatureTemplate, Utxo, ConstructorArgument, Network } from 'cashscript';
 import { decodeCashAddress, decodeCashAddressFormatWithoutPrefix } from '@bitauth/libauth';
 
 export const ColumnFlex = styled.div`
@@ -25,7 +25,7 @@ export interface Wallet {
 export interface ContractInfo {
   contract: Contract
   utxos: Utxo[] | undefined
-  args: Array<Argument | string>
+  args: Array<ConstructorArgument | string>
 }
 
 export interface NamedUtxo extends Utxo {
@@ -38,7 +38,7 @@ export interface TinyContractObj {
   contractName: string
   artifactName: string
   network: Network
-  args: (string | Argument)[]
+  args: (string | ConstructorArgument)[]
 }
 
 export function readAsType(value: string, type: string) {
@@ -58,6 +58,36 @@ export function readAsType(value: string, type: string) {
     } catch (e) {
       return value;
     }
+  } else if (type === 'bytes20') {
+    let addressInfo;
+
+    if (value.startsWith('bitcoincash:') || value.startsWith('bchtest:')) {
+      addressInfo = decodeCashAddress(value);
+    } else if(value.startsWith('q') || value.startsWith('p')) {
+      addressInfo = decodeCashAddressFormatWithoutPrefix(value, ['bitcoincash', 'bchtest']);
+    }
+
+    if (addressInfo === undefined || typeof addressInfo === 'string') {
+      return value;
+    }
+
+    return addressInfo.payload;
+  } else {
+    return value;
+  }
+}
+
+export function readAsConstructorType(value: string, type: string) {
+  if (type === 'int') {
+    try{
+      if(value == "-") return "" // don't error on minus sign
+      return BigInt(value);
+    } catch(error){ 
+      alert("Should only have numbers in the integer field")
+    }
+    return ""
+  } else if (type === 'bool') {
+    return value === 'true';
   } else if (type === 'bytes20') {
     let addressInfo;
 

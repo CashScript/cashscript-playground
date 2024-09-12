@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, Argument, Network, ElectrumNetworkProvider } from 'cashscript'
+import { Artifact, Contract, ConstructorArgument, Network, ElectrumNetworkProvider } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
-import { readAsType, ContractInfo, TinyContractObj } from './shared'
+import { readAsConstructorType, ContractInfo, TinyContractObj } from './shared'
 
 interface Props {
   artifact?: Artifact
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, updateUtxosContract}) => {
-  const [args, setArgs] = useState<Argument[]>([])
+  const [constructorArgs, setConstructorArgs] = useState<ConstructorArgument[]>([])
   const [nameContract, setNameContract] = useState<string>("");
   const [createdContract, setCreatedContract] = useState(false);
 
@@ -25,7 +25,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
     })
     // Set empty strings as default values
     const newArgs = artifact?.constructorInputs.map(() => '') || []
-    setArgs(newArgs)
+    setConstructorArgs(newArgs)
     setNameContract("")
   }
 
@@ -34,9 +34,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       placeholder={`${input.type} ${input.name}`}
       aria-label={`${input.type} ${input.name}`}
       onChange={(event) => {
-        const argsCopy = [...args]
-        argsCopy[i] = readAsType(event.target.value, input.type)
-        setArgs(argsCopy)
+        const argsCopy = [...constructorArgs]
+        argsCopy[i] = readAsConstructorType(event.target.value, input.type)
+        setConstructorArgs(argsCopy)
       }}
     />
   )) || []
@@ -53,9 +53,9 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
     if (!artifact) return
     try {
       const provider = new ElectrumNetworkProvider(network)
-      const newContract = new Contract(artifact, args, { provider })
+      const newContract = new Contract(artifact, constructorArgs, { provider })
       newContract.name = nameContract
-      const contractInfo = {contract: newContract, utxos: undefined, args}
+      const contractInfo = {contract: newContract, utxos: undefined, args: constructorArgs}
       setContracts([contractInfo, ...contracts ?? []])
       alert("created contract!")
       setCreatedContract(true)

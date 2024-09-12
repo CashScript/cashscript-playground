@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { AbiFunction, Argument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
+import { AbiFunction, FunctionArgument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
 import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './shared'
 
@@ -12,7 +12,7 @@ interface Props {
 }
 
 const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets, updateUtxosContract }) => {
-  const [args, setArgs] = useState<Argument[]>([])
+  const [functionArgs, setFunctionArgs] = useState<FunctionArgument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
   const [inputs, setInputs] = useState<NamedUtxo[]>([{ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }])
@@ -28,7 +28,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
   useEffect(() => {
     // Set empty strings as default values
     const newArgs = abi?.inputs.map(() => '') || [];
-    setArgs(newArgs);
+    setFunctionArgs(newArgs);
   }, [abi])
 
   useEffect(() => {
@@ -52,13 +52,13 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
   }, [manualSelection, contractInfo])
 
   function fillPrivKey(i: number, walletIndex: string) {
-    const argsCopy = [...args];
+    const argsCopy = [...functionArgs];
     // if no wallet is selected in select form
     if (isNaN(Number(walletIndex))) argsCopy[i] = ''
     else {
       argsCopy[i] = new SignatureTemplate(wallets[Number(walletIndex)].privKey);
     }
-    setArgs(argsCopy);
+    setFunctionArgs(argsCopy);
   }
 
   function selectInput(i: number, inputIndex: string) {
@@ -89,9 +89,9 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
           placeholder={`${input.type} ${input.name}`}
           aria-label={`${input.type} ${input.name}`}
           onChange={(event) => {
-            const argsCopy = [...args];
+            const argsCopy = [...functionArgs];
             argsCopy[i] = readAsType(event.target.value, input.type);
-            setArgs(argsCopy);
+            setFunctionArgs(argsCopy);
           }}
         />
       )}
@@ -272,7 +272,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
     // try to send transaction and alert result
     try {
       // first step of constructing transaction
-      const transaction = contract.functions[abi.name](...args)
+      const transaction = contract.functions[abi.name](...functionArgs)
 
       // if manualSelection is enabled, add the selected inputs
       const contractInputs = inputs.filter(input => !input.isP2pkh)
