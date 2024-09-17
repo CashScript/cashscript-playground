@@ -3,20 +3,28 @@ import CopyText from './shared/CopyText'
 import { Card, Button } from 'react-bootstrap'
 import { ContractInfo } from './shared'
 import InfoUtxos from './InfoUtxos'
+import { MockNetworkProvider, NetworkProvider, randomUtxo } from 'cashscript'
 
 interface Props {
+  provider: NetworkProvider
   contracts: ContractInfo[] | undefined
   setContracts: (contract: ContractInfo[] | undefined) => void
   updateUtxosContract: (contractName: string) => void
 }
 
-const Contracts: React.FC<Props> = ({ contracts, setContracts, updateUtxosContract }) => {
+const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateUtxosContract }) => {
 
   const removeContract = (contractInfo: ContractInfo) => {
     const contractToRemove = contractInfo.contract
     const contractToRemoveAddress = contractToRemove.address;
     const newContracts = contracts?.filter(contractInfo => contractInfo.contract.address !== contractToRemoveAddress)
     setContracts(newContracts)
+  }
+
+  const addRandomUtxo = (contractInfo:ContractInfo) => {
+    if(!(provider instanceof MockNetworkProvider)) return
+    provider.addUtxo(contractInfo.contract.address, randomUtxo())
+    updateUtxosContract(contractInfo.contract.name)
   }
 
   return (
@@ -66,9 +74,11 @@ const Contracts: React.FC<Props> = ({ contracts, setContracts, updateUtxosContra
                 <p>loading ...</p>:
                 (<div>
                   {contractInfo?.utxos.length} {contractInfo?.utxos.length == 1 ? "utxo" : "utxos"}
-                  <span onClick={() => {}} style={{cursor:"pointer", marginLeft:"10px"}}>
+                  { undefined === (provider as MockNetworkProvider)?.addUtxo ? (<>
+                    <span onClick={() => {}} style={{cursor:"pointer", marginLeft:"10px"}}>
                     <Button size='sm' onClick={() => updateUtxosContract(contractInfo.contract.name)} variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
                   </span>
+                  </>) : null}
                   {contractInfo.utxos.length ? 
                     <details>
                       <summary>Show utxos</summary>
@@ -78,6 +88,17 @@ const Contracts: React.FC<Props> = ({ contracts, setContracts, updateUtxosContra
                   </details> : null}
                 </div>)
               }
+              { undefined !== (provider as MockNetworkProvider)?.addUtxo ? (
+                <div>
+                  <strong>Create new contract utxo</strong>
+                  <div onClick={() => addRandomUtxo(contractInfo)} style={{cursor:"pointer"}}>
+                    <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>add random utxo</Button>
+                  </div>
+                  <details>
+                    <summary>Create custom utxo</summary>
+                    <p>coming soon...</p>
+                  </details>
+                </div>) : null}
               <strong>Total contract balance</strong>
               {contractInfo.utxos == undefined? 
                 <p>loading ...</p>:

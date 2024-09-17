@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { NetworkProvider } from 'cashscript'
+import { MockNetworkProvider, NetworkProvider, randomUtxo } from 'cashscript'
 import { ColumnFlex, Wallet } from './shared'
 import { Button, Card } from 'react-bootstrap'
 import {
@@ -123,6 +123,12 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
     setWallets(walletsCopy)
   }
 
+  const addRandomUtxo = (wallet: Wallet, index: number) => {
+    if(!(provider instanceof MockNetworkProvider)) return
+    provider.addUtxo(wallet.address, randomUtxo())
+    updateUtxosWallet(wallet, index)
+  }
+
   const walletList = wallets.map((wallet, index) => (
     <Card style={{ marginBottom: '10px' }} key={wallet.privKeyHex}>
       <Card.Header style={{ display:"flex", justifyContent:"space-between"}}>
@@ -148,10 +154,23 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
         <Card.Text><strong>Wallet utxos</strong></Card.Text>
         <div>
           <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
-          <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
-            <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
-          </span>
+          { undefined === (provider as MockNetworkProvider)?.addUtxo ? (<>
+            <span onClick={() => updateUtxosWallet(wallet,index)} style={{cursor:"pointer", marginLeft:"10px"}}>
+              <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
+            </span>
+          </>) : null}
         </div>
+        { undefined !== (provider as MockNetworkProvider)?.addUtxo ? (
+          <div>
+            <strong>Create new wallet utxo</strong>
+            <div onClick={() => addRandomUtxo(wallet, index)} style={{cursor:"pointer"}}>
+              <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>add random utxo</Button>
+            </div>
+            <details>
+              <summary>Create custom utxo</summary>
+              <p>coming soon...</p>
+            </details>
+          </div>) : null}
         <Card.Text><strong>Wallet Balance</strong></Card.Text>
         <div>{wallet.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</div>
         <strong>Private Key</strong>

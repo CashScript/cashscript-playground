@@ -1,6 +1,6 @@
 // Components
 import React, { useState } from 'react';
-import { Artifact, ElectrumNetworkProvider, NetworkProvider } from 'cashscript';
+import { Artifact, MockNetworkProvider, NetworkProvider } from 'cashscript';
 import Header from './Header'
 import Main from './Main'
 import Footer from './Footer';
@@ -13,7 +13,7 @@ import Contracts from './Contracts';
 import TransactionBuilder from './TransactionBuilder';
 
 function App() {
-  const [provider, setProvider] = useState<NetworkProvider>(new ElectrumNetworkProvider("chipnet"))
+  const [provider, setProvider] = useState<NetworkProvider>(new MockNetworkProvider())
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
   const [contracts, setContracts] = useState<ContractInfo[] | undefined>(undefined)
@@ -41,7 +41,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     if (!currentContract) return
     // create a separate lists for utxos and mutate entry
     const utxosList = contracts.map(contract => contract.utxos ?? [])
-    const contractUtxos = await currentContract.getUtxos();
+    const contractUtxos = await provider.getUtxos(currentContract.address);
     utxosList[contractIndex] = contractUtxos
     // map is the best way to deep clone array of complex objects
     const newContracts: ContractInfo[] = contracts.map((contractInfo,index) => (
@@ -54,7 +54,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     if(!contracts) return
 
     const utxosPromises = contracts.map(contractInfo => {
-      const contractUtxos = contractInfo.contract.getUtxos();
+      const contractUtxos = provider.getUtxos(contractInfo.contract.address);
       return contractUtxos ?? []
     })
     const utxosContracts = await Promise.all(utxosPromises)
@@ -82,7 +82,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
             <NewContract artifacts={artifacts} provider={provider} setProvider={setProvider} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="contracts" title="Contracts">
-            <Contracts contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
+            <Contracts provider={provider} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
             <WalletInfo provider={provider} wallets={wallets} setWallets={setWallets}/>

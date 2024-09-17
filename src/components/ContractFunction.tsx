@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { AbiFunction, NetworkProvider, FunctionArgument, Recipient, SignatureTemplate } from 'cashscript'
+import { AbiFunction, NetworkProvider, FunctionArgument, Recipient, SignatureTemplate, MockNetworkProvider } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
 import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './shared'
 
@@ -289,10 +289,17 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       // if noAutomaticChange is enabled, add this to the transaction in construction
       if (noAutomaticChange) transaction.withoutChange().withoutTokenChange()
       transaction.to(outputs)
-      const { txid } = await transaction.send()
 
-      alert(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
-      console.log(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
+      // check for mocknet
+      if(provider instanceof MockNetworkProvider){
+        await transaction.debug()
+        alert(`Transaction evalution passed! Bitauth IDE link: ${await transaction.bitauthUri()}`)
+        console.log(`Transaction evalution passed! Bitauth IDE link: ${await transaction.bitauthUri()}`)
+      } else {
+        const { txid } = await transaction.send()
+        alert(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
+        console.log(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
+      }
       updateUtxosContract(contract.name)
     } catch (e: any) {
       alert(e.message)
