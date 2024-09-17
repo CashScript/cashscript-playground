@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Network, ElectrumNetworkProvider } from 'cashscript'
+import { NetworkProvider } from 'cashscript'
 import { ColumnFlex, Wallet } from './shared'
 import { Button, Card } from 'react-bootstrap'
 import {
@@ -16,12 +16,12 @@ import CopyText from './shared/CopyText'
 import InfoUtxos from './InfoUtxos'
 
 interface Props {
-  network: Network
+  provider: NetworkProvider
   wallets: Wallet[]
   setWallets:(wallets: Wallet[]) => void
 }
 
-const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
+const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
   useEffect(() => {
     const localStorageData = localStorage.getItem("wallets");
     // If the local storage is null
@@ -91,9 +91,8 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
         }
         setWallets(newWallets);
         // fetch UTXOs
-        const networkProvider = new ElectrumNetworkProvider(network)
         for (const wallet of newWallets){
-          const walletUtxos = await networkProvider.getUtxos(wallet.address);
+          const walletUtxos = await provider.getUtxos(wallet.address);
           wallet.utxos = walletUtxos
         }
         setWallets(newWallets);
@@ -118,7 +117,7 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
   }, [wallets]);
 
   async function updateUtxosWallet (wallet: Wallet, index: number) {
-    const walletUtxos = await new ElectrumNetworkProvider(network).getUtxos(wallet.address);
+    const walletUtxos = await provider.getUtxos(wallet.address);
     const walletsCopy = [...wallets]
     walletsCopy[index].utxos = walletUtxos
     setWallets(walletsCopy)
@@ -142,10 +141,10 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
         <CopyText>{wallet.pubKeyHex}</CopyText>
         <Card.Text><strong>Pubkeyhash hex:</strong></Card.Text>
         <CopyText>{wallet.pubKeyHashHex}</CopyText>
-        <Card.Text><strong>{network==="mainnet"? "Address:" : "Testnet Address:"}</strong></Card.Text>
-        <CopyText>{network==="mainnet"? wallet.address : wallet.testnetAddress}</CopyText>
-        <Card.Text><strong>{network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong></Card.Text>
-        <CopyText>{network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
+        <Card.Text><strong>{provider.network==="mainnet"? "Address:" : "Testnet Address:"}</strong></Card.Text>
+        <CopyText>{provider.network==="mainnet"? wallet.address : wallet.testnetAddress}</CopyText>
+        <Card.Text><strong>{provider.network==="mainnet"? "Token address:" : "Testnet Token Address:"}</strong></Card.Text>
+        <CopyText>{provider.network==="mainnet"? hash160ToCash(wallet.pubKeyHashHex, false, true) : hash160ToCash(wallet.pubKeyHashHex, true, true)}</CopyText>
         <Card.Text><strong>Wallet utxos</strong></Card.Text>
         <div>
           <span>{wallet.utxos?.length} {wallet.utxos?.length == 1 ? "utxo" : "utxos"}</span>
@@ -159,7 +158,7 @@ const WalletInfo: React.FC<Props> = ({network, wallets, setWallets}) => {
         <details>
           <summary>Show Private Key</summary>
           <Card.Text><strong>WIF:</strong></Card.Text>
-          <CopyText>{encodePrivateKeyWif(wallet.privKey, network === "mainnet" ? "mainnet" : "testnet")}</CopyText>
+          <CopyText>{encodePrivateKeyWif(wallet.privKey, provider.network === "mainnet" ? "mainnet" : "testnet")}</CopyText>
           <Card.Text><strong>Hex:</strong></Card.Text>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>

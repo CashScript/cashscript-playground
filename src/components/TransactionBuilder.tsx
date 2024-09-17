@@ -1,17 +1,17 @@
 import React, {useState} from 'react'
-import { Network } from 'cashscript'
+import { NetworkProvider } from 'cashscript'
 import ContractFunctions from './ContractFunctions';
 import { Wallet, ContractInfo } from './shared'
 import { Form } from 'react-bootstrap'
 
 interface Props {
-  network: Network
+  provider: NetworkProvider
   wallets: Wallet[]
   updateUtxosContract: (contractName: string) => void
   contracts: ContractInfo[] | undefined
 }
 
-const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, updateUtxosContract }) => {
+const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, updateUtxosContract }) => {
 
   const [selectedContract, setSelectedContract] = useState<ContractInfo | undefined>(undefined);
 
@@ -55,7 +55,7 @@ const TransactionBuilder: React.FC<Props> = ({ network, wallets, contracts, upda
       }
       </div>
       {selectedContract !== undefined ?
-        <ContractFunctions contractInfo={selectedContract} network={network} wallets={wallets} updateUtxosContract={updateUtxosContract} />
+        <ContractFunctions contractInfo={selectedContract} provider={provider} wallets={wallets} updateUtxosContract={updateUtxosContract} />
         : null
       }
     </div>

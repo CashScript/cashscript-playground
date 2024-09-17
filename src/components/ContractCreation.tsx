@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, ConstructorArgument, Network, ElectrumNetworkProvider } from 'cashscript'
+import { Artifact, Contract, ConstructorArgument, NetworkProvider } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
 import { readAsConstructorType, ContractInfo, TinyContractObj } from './shared'
 
@@ -7,11 +7,11 @@ interface Props {
   artifact?: Artifact
   contracts?: ContractInfo[]
   setContracts: (contracts?: ContractInfo[]) => void
-  network: Network
+  provider: NetworkProvider
   updateUtxosContract: (contractName: string) => void
 }
 
-const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, network, updateUtxosContract}) => {
+const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, provider, updateUtxosContract}) => {
   const [constructorArgs, setConstructorArgs] = useState<ConstructorArgument[]>([])
   const [nameContract, setNameContract] = useState<string>("");
   const [createdContract, setCreatedContract] = useState(false);
@@ -52,7 +52,6 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
   function createContract() {
     if (!artifact) return
     try {
-      const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(artifact, constructorArgs, { provider })
       newContract.name = nameContract
       const contractInfo = {contract: newContract, utxos: undefined, args: constructorArgs}

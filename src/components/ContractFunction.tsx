@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react'
-import { AbiFunction, FunctionArgument, Network, Recipient, SignatureTemplate, Utxo } from 'cashscript'
+import { AbiFunction, NetworkProvider, FunctionArgument, Recipient, SignatureTemplate } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
 import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './shared'
 
 interface Props {
   contractInfo: ContractInfo
   abi?: AbiFunction
-  network: Network
+  provider: NetworkProvider
   wallets: Wallet[]
   updateUtxosContract: (contractName: string) => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets, updateUtxosContract }) => {
+const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallets, updateUtxosContract }) => {
   const [functionArgs, setFunctionArgs] = useState<FunctionArgument[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -291,8 +291,8 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, network, wallets
       transaction.to(outputs)
       const { txid } = await transaction.send()
 
-      alert(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
-      console.log(`Transaction successfully sent: ${ExplorerString[network]}/tx/${txid}`)
+      alert(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
+      console.log(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
       updateUtxosContract(contract.name)
     } catch (e: any) {
       alert(e.message)

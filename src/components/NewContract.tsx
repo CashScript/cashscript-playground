@@ -1,19 +1,19 @@
 import React, { useState } from 'react'
-import { Artifact, Network } from 'cashscript'
+import { Artifact, NetworkProvider, Network, MockNetworkProvider, ElectrumNetworkProvider } from 'cashscript'
 import { Form } from 'react-bootstrap'
 import ContractCreation from './ContractCreation';
 import { ContractInfo } from './shared'
 
 interface Props {
   artifacts?: Artifact[]
-  network: Network
-  setNetwork: (network: Network) => void
+  provider: NetworkProvider
+  setProvider: (provider: NetworkProvider) => void
   updateUtxosContract: (contractName: string) => void
   contracts: ContractInfo[] | undefined
   setContracts: (contract: ContractInfo[] | undefined) => void
 }
 
-const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contracts, setContracts, updateUtxosContract }) => {
+const NewContract: React.FC<Props> = ({ artifacts, provider, setProvider, contracts, setContracts, updateUtxosContract }) => {
 
   const [selectedArifact, setSelectedArtifact] = useState<Artifact | undefined>(undefined);
 
@@ -36,18 +36,23 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
     </Form.Control>
   )
 
+  function changeNetwork(newNetwork: Network){
+    const newprovider = new ElectrumNetworkProvider(newNetwork)
+    setProvider(newprovider)
+  }
+
   const networkSelector = (
     <Form.Control size="sm" id="network-selector" style={{width: "350px", display:"inline-block"}}
       as="select"
-      value={network}
+      value={provider.network}
       onChange={(event) => {
-        setNetwork(event.target.value as Network)
+        changeNetwork(event.target.value as Network)
       }}
     >
-      <option>mainnet</option>
+      <option>chipnet</option>
       <option>testnet3</option>
       <option>testnet4</option>
-      <option>chipnet</option>
+      <option>mainnet</option>
     </Form.Control>
   )
 
@@ -67,15 +72,15 @@ const NewContract: React.FC<Props> = ({ artifacts, network, setNetwork, contract
       <h2>New Contract</h2>
       {artifacts?.length ?
         <>
-          <p style={{margin: "10px 0"}}>Choose the contract Arifact and network to use:</p>
-          <div style={{margin: "10px 0"}}>
-            <span>Select Artifact:</span> {artifactSelector}
-          </div>
           <div style={{margin: "10px 0"}}>
             <span>Select target Network:</span> {networkSelector}
           </div>
+          <p style={{margin: "10px 0"}}>Choose the contract Arifact to use:</p>
+          <div style={{margin: "10px 0"}}>
+            <span>Select Artifact:</span> {artifactSelector}
+          </div>
           {selectedArifact !== undefined ?
-            <ContractCreation artifact={selectedArifact} network={network} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
+            <ContractCreation artifact={selectedArifact} provider={provider} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
             : null
           }
         </>

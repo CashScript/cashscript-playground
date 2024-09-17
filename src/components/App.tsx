@@ -1,6 +1,6 @@
 // Components
 import React, { useState } from 'react';
-import { Artifact, Network } from 'cashscript';
+import { Artifact, ElectrumNetworkProvider, NetworkProvider } from 'cashscript';
 import Header from './Header'
 import Main from './Main'
 import Footer from './Footer';
@@ -13,12 +13,12 @@ import Contracts from './Contracts';
 import TransactionBuilder from './TransactionBuilder';
 
 function App() {
-  const [network, setNetwork] = useState<Network>('chipnet')
+  const [provider, setProvider] = useState<NetworkProvider>(new ElectrumNetworkProvider("chipnet"))
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
   const [contracts, setContracts] = useState<ContractInfo[] | undefined>(undefined)
   const [code, setCode] = useState<string>(
-`pragma cashscript >= 0.8.0;
+`pragma cashscript >= 0.10.0;
     
 contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     // Require recipient's signature to match
@@ -79,16 +79,16 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
             <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} setContracts={setContracts} updateAllUtxosContracts={updateAllUtxosContracts}/>
           </Tab>
           <Tab eventKey="newcontract" title="New Contract">
-            <NewContract artifacts={artifacts} network={network} setNetwork={setNetwork} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
+            <NewContract artifacts={artifacts} provider={provider} setProvider={setProvider} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="contracts" title="Contracts">
             <Contracts contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />
           </Tab>
           <Tab eventKey="wallets" title="Wallets">
-            <WalletInfo network={network} wallets={wallets} setWallets={setWallets}/>
+            <WalletInfo provider={provider} wallets={wallets} setWallets={setWallets}/>
           </Tab>
           <Tab eventKey="transactionBuilder" title="TransactionBuilder">
-            <TransactionBuilder network={network} wallets={wallets} contracts={contracts} updateUtxosContract={updateUtxosContract}/>
+            <TransactionBuilder provider={provider} wallets={wallets} contracts={contracts} updateUtxosContract={updateUtxosContract}/>
           </Tab>
         </Tabs>
       </div>
