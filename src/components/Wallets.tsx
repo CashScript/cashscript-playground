@@ -159,6 +159,12 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
               <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
             </span>
           </>) : null}
+          <details style={{width: "fit-content"}}>
+            <summary>Show utxos</summary>
+            <div>
+              <InfoUtxos utxos={wallet.utxos}/>
+            </div>
+          </details>
         </div>
         { undefined !== (provider as MockNetworkProvider)?.addUtxo ? (
           <div>
@@ -181,13 +187,6 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
           <Card.Text><strong>Hex:</strong></Card.Text>
           <CopyText>{wallet.privKeyHex}</CopyText>
         </details>
-        {wallet.utxos.length ? 
-          (<details>
-            <summary>Show utxos</summary>
-            <div>
-              <InfoUtxos utxos={wallet.utxos}/>
-            </div>
-          </details>) : null}
       </Card.Body>
     </Card>
   ))
