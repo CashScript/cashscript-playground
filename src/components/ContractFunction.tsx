@@ -48,7 +48,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       setNamedUtxoList(newNamedUtxoList);
     }
     updateUtxos()
-  }, [contractInfo])
+  }, [contractInfo, wallets])
 
   function fillPrivKey(i: number, walletIndex: string) {
     const argsCopy = [...functionArgs];

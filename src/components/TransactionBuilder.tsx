@@ -20,7 +20,7 @@ const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, upd
     const contractName = selectedContract?.contract.name
     const updatedContract = contracts?.find(contractInfo => contractInfo.contract?.name === contractName)
     if(updatedContract != selectedContract) setSelectedContract(updatedContract)
-  }, [contracts])
+  }, [contracts, wallets])
 
   const contractSelector = (
     <Form.Control size="sm" id="artifact-selector" style={{width:"350px", display:"inline-block"}}
