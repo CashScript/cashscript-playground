@@ -16,14 +16,12 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
   const [inputs, setInputs] = useState<NamedUtxo[]>([{ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }])
-  const [manualSelection, setManualSelection] = useState<boolean>(false)
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
   const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
   const [namedUtxoList, setNamedUtxoList] = useState<NamedUtxo[]>([])
 
   const contract = contractInfo.contract
-  const contractUtxos = contractInfo.utxos
 
   useEffect(() => {
     // Set empty strings as default values
@@ -31,10 +29,11 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
     setFunctionArgs(newArgs);
   }, [abi])
 
+  // setNamedUtxoList on initial render and on contractInfo updates 
   useEffect(() => {
-    if (!manualSelection) return;
+    if (contractInfo.contract === undefined) return
     async function updateUtxos() {
-      if (contractInfo.contract === undefined || contractUtxos === undefined) return
+      const contractUtxos = contractInfo.utxos ?? []
       const namedUtxosContract: NamedUtxo[] = contractUtxos.map((utxo, index) => ({ ...utxo, name: `${contract.name} UTXO ${index}`, isP2pkh: false }))
       let newNamedUtxoList = namedUtxosContract
       const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
@@ -49,7 +48,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       setNamedUtxoList(newNamedUtxoList);
     }
     updateUtxos()
-  }, [manualSelection, contractInfo])
+  }, [contractInfo])
 
   function fillPrivKey(i: number, walletIndex: string) {
     const argsCopy = [...functionArgs];
@@ -274,17 +273,16 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       // first step of constructing transaction
       const transaction = contract.functions[abi.name](...functionArgs)
 
-      // if manualSelection is enabled, add the selected inputs
       const contractInputs = inputs.filter(input => !input.isP2pkh)
-      let p2pkhInputs = inputs.filter(input => input.isP2pkh)
-      if (manualSelection) {
-        transaction.from(contractInputs)
-        p2pkhInputs.forEach(p2pkhInput => {
-          if(p2pkhInput !== undefined && p2pkhInput.walletIndex !== undefined){
-            transaction.fromP2PKH(p2pkhInput, new SignatureTemplate(wallets[p2pkhInput.walletIndex].privKey))
-          }
-        })
-      }
+      transaction.from(contractInputs)
+      // set p2pkh inputs
+      // TODO: input order get changed
+      const p2pkhInputs = inputs.filter(input => input.isP2pkh)
+      p2pkhInputs.forEach(p2pkhInput => {
+        if(p2pkhInput !== undefined && p2pkhInput.walletIndex !== undefined){
+          transaction.fromP2PKH(p2pkhInput, new SignatureTemplate(wallets[p2pkhInput.walletIndex].privKey))
+        }
+      })
 
       // if noAutomaticChange is enabled, add this to the transaction in construction
       if (noAutomaticChange) transaction.withoutChange().withoutTokenChange()
@@ -339,23 +337,13 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
             <div>
               {argumentFields}
             </div>
-            <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
-              <Form.Check
-                type="switch"
-                id={abi?.name}
-                label="manual UTXO selection"
-                onChange={() => setManualSelection(!manualSelection)}
-              />
-            </Form>
-            {manualSelection ? (
-              <><Card.Subtitle style={{ marginTop: '10px', marginBottom: '5px' }}>
-                Transaction inputs{' '}
-                <Button variant="outline-secondary" size="sm" disabled={inputs.length <= 1} onClick={removeInput}>-</Button>
-                {' ' + inputs.length + ' '}
-                <Button variant="outline-secondary" size="sm" onClick={addInput}>+</Button>
-              </Card.Subtitle>
-              {inputFields}</>
-            ) : null}
+            <Card.Subtitle style={{ marginTop: '10px', marginBottom: '5px' }}>
+              Transaction inputs{' '}
+              <Button variant="outline-secondary" size="sm" disabled={inputs.length <= 1} onClick={removeInput}>-</Button>
+              {' ' + inputs.length + ' '}
+              <Button variant="outline-secondary" size="sm" onClick={addInput}>+</Button>
+            </Card.Subtitle>
+            {inputFields}
             <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
               <Form.Check
                 type="switch"
