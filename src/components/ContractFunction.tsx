@@ -290,12 +290,20 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
 
       // check for mocknet
       if(provider instanceof MockNetworkProvider){
-        await transaction.debug()
-        alert(`Transaction evalution passed! Bitauth IDE link: ${await transaction.bitauthUri()}`)
+        try{
+          await transaction.debug()
+          alert(`Transaction evalution passed! see Bitauth IDE link in console`)
+        } catch(error) {
+          const errorMessage = typeof error == "string" ? error : (error as Error)?.message
+          const cashscriptError = errorMessage.split("Bitauth")[0]
+          console.error(errorMessage)
+          alert(`Transaction evalution failed with the following message: \n\n${cashscriptError} See Bitauth IDE link in console`)
+        }
+        
         console.log(`Transaction evalution passed! Bitauth IDE link: ${await transaction.bitauthUri()}`)
       } else {
         const { txid } = await transaction.send()
-        alert(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
+        alert(`Transaction successfully sent! see explorer link in console`)
         console.log(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
       }
       updateUtxosContract(contract.name)
