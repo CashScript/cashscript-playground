@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { MockNetworkProvider, NetworkProvider, Utxo } from 'cashscript'
-import { Form, InputGroup, Button, Card } from 'react-bootstrap'
+import { MockNetworkProvider, NetworkProvider, randomToken, randomUtxo, Utxo } from 'cashscript'
+import { Form, InputGroup, Button } from 'react-bootstrap'
 
 interface Props {
   provider: NetworkProvider
@@ -9,9 +9,7 @@ interface Props {
 }
 
 const CreateUtxo: React.FC<Props> = ({provider, address, updateUtxos}) => {
-  const [customUtxo, setCustomUtxo] = useState<Utxo>({txid: "", satoshis: 0n, vout: 0})
-  // const [hasFT, setHasFT] = useState<boolean>(false)
-  // const [hasNFT, setHasNFT] = useState<boolean>(false)
+  const [customUtxo, setCustomUtxo] = useState<Utxo>({...randomUtxo()})
 
   const addCustomUtxo = () => {
     try{
@@ -62,16 +60,58 @@ const CreateUtxo: React.FC<Props> = ({provider, address, updateUtxos}) => {
               }}
             />
           </InputGroup>
+          <InputGroup>
+            <Form.Control size="sm"
+              placeholder="Token Category"
+              aria-label="Token Category"
+              onChange={(event) => {
+                const utxoCopy = { ...customUtxo }
+                if(!utxoCopy.token) utxoCopy.token = {category: "", amount:0n}
+                const newCategory = event.target.value ? event.target.value : randomToken().category
+                utxoCopy.token.category = newCategory
+                setCustomUtxo(utxoCopy)
+              }}
+            />
+            <Form.Control size="sm"
+              placeholder="Amount Fungible Tokens"
+              aria-label="Amount Fungible Tokens"
+              onChange={(event) => {
+                const utxoCopy = { ...customUtxo }
+                if(!utxoCopy.token) utxoCopy.token = {category: randomToken().category, amount:0n}
+                utxoCopy.token.amount = BigInt(event.target.value)
+                setCustomUtxo(utxoCopy)
+              }}
+            />
+          </InputGroup>
+          <InputGroup>
+            <Form.Control size="sm"
+              placeholder="Token Commitment"
+              aria-label="Token Commitment"
+              onChange={(event) => {
+                const utxoCopy = { ...customUtxo }
+                if(!utxoCopy.token) utxoCopy.token = {...randomToken()}
+                if(!utxoCopy.token.nft) utxoCopy.token.nft = {commitment: "", capability:"none"}
+                utxoCopy.token.nft.commitment = event.target.value
+                setCustomUtxo(utxoCopy)
+              }}
+            />
+            <Form.Control size="sm" id="capability-selector"
+              as="select"
+              onChange={(event) => {
+                const utxoCopy = { ...customUtxo }
+                if(!utxoCopy.token) utxoCopy.token = {...randomToken()}
+                if(!utxoCopy.token.nft) utxoCopy.token.nft = {commitment: "", capability:"none"}
+                utxoCopy.token.nft.capability = event.target.value as "none" | "mutable" | "minting"
+                setCustomUtxo(utxoCopy)
+              }}
+            >
+              <option>Select Capability</option>
+              <option value={"none"}>none</option>
+              <option value={"minting"}>minting</option>
+              <option value={"mutable"}>mutable</option>
+            </Form.Control>
+          </InputGroup>
         </div>
-        {/*
-        <Form style={{ marginTop: '5px', marginBottom: '5px', display: "inline-block" }}>
-        <Form.Check
-          type="switch"
-          id={"HasFT"}
-          label="add tokens to Utxo"
-          onChange={(event) => console.log("b")}
-          />
-        </Form>*/}
       </div>
       <Button size='sm' variant='secondary' onClick={() => addCustomUtxo()} style={{padding:" 0px 2px"}}>add custom utxo</Button>
     </div>
