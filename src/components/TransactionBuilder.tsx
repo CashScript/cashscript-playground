@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
-import { NetworkProvider } from 'cashscript'
-import ContractFunctions from './ContractFunctions';
+import { AbiFunction, NetworkProvider } from 'cashscript'
+import ContractFunction from './ContractFunction';
 import { Wallet, ContractInfo } from './shared'
 import { Form } from 'react-bootstrap'
 
@@ -14,6 +14,7 @@ interface Props {
 const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, updateUtxosContract }) => {
 
   const [selectedContract, setSelectedContract] = useState<ContractInfo | undefined>(undefined);
+  const [selectedFunction, setSelectedFunction] = useState<AbiFunction | undefined>(undefined);
 
   useEffect(() => {
     const contractName = selectedContract?.contract.name
@@ -40,6 +41,28 @@ const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, upd
     </Form.Control>
   )
 
+  const functionSelector = (
+    <Form.Control size="sm" id="artifact-selector" style={{width:"350px", display:"inline-block"}}
+      as="select"
+      value={selectedFunction?.name ?? "select"}
+      onChange={(event) => {
+        if(!selectedContract) return
+        const functionName = event.target?.value
+        const contractFunction = selectedContract.contract.artifact.abi.find(abiFunction =>
+          abiFunction.name == functionName
+        )
+        setSelectedFunction(contractFunction)
+      }}
+    >
+      <option>--- select ---</option> 
+      {selectedContract && selectedContract.contract.artifact.abi.map((abi) => (
+        <option key={abi.name} value={abi.name}>
+          {abi.name}
+        </option>
+      ))}
+    </Form.Control>
+  )
+
   return (
     <div style={{
       height: 'calc(100vh - 170px)',
@@ -60,8 +83,15 @@ const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, upd
         : <div>No contract initialised yet...</div>
       }
       </div>
-      {selectedContract !== undefined ?
-        <ContractFunctions contractInfo={selectedContract} provider={provider} wallets={wallets} updateUtxosContract={updateUtxosContract} />
+
+      <div style={{margin: "10px 0"}}>
+      {selectedContract ?
+        <><span>Select Contract Function:</span> {functionSelector}</>
+        : null
+      }
+      </div>
+      {selectedContract !== undefined && selectedFunction !== undefined ?
+        <ContractFunction abi={selectedFunction} contractInfo={selectedContract} provider={provider} wallets={wallets} updateUtxosContract={updateUtxosContract} />
         : null
       }
     </div>
