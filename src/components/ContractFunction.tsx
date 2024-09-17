@@ -5,7 +5,7 @@ import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './s
 
 interface Props {
   contractInfo: ContractInfo
-  abi?: AbiFunction
+  abi: AbiFunction
   provider: NetworkProvider
   wallets: Wallet[]
   updateUtxosContract: (contractName: string) => void
@@ -329,6 +329,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
 
   return (
     <div>
+      <h5>{contract.artifact.contractName}</h5>
       {contract &&
         <Card style={{ marginBottom: '10px' }}>
           <Card.Header>{abi?.name}</Card.Header>
