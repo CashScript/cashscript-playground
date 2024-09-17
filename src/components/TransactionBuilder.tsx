@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { NetworkProvider } from 'cashscript'
 import ContractFunctions from './ContractFunctions';
 import { Wallet, ContractInfo } from './shared'
@@ -14,6 +14,12 @@ interface Props {
 const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, updateUtxosContract }) => {
 
   const [selectedContract, setSelectedContract] = useState<ContractInfo | undefined>(undefined);
+
+  useEffect(() => {
+    const contractName = selectedContract?.contract.name
+    const updatedContract = contracts?.find(contractInfo => contractInfo.contract?.name === contractName)
+    if(updatedContract != selectedContract) setSelectedContract(updatedContract)
+  }, [contracts])
 
   const contractSelector = (
     <Form.Control size="sm" id="artifact-selector" style={{width:"350px", display:"inline-block"}}
