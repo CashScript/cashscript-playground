@@ -273,16 +273,16 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       // first step of constructing transaction
       const transaction = contract.functions[abi.name](...functionArgs)
 
-      const contractInputs = inputs.filter(input => !input.isP2pkh)
-      transaction.from(contractInputs)
-      // set p2pkh inputs
-      // TODO: input order get changed
-      const p2pkhInputs = inputs.filter(input => input.isP2pkh)
-      p2pkhInputs.forEach(p2pkhInput => {
-        if(p2pkhInput !== undefined && p2pkhInput.walletIndex !== undefined){
-          transaction.fromP2PKH(p2pkhInput, new SignatureTemplate(wallets[p2pkhInput.walletIndex].privKey))
+      // add inputs to transaction in correct order
+      for(const input of inputs){
+        if(input.isP2pkh){
+          const walletIndex = input.walletIndex as number
+          const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
+          transaction.fromP2PKH(input, sigTemplate)
+        } else {
+          transaction.from(input)
         }
-      })
+      }
 
       // if noAutomaticChange is enabled, add this to the transaction in construction
       if (noAutomaticChange) transaction.withoutChange().withoutTokenChange()
