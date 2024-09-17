@@ -74,27 +74,26 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                 <p>loading ...</p>:
                 (<div>
                   {contractInfo?.utxos.length} {contractInfo?.utxos.length == 1 ? "utxo" : "utxos"}
-                  { undefined === (provider as MockNetworkProvider)?.addUtxo ? (<>
-                    <span onClick={() => {}} style={{cursor:"pointer", marginLeft:"10px"}}>
-                    <Button size='sm' onClick={() => updateUtxosContract(contractInfo.contract.name)} variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
-                  </span>
-                  </>) : null}
-                  {contractInfo.utxos.length ? 
-                    <details>
-                      <summary>Show utxos</summary>
-                      <div>
-                        <InfoUtxos utxos={contractInfo?.utxos}/>
-                      </div>
-                  </details> : null}
+                  <details style={{width: "fit-content"}}>
+                    <summary>Show utxos</summary>
+                    <div>
+                      <InfoUtxos utxos={contractInfo?.utxos}/>
+                    </div>
+                  </details> 
+                  { undefined === (provider as MockNetworkProvider)?.addUtxo ? (
+                    <div style={{cursor:"pointer", marginLeft:"10px"}}>
+                      <Button size='sm' onClick={() => updateUtxosContract(contractInfo.contract.name)} variant='secondary' style={{padding:" 0px 2px"}}>refresh ⭯</Button>
+                    </div>)
+                  : null}
                 </div>)
               }
               { undefined !== (provider as MockNetworkProvider)?.addUtxo ? (
                 <div>
                   <strong>Create new contract utxo</strong>
                   <div onClick={() => addRandomUtxo(contractInfo)} style={{cursor:"pointer"}}>
-                    <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>add random utxo</Button>
+                    <Button size='sm' variant='secondary' style={{padding:"0px 2px"}}>add random utxo</Button>
                   </div>
-                  <details>
+                  <details style={{width: "fit-content"}}>
                     <summary>Create custom utxo</summary>
                     <p>coming soon...</p>
                   </details>
@@ -103,7 +102,6 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
               {contractInfo.utxos == undefined? 
                 <p>loading ...</p>:
                 <p>{contractInfo.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</p>
-                
               }
               <strong>Contract size</strong>
               <p>{contractInfo.contract.bytesize} bytes (max 520), {contractInfo.contract.opcount} opcodes (max 201)</p>
