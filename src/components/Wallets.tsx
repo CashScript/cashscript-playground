@@ -13,7 +13,8 @@ import {
   encodePrivateKeyWif,
 } from '@bitauth/libauth'
 import CopyText from './shared/CopyText'
-import InfoUtxos from './InfoUtxos'
+import InfoUtxos from './shared/InfoUtxos'
+import CreateUtxo from './shared/CreateUtxo'
 
 interface Props {
   provider: NetworkProvider
@@ -172,10 +173,10 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
             <div onClick={() => addRandomUtxo(wallet, index)} style={{cursor:"pointer"}}>
               <Button size='sm' variant='secondary' style={{padding:" 0px 2px"}}>add random utxo</Button>
             </div>
-            <details>
+            <details style={{maxWidth: "50%"}}>
               <summary>Create custom utxo</summary>
-              <p>coming soon...</p>
-            </details>
+                <CreateUtxo provider={provider} address={wallet.address} updateUtxos={() => updateUtxosWallet(wallet,index)}/>
+              </details>
           </div>) : null}
         <Card.Text><strong>Wallet Balance</strong></Card.Text>
         <div>{wallet.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</div>
