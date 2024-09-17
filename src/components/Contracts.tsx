@@ -2,8 +2,9 @@ import React from 'react'
 import CopyText from './shared/CopyText'
 import { Card, Button } from 'react-bootstrap'
 import { ContractInfo } from './shared'
-import InfoUtxos from './InfoUtxos'
+import InfoUtxos from './shared/InfoUtxos'
 import { MockNetworkProvider, NetworkProvider, randomUtxo } from 'cashscript'
+import CreateUtxo from './shared/CreateUtxo'
 
 interface Props {
   provider: NetworkProvider
@@ -93,9 +94,10 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                   <div onClick={() => addRandomUtxo(contractInfo)} style={{cursor:"pointer"}}>
                     <Button size='sm' variant='secondary' style={{padding:"0px 2px"}}>add random utxo</Button>
                   </div>
-                  <details style={{width: "fit-content"}}>
+                  <details style={{maxWidth: "50%"}}>
                     <summary>Create custom utxo</summary>
-                    <p>coming soon...</p>
+                    <CreateUtxo provider={provider} address={contractInfo.contract.address} 
+                      updateUtxos={() => updateUtxosContract(contractInfo.contract.name)}/>
                   </details>
                 </div>) : null}
               <strong>Total contract balance</strong>
