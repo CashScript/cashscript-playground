@@ -1,5 +1,5 @@
 // Components
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Artifact, MockNetworkProvider, NetworkProvider } from 'cashscript';
 import Header from './Header'
 import Main from './Main'
@@ -34,7 +34,11 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 }
 `);
 
-  async function updateUtxosContract (nameContract: string) {
+  useEffect(() => {
+    updateAllUtxosContracts()
+  }, [provider])
+
+  async function updateUtxosContract(nameContract: string) {
     const contractIndex = contracts?.findIndex(contractInfo => contractInfo.contract.name == nameContract)
     if (contractIndex == undefined) return
     const currentContract = contracts?.[contractIndex].contract
@@ -76,7 +80,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
           style={{ display: "inline-flex", marginLeft: "calc(100vw - 1100px)" }}
         >
           <Tab eventKey="editor" title="Editor">
-            <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} setContracts={setContracts} updateAllUtxosContracts={updateAllUtxosContracts}/>
+            <Main code={code} setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} provider={provider} setProvider={setProvider} setContracts={setContracts} updateAllUtxosContracts={updateAllUtxosContracts}/>
           </Tab>
           <Tab eventKey="newcontract" title="New Contract">
             <NewContract artifacts={artifacts} provider={provider} setProvider={setProvider} contracts={contracts} setContracts={setContracts} updateUtxosContract={updateUtxosContract} />

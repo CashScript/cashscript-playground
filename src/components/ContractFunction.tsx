@@ -289,7 +289,7 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
       transaction.to(outputs)
 
       // check for mocknet
-      if(provider instanceof MockNetworkProvider){
+      if(provider.network == "mocknet"){
         try{
           await transaction.debug()
           alert(`Transaction evalution passed! see Bitauth IDE link in console`)
