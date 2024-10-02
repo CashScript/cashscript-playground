@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Artifact, Contract, ElectrumNetworkProvider } from 'cashscript';
+import { Artifact, Contract, ElectrumNetworkProvider, MockNetworkProvider, Network, NetworkProvider } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex, ContractInfo, TinyContractObj } from './shared';
 import Editor from './Editor';
@@ -12,9 +12,13 @@ interface Props {
   setArtifacts: (artifacts: Artifact[] | undefined) => void
   setContracts: (contracts?: ContractInfo[]) => void
   updateAllUtxosContracts: () => void
+  setProvider: (networkProvider: NetworkProvider) => void
+  provider: NetworkProvider
 }
 
-const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts, setContracts, updateAllUtxosContracts}) => {
+const Main: React.FC<Props> = ({
+  code, setCode, artifacts, setArtifacts, setContracts, updateAllUtxosContracts, provider, setProvider
+}) => {
 
   const [initializeContracts, setInitializeContracts] = useState<number>(0);
 
@@ -22,12 +26,17 @@ const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts, setContr
     const codeLocalStorage = localStorage.getItem("code");
     const artifactsLocalStorage = localStorage.getItem("artifacts");
     const contractsLocalStorage = localStorage.getItem("contracts");
+    const networkLocalStorage = localStorage.getItem("network");
     // If code exits in local storage, set it as new code
     if (codeLocalStorage) setCode(codeLocalStorage);
     if (artifactsLocalStorage){
       try{
          setArtifacts(JSON.parse(artifactsLocalStorage));
       } catch(error){ console.log(error) }
+    }
+    if (networkLocalStorage && networkLocalStorage != "mocknet"){
+      const newProvider = new ElectrumNetworkProvider(networkLocalStorage as Network)
+      setProvider(newProvider)
     }
     if (contractsLocalStorage) setInitializeContracts(1)
   }, [])
@@ -38,14 +47,13 @@ const Main: React.FC<Props> = ({code, setCode, artifacts, setArtifacts, setContr
     if(!contractsStringLocalStorage) return
     const contractsLocalStorage: TinyContractObj[] = JSON.parse(contractsStringLocalStorage)
     const newContracts = contractsLocalStorage.map(tinyContractObj => {
-      const {contractName, artifactName, network, args} = tinyContractObj
+      const {contractName, artifactName, args} = tinyContractObj
       const matchingArtifact = artifacts?.find(artifact => artifact.contractName == artifactName)
       if(!matchingArtifact) return
       const unstringifiedArgs = args.map(arg => {
         if(typeof arg == "string" && arg.startsWith("bigint")) return BigInt(arg.slice(6))
           return arg
       })
-      const provider = new ElectrumNetworkProvider(network)
       const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider})
       newContract.name = contractName
       const contractInfo: ContractInfo = {

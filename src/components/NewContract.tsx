@@ -36,17 +36,17 @@ const NewContract: React.FC<Props> = ({ artifacts, provider, setProvider, contra
     </Form.Control>
   )
 
-  function changeNetwork(newNetwork: "mocknet" | Network){
+  function changeNetwork(newNetwork: Network){
     const newprovider = newNetwork == "mocknet" ? 
       new MockNetworkProvider() : new ElectrumNetworkProvider(newNetwork)
     setProvider(newprovider)
+    localStorage.setItem("network", newNetwork)
   }
 
   const networkSelector = (
     <Form.Control size="sm" id="network-selector" style={{width: "350px", display:"inline-block"}}
       as="select"
-      value={provider.network != "chipnet" ? provider.network
-        : ((provider as MockNetworkProvider)?.addUtxo)? "mocknet" : "chipnet" }
+      value={provider.network}
       onChange={(event) => {
         changeNetwork(event.target.value as Network)
       }}
