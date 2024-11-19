@@ -18,7 +18,7 @@ function App() {
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
   const [contracts, setContracts] = useState<ContractInfo[] | undefined>(undefined)
   const [code, setCode] = useState<string>(
-`pragma cashscript ~0.10.0;
+`pragma cashscript ~0.11.0;
     
 contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
     // Require recipient's signature to match
