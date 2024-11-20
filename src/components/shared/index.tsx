@@ -36,6 +36,7 @@ export interface NamedUtxo extends Utxo {
 
 export interface TinyContractObj {
   contractName: string
+  contractType: "p2sh32" | "p2sh20"
   artifactName: string
   network: Network
   args: (string | ConstructorArgument)[]

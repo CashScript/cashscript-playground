@@ -47,14 +47,15 @@ const Main: React.FC<Props> = ({
     if(!contractsStringLocalStorage) return
     const contractsLocalStorage: TinyContractObj[] = JSON.parse(contractsStringLocalStorage)
     const newContracts = contractsLocalStorage.map(tinyContractObj => {
-      const {contractName, artifactName, args} = tinyContractObj
+      const {contractName, artifactName, args, contractType} = tinyContractObj
       const matchingArtifact = artifacts?.find(artifact => artifact.contractName == artifactName)
       if(!matchingArtifact) return
       const unstringifiedArgs = args.map(arg => {
         if(typeof arg == "string" && arg.startsWith("bigint")) return BigInt(arg.slice(6))
           return arg
       })
-      const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider})
+      const addressType = contractType ?? "p2sh32"
+      const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider, addressType})
       newContract.name = contractName
       const contractInfo: ContractInfo = {
         contract: newContract,

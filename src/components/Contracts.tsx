@@ -53,9 +53,11 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
           </Card.Header>
           <Card.Body>
             <div style={{ margin: '5px', width: '100%' }}>
-              <strong>Contract address (p2sh32)</strong>
+              <strong>Contract type:</strong>
+              <span>{contractInfo.contract.addressType}</span><br/>
+              <strong>Contract address</strong>
               <CopyText>{contractInfo.contract.address}</CopyText>
-              <strong>Contract token address (p2sh32)</strong>
+              <strong>Contract token address</strong>
               <CopyText>{contractInfo.contract.tokenAddress}</CopyText>
               <strong>Contract artifact</strong>
               <p>{contractInfo.contract.artifact.contractName}</p>

@@ -14,6 +14,7 @@ interface Props {
 const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, provider, updateUtxosContract}) => {
   const [constructorArgs, setConstructorArgs] = useState<ConstructorArgument[]>([])
   const [nameContract, setNameContract] = useState<string>("");
+  const [contractType, setContractType] = useState<"p2sh32" | "p2sh20">("p2sh32");
   const [createdContract, setCreatedContract] = useState(false);
 
   const resetInputFields = () => {
@@ -52,7 +53,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
   function createContract() {
     if (!artifact) return
     try {
-      const newContract = new Contract(artifact, constructorArgs, { provider })
+      const newContract = new Contract(artifact, constructorArgs, { provider, addressType: contractType })
       newContract.name = nameContract
       const contractInfo = {contract: newContract, utxos: undefined, args: constructorArgs}
       setContracts([contractInfo, ...contracts ?? []])
@@ -73,6 +74,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       )
       const tinyContractObj: TinyContractObj = {
         contractName: contract.name,
+        contractType: contract.addressType,
         artifactName: contract.artifact.contractName,
         network: contract.provider.network,
         args: strifiedArgs
@@ -103,6 +105,15 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
           onChange={(event) => setNameContract(event.target.value)}
         />
       </InputGroup>
+      <p>Contract Type:</p>
+      <Form.Control size="sm" id="network-selector" style={{width: "350px"}}
+        as="select"
+        value={provider.network}
+        onChange={(event) => setContractType(event.target.value as "p2sh32" | "p2sh20")}
+      >
+        <option value="p2sh32">p2sh32 (default)</option>
+        <option value="p2sh20">p2sh20</option>
+      </Form.Control>
       <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}
     </div>
