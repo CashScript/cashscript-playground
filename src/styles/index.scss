@@ -77,3 +77,12 @@ h2, .h2 {
 .card-header {
   font-size: 1rem;
 }
+
+.nav-tabs .nav-link {
+  color: black !important;
+  text-decoration: none !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: black !important;
+}
