@@ -141,7 +141,7 @@ const WalletInfo: React.FC<Props> = ({provider, wallets, setWallets}) => {
           className="inputName"
           placeholder="name"
         />
-        <img src='./trash.svg' onClick={() => removeWallet(index)} style={{padding: "0px 6px", width: "fit-content", cursor:"pointer"}}/>
+        <img src='./trash.svg' onClick={() => removeWallet(index)} style={{padding: "0px 6px", width: "28px", cursor:"pointer"}}/>
       </Card.Header>
       <Card.Body>
         <Card.Text><strong>Pubkey hex:</strong></Card.Text>

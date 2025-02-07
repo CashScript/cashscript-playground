@@ -27,10 +27,12 @@ const FileUploader: React.FC<Props> = ({ handleFile }) => {
   };
   return (
     <div style={{alignSelf: "center", marginBottom: "6px", cursor:"pointer"}}>
-      <span className="button-upload" onClick={handleClick}>
-        Import Artifact
-      </span>
-      <img src="/importIcon.svg" style={{verticalAlign:"center", margin:"0px 5px"}} />
+      <div onClick={handleClick}>
+        <span className="button-upload">
+          Import Artifact
+        </span>
+        <img src="/importIcon.svg" style={{verticalAlign:"center", margin:"0px 5px"}} />
+      </div>
       <input
         type="file"
         onChange={handleChange}

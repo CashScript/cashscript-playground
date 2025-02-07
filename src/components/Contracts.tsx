@@ -49,7 +49,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
         <Card style={{ marginBottom: '10px' }} key={contractInfo.contract.address}>
           <Card.Header style={{ display:"flex", justifyContent:"space-between"}}>
             <div>{contractInfo.contract.name}</div>
-            <img src='./trash.svg' onClick={() => removeContract(contractInfo)} style={{padding: "0px 6px", width: "fit-content", cursor:"pointer"}}/>
+            <img src='./trash.svg' onClick={() => removeContract(contractInfo)} style={{padding: "0px 6px", width: "28px", cursor:"pointer"}}/>
           </Card.Header>
           <Card.Body>
             <div style={{ margin: '5px', width: '100%' }}>
