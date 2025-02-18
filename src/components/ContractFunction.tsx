@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { AbiFunction, NetworkProvider, FunctionArgument, Recipient, SignatureTemplate, MockNetworkProvider } from 'cashscript'
+import { AbiFunction, NetworkProvider, FunctionArgument, Recipient, SignatureTemplate, TransactionBuilder } from 'cashscript'
 import { Form, InputGroup, Button, Card } from 'react-bootstrap'
 import { readAsType, ExplorerString, Wallet, NamedUtxo, ContractInfo } from './shared'
 
@@ -18,7 +18,6 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
   const [inputs, setInputs] = useState<NamedUtxo[]>([{ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }])
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
-  const [noAutomaticChange, setNoAutomaticChange] = useState<boolean>(false)
   const [namedUtxoList, setNamedUtxoList] = useState<NamedUtxo[]>([])
 
   const contract = contractInfo.contract
@@ -270,23 +269,21 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
 
     // try to send transaction and alert result
     try {
-      // first step of constructing transaction
-      const transaction = contract.functions[abi.name](...functionArgs)
+      // start constructing transaction
+      const transaction = new TransactionBuilder({provider})
 
       // add inputs to transaction in correct order
       for(const input of inputs){
         if(input.isP2pkh){
           const walletIndex = input.walletIndex as number
           const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
-          transaction.fromP2PKH(input, sigTemplate)
+          transaction.addInput(input, sigTemplate.unlockP2PKH())
         } else {
-          transaction.from(input)
+          transaction.addInput(input, contract.unlock[abi.name](...functionArgs))
         }
       }
 
-      // if noAutomaticChange is enabled, add this to the transaction in construction
-      if (noAutomaticChange) transaction.withoutChange().withoutTokenChange()
-      transaction.to(outputs)
+      transaction.addOutputs(outputs)
 
       // check for mocknet
       if(provider.network == "mocknet"){
@@ -353,14 +350,6 @@ const ContractFunction: React.FC<Props> = ({ contractInfo, abi, provider, wallet
               <Button variant="outline-secondary" size="sm" onClick={addInput}>+</Button>
             </Card.Subtitle>
             {inputFields}
-            <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
-              <Form.Check
-                type="switch"
-                id={"noAutomaticChange" + abi?.name}
-                label="disable automatic change output"
-                onChange={() => setNoAutomaticChange(!noAutomaticChange)}
-              />
-            </Form>
             <Card.Subtitle style={{ marginTop: '10px', marginBottom: '5px' }}>
               Transaction outputs{' '}
               <Button variant="outline-secondary" size="sm" disabled={outputs.length <= 1} onClick={removeOutput}>-</Button>

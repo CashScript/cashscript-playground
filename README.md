@@ -11,11 +11,11 @@ In the 'Editor' panel you can write CashScript contracts and compile them. After
 
 The CashScript Playground allows for importing or exporting contract Artifacts and makes it easy to test new versions of your CashScript code. Similarly, it's also easy to create many contract instances of the same contract with different contract arguments. The created Artifacts and contracts are remembered between sessions. 
 
-On the 'Wallets' tab, new key-pairs for testing wallets can be generated with just a mouse click. Each with detailed info on about the key pair and its network balance, with a full list of all current UTXOs. Lastly the TransactionBuilder supports CashTokens, manual input selection for easy P2PK inputs and signing selection through a simple dropdown! 
+On the 'Wallets' tab, new key-pairs for testing wallets can be generated with just a mouse click. Each with detailed info on about the key pair and its network balance, with a full list of all current UTXOs. Lastly the TransactionBuilder supports CashTokens and signing selection through a simple dropdown! 
 
 ## Limitations
 
-The playground uses the 'Simple transactio builder' so it doesn't currently support combining multiple different smart contracts in one transaction.
+The playground doesn't currently support combining multiple different smart contracts in one transaction.
 
 Special transaction options such as OP_RETURN or relative timelocks are also not supported by the playground.
 
