@@ -19,6 +19,8 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
   // transaction inputs, not the same as abi.inputs
   const [inputTypes, setInputTypes] = useState<("walletInput" | "contractInput")[]>([])
   const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
+  const [inputContractFunctions, setInputContractFunctions] = useState<(String | undefined)[]>([undefined])
+
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
@@ -53,28 +55,51 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
     updateUtxos()
   }, [wallets, contracts])
 
-  function setSelectedInputType(inputType: "walletInput" | "contractInput", i: number) {
-    const inputTypesCopy = [...inputTypes];
-    inputTypesCopy[i] = inputType
-    setInputTypes(inputTypesCopy)
+  function setInputContractFunction(i: number, contractFunction: string) {
+    const inputContractFunctionsCopy = [...inputContractFunctions]
+    inputContractFunctionsCopy[i] = contractFunction !== "--- select ---" ? contractFunction : undefined
+    setInputContractFunctions(inputContractFunctionsCopy)
   }
 
-  function selectInput(i: number, inputIndex: string, isWalletInput: boolean) {
+  const getAbiFunction = (inputIndex: number) => {
+    const input = inputs?.[inputIndex];
+    if (!input || !('contract' in input) || !inputContractFunctions[inputIndex]) throw new Error("No input or contract function selected")
+    const abi = input.contract.artifact.abi.find(abifunction => abifunction.name === inputContractFunctions[inputIndex])
+    if(!abi) throw new Error("No abi function found")
+    return abi;
+  };
+
+  function setSelectedInputType(inputType: "walletInput" | "contractInput", inputIndex: number) {
+    const inputTypesCopy = [...inputTypes];
+    inputTypesCopy[inputIndex] = inputType
+    setInputTypes(inputTypesCopy)
+    selectInput(inputIndex, "NaN", inputType === "walletInput")
+  }
+
+  function selectInput(inputIndex: number, indexUtxoList: string, isWalletInput: boolean) {
     const inputsCopy = [...inputs];
+    const inputContractFunctionsCopy = [...inputContractFunctions]
     // if no input is selected in select form
-    if (isNaN(Number(inputIndex))) inputsCopy[i] = undefined;
+    if (isNaN(Number(indexUtxoList))){
+      inputsCopy[inputIndex] = undefined;
+      inputContractFunctionsCopy[inputIndex] = undefined
+    }
     else {
       const utxoList = isWalletInput ? listWalletUtxos : listContractUtxos
-      inputsCopy[i] = utxoList[Number(inputIndex)];
+      inputsCopy[inputIndex] = utxoList[Number(indexUtxoList)];
     }
     setInputs(inputsCopy);
+    setInputContractFunctions(inputContractFunctionsCopy)
   }
 
-  const functionSelector = (contract: Contract) =>(
+  const functionSelector = (contract: Contract, inputIndex: number) =>(
     <Form.Control
       size="sm"
       id="artifact-selector"
       style={{width:"350px", display:"inline-block", marginTop: '10px', marginBottom: '5px'}}
+      onChange={(event) => {
+        setInputContractFunction(inputIndex, event.target.value)
+      }}
       as="select"
     >
       <option>--- select ---</option> 
@@ -106,20 +131,20 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           style={{ width: 'calc(50% - 210px)', display: 'inline-block', marginLeft: '10px' }}
           size="sm"
         >
-          <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
-          { inputTypes[index] === "walletInput" &&  listWalletUtxos.map((utxo, inputIndex) => (
-            <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
+          <option className="text-center" value={`NaN`}>select UTXO</option>
+          { inputTypes[index] === "walletInput" &&  listWalletUtxos.map((utxo, indexUtxoList) => (
+            <option className="text-center" key={`${indexUtxoList + utxo.name}`} value={`${indexUtxoList}`}> {utxo.name} </option>
           ))}
-          { inputTypes[index] === "contractInput" &&  listContractUtxos.map((utxo, inputIndex) => (
-            <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
+          { inputTypes[index] === "contractInput" &&  listContractUtxos.map((utxo, indexUtxoList) => (
+            <option className="text-center" key={`${indexUtxoList + utxo.name}`} value={`${indexUtxoList}`}> {utxo.name} </option>
           ))}
         </Form.Control>
       </div>
       { inputs?.[index] && 'contract' in inputs?.[index] && <div>
-        <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract )}
+        <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract, index)}
       </div>}
-      { inputs?.[index] && 'contract' in inputs?.[index] && 
-        <ContractFunction contract={inputs?.[index].contract} abi={inputs?.[index].contract.artifact.abi[0]} wallets={wallets}/>
+      { inputs?.[index] && 'contract' in inputs?.[index] && inputContractFunctions[index] && getAbiFunction(index) &&
+        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index)} wallets={wallets}/>
       }
     </div>
   ))
