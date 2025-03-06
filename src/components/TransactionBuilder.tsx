@@ -16,16 +16,23 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
   const [locktime, setLocktime] = useState<String>("")
 
   // transaction inputs, not the same as abi.inputs
+  const [inputTypes, setInputTypes] = useState<("walletInput" | "contractInput")[]>([])
   const [inputs, setInputs] = useState<NamedUtxo[]>([{ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
-  const [namedUtxoList, setNamedUtxoList] = useState<NamedUtxo[]>([])
+  const [listWalletUtxos, setListWalletUtxos] = useState<NamedUtxo[]>([])
+  const [listContractUtxos, setListContractUtxos] = useState<NamedUtxo[]>([])
 
-  // setNamedUtxoList on initial render and on contractInfo updates 
+  // update listWalletUtxos & listContractUtxos on initial render and on state changes
   useEffect(() => {
     async function updateUtxos() {
-      let newNamedUtxoList = [] as NamedUtxo[]
+      const contractsWithUtxos = contracts?.filter(contractInfo =>contractInfo.utxos) ?? []
+      const contractUtxos = contractsWithUtxos?.map(contractInfo => 
+        contractInfo!.utxos!.map((utxo, index) => ({ ...utxo, name: `${contractInfo.contract.name} UTXO ${index}`, isP2pkh: false }))
+      ) ?? []
+      const namedUtxosContracts: NamedUtxo[] = contractUtxos.flat()
+      let namedUtxosWallets: NamedUtxo[] = []
       const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
       for (let i = 0; i < (walletUtxos?.length ?? 0); i++) {
         const utxosWallet = walletUtxos?.[i];
@@ -33,19 +40,26 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
         const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => (
           { ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, isP2pkh: true, walletIndex: i }
         ))
-        newNamedUtxoList = namedUtxosWallet
+        namedUtxosWallets = namedUtxosWallets.concat(namedUtxosWallet);
       }
-      setNamedUtxoList(newNamedUtxoList);
+      setListContractUtxos(namedUtxosContracts);
+      setListWalletUtxos(namedUtxosWallets);
     }
     updateUtxos()
-  }, [wallets])
+  }, [wallets, contracts])
+
+  function setSelectedInputType(inputType: "walletInput" | "contractInput", i: number) {
+    const inputTypesCopy = [...inputTypes];
+    inputTypesCopy[i] = inputType
+    setInputTypes(inputTypesCopy)
+  }
 
   function selectInput(i: number, inputIndex: string) {
     const inputsCopy = [...inputs];
     // if no input is selected in select form
     if (isNaN(Number(inputIndex))) inputsCopy[i] = { txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }
     else {
-      inputsCopy[i] = namedUtxoList[Number(inputIndex)];
+      inputsCopy[i] = listWalletUtxos[Number(inputIndex)];
     }
     setInputs(inputsCopy);
   }
@@ -56,11 +70,13 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
       <div>
         <Form.Control size="sm" id="artifact-selector" style={{width:"200px", display:"inline-block"}}
           as="select"
-          onChange={(event) => {}}
+          onChange={(event) => {
+            setSelectedInputType(event.target.value as "walletInput" | "contractInput", index)
+          }}
         >
           <option>--- select ---</option> 
-          <option>Wallet input</option>
-          <option>Contract input</option>
+          <option value={"walletInput"}>Wallet input</option>
+          <option value={"contractInput"}>Contract input</option>
         </Form.Control>
         <Form.Control
           onChange={event => selectInput(index, event.target.value)}
@@ -69,7 +85,10 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           size="sm"
         >
           <option className="text-center" key='Nan' value={`NaN`}>select UTXO</option>
-          {namedUtxoList.map((utxo, inputIndex) => (
+          { inputTypes[index] === "walletInput" &&  listWalletUtxos.map((utxo, inputIndex) => (
+            <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
+          ))}
+          { inputTypes[index] === "contractInput" &&  listContractUtxos.map((utxo, inputIndex) => (
             <option className="text-center" key={`${inputIndex + utxo.name}`} value={`${inputIndex}`}> {utxo.name} </option>
           ))}
         </Form.Control>
