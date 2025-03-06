@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Contract } from 'cashscript'
+import { Contract, Unlocker } from 'cashscript'
 import { Form, } from 'react-bootstrap'
 import { ContractInfo, ContractUtxo, Wallet, WalletUtxo } from './shared'
 import ContractFunction from './ContractFunction'
@@ -9,9 +9,11 @@ interface Props {
   setInputs: (inputs: (WalletUtxo | ContractUtxo | undefined)[]) => void
   wallets: Wallet[]
   contracts: ContractInfo[] | undefined
+  inputUnlockers: Unlocker[]
+  setInputUnlockers: (unlockers: Unlocker[]) => void
 }
 
-const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contracts }) => {
+const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contracts, inputUnlockers, setInputUnlockers }) => {
 
   const [inputTypes, setInputTypes] = useState<("walletInput" | "contractInput")[]>([])
   const [listWalletUtxos, setListWalletUtxos] = useState<WalletUtxo[]>([])
@@ -45,6 +47,12 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
     }
     updateUtxos()
   }, [wallets, contracts])
+
+  function setInputUnlocker(i: number, unlocker: Unlocker) {
+    const inputUnlockersCopy = [...inputUnlockers]
+    inputUnlockersCopy[i] = unlocker
+    setInputUnlockers(inputUnlockersCopy)
+  }
 
   function setInputContractFunction(i: number, contractFunction: string) {
     const inputContractFunctionsCopy = [...inputContractFunctions]
@@ -135,7 +143,7 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
         <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract, index)}
       </div>}
       { inputs?.[index] && 'contract' in inputs?.[index] && inputContractFunctions[index] && getAbiFunction(index) &&
-        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index)} wallets={wallets}/>
+        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index)} wallets={wallets} setInputUnlocker={(unlockerArg:Unlocker) => setInputUnlocker(index, unlockerArg)} />
       }
     </div>
   ))
