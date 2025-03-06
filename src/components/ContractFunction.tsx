@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { AbiFunction, NetworkProvider, FunctionArgument, SignatureTemplate, Contract } from 'cashscript'
+import { AbiFunction, FunctionArgument, SignatureTemplate, Contract, Unlocker } from 'cashscript'
 import { Form, InputGroup, Card } from 'react-bootstrap'
 import { readAsType, Wallet } from './shared'
 
@@ -7,15 +7,17 @@ interface Props {
   contract: Contract
   abi: AbiFunction
   wallets: Wallet[]
+  setInputUnlocker: (unlocker: Unlocker) => void
 }
 
-const ContractFunction: React.FC<Props> = ({ contract, abi, wallets }) => {
+const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnlocker }) => {
   const [functionArgs, setFunctionArgs] = useState<FunctionArgument[]>([])
 
   useEffect(() => {
     // Set empty strings as default values
     const newArgs = abi?.inputs.map(() => '') || [];
     setFunctionArgs(newArgs);
+    setInputUnlocker(contract.unlock[abi.name](...newArgs));
   }, [abi])
 
 
@@ -27,8 +29,8 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets }) => {
       argsCopy[i] = new SignatureTemplate(wallets[Number(walletIndex)].privKey);
     }
     setFunctionArgs(argsCopy);
+    setInputUnlocker(contract.unlock[abi.name](...argsCopy));
   }
-
 
   const argumentFields = abi?.inputs.map((input, i) => (
     <InputGroup key={`${input.name}-parameter-${i}`}>

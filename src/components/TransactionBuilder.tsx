@@ -17,8 +17,8 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
   const [enableLocktime, setEnableLocktime] = useState<Boolean>(false)
   const [locktime, setLocktime] = useState<String>("")
 
-  // transaction inputs, not the same as abi.inputs
   const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
+  const [inputUnlockers, setInputUnlockers] = useState<Unlocker[]>([])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
 
   function addOutput() {
@@ -50,17 +50,17 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
       const transaction = new TransactionBuilder({provider})
 
       // add inputs to transaction in the user-defined order
-      for(const input of inputs){
+      inputs.forEach((input, inputIndex) => {
         if(!input) throw new Error("Undefined input provided")
         if('walletIndex' in input){
-          const walletIndex = input.walletIndex as number
+          const walletIndex = input.walletIndex
           const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
           transaction.addInput(input, sigTemplate.unlockP2PKH())
         } else {
-          const inputUnlocker = {} as Unlocker
+          const inputUnlocker = inputUnlockers[inputIndex]
           transaction.addInput(input, inputUnlocker)
         }
-      }
+      })
 
       transaction.addOutputs(outputs)
       if(enableLocktime) transaction.setLocktime(Number(locktime))
@@ -76,14 +76,17 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           console.error(errorMessage)
           alert(`Transaction evalution failed with the following message: \n\n${cashscriptError} See Bitauth IDE link in console`)
         }
-        
-        console.log(`Transaction evalution passed! Bitauth IDE link: ${await transaction.bitauthUri()}`)
+        console.log(`Bitauth IDE link: ${transaction.bitauthUri()}`)
       } else {
         const { txid } = await transaction.send()
         alert(`Transaction successfully sent! see explorer link in console`)
         console.log(`Transaction successfully sent: ${ExplorerString[provider.network]}/tx/${txid}`)
       }
-      // TODO: update utxos if using real network
+      if(provider.network !== "mocknet"){
+        inputs.forEach((input) => {
+          if(input && 'contract' in input) updateUtxosContract(input.contract.name)
+        })
+      }
     } catch (e: any) {
       alert(e.message)
       console.error(e.message)
@@ -131,7 +134,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
             <Button variant="outline-secondary" size="sm" onClick={addInput}>+</Button>
           </Card.Header>
           <Card.Body>
-          <TransactionInputs inputs={inputs} setInputs={setInputs} wallets={wallets} contracts={contracts}/>
+          <TransactionInputs inputs={inputs} setInputs={setInputs} wallets={wallets} contracts={contracts} inputUnlockers={inputUnlockers} setInputUnlockers={setInputUnlockers} />
           </Card.Body>
       </Card>
 
