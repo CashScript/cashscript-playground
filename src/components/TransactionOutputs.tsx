@@ -149,9 +149,7 @@ const TransactionOutputs: React.FC<Props> = ({ outputs, setOutputs }) => {
     </div>
   ))
   
-  return (
-    <>{outputFields}</>
-  )
+  return (<>{outputFields}</>)
 }
 
 export default TransactionOutputs
