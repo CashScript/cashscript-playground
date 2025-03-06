@@ -46,7 +46,7 @@ code {
 .btn-outline-secondary{
   padding: 2px 6px;
 }
-.custom-control-input:checked ~ .custom-control-label::before {
+.form-check-input:checked {
   background-color: #d848af;
   border-color: #ea4cbd;
 }

@@ -13,6 +13,8 @@ interface Props {
 
 const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, updateUtxosContract }) => {
 
+  const [enableLocktime, setEnableLocktime] = useState<Boolean>(false)
+  const [locktime, setLocktime] = useState<String>("")
 
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   // transaction inputs, not the same as abi.inputs
@@ -55,6 +57,24 @@ const TransactionBuilder: React.FC<Props> = ({ provider, wallets, contracts, upd
       margin: "16px"
     }}>
       <h2>TransactionBuilder</h2>
+      <Form style={{ marginTop: '10px', marginBottom: '5px' }}>
+        <Form.Check
+          type="switch"
+          id={"noAutomaticChange"}
+          label="Enable Transansaction Locktime"
+          className='primary'
+          style={{ display: "inline-block" }}
+          onChange={() => setEnableLocktime(!enableLocktime)}
+        />
+        
+        { enableLocktime && <Form.Control size="sm"
+          placeholder="locktime"
+          aria-label="locktime"
+          style={{ width: "350px", display: "inline-block", marginLeft: "10px" }}
+          onChange={(event) => setLocktime(event.target.value)}
+        />}
+      </Form>
+
       <div style={{margin: "10px 0"}}> Add Inputs and Outputs to build the transaction:</div>
 
       <Card style={{ marginBottom: '10px' }}>
