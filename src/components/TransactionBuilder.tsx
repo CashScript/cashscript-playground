@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react'
-import { AbiFunction, NetworkProvider, Recipient, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
-import { Wallet, ContractInfo, NamedUtxo, ExplorerString } from './shared'
+import { Contract, NetworkProvider, Recipient, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
+import ContractFunction from './ContractFunction'
+import { Wallet, ContractInfo, ExplorerString, ContractUtxo, WalletUtxo } from './shared'
 import { Button, Card, Form, InputGroup } from 'react-bootstrap'
 
 interface Props {
@@ -17,28 +18,32 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
 
   // transaction inputs, not the same as abi.inputs
   const [inputTypes, setInputTypes] = useState<("walletInput" | "contractInput")[]>([])
-  const [inputs, setInputs] = useState<NamedUtxo[]>([{ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }])
+  const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
   const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
   const [outputHasFT, setOutputHasFT] = useState<boolean[]>([])
   const [outputHasNFT, setOutputHasNFT] = useState<boolean[]>([])
-  const [listWalletUtxos, setListWalletUtxos] = useState<NamedUtxo[]>([])
-  const [listContractUtxos, setListContractUtxos] = useState<NamedUtxo[]>([])
+  const [listWalletUtxos, setListWalletUtxos] = useState<WalletUtxo[]>([])
+  const [listContractUtxos, setListContractUtxos] = useState<ContractUtxo[]>([])
 
   // update listWalletUtxos & listContractUtxos on initial render and on state changes
   useEffect(() => {
     async function updateUtxos() {
       const contractsWithUtxos = contracts?.filter(contractInfo =>contractInfo.utxos) ?? []
       const contractUtxos = contractsWithUtxos?.map(contractInfo => 
-        contractInfo!.utxos!.map((utxo, index) => ({ ...utxo, name: `${contractInfo.contract.name} UTXO ${index}`, isP2pkh: false }))
+        contractInfo!.utxos!.map((utxo, index) => ({ 
+          ...utxo,
+          name: `${contractInfo.contract.name} UTXO ${index}`,
+          contract: contractInfo.contract
+        }))
       ) ?? []
-      const namedUtxosContracts: NamedUtxo[] = contractUtxos.flat()
-      let namedUtxosWallets: NamedUtxo[] = []
+      const namedUtxosContracts: ContractUtxo[] = contractUtxos.flat()
+      let namedUtxosWallets: WalletUtxo[] = []
       const walletUtxos = wallets.map(wallet => wallet?.utxos ?? [])
       for (let i = 0; i < (walletUtxos?.length ?? 0); i++) {
         const utxosWallet = walletUtxos?.[i];
         if(!utxosWallet) continue
-        const namedUtxosWallet: NamedUtxo[] = utxosWallet.map((utxo, index) => (
-          { ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, isP2pkh: true, walletIndex: i }
+        const namedUtxosWallet: WalletUtxo[] = utxosWallet.map((utxo, index) => (
+          { ...utxo, name: `${wallets[i].walletName} UTXO ${index}`, walletIndex: i }
         ))
         namedUtxosWallets = namedUtxosWallets.concat(namedUtxosWallet);
       }
@@ -54,18 +59,35 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
     setInputTypes(inputTypesCopy)
   }
 
-  function selectInput(i: number, inputIndex: string) {
+  function selectInput(i: number, inputIndex: string, isWalletInput: boolean) {
     const inputsCopy = [...inputs];
     // if no input is selected in select form
-    if (isNaN(Number(inputIndex))) inputsCopy[i] = { txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false }
+    if (isNaN(Number(inputIndex))) inputsCopy[i] = undefined;
     else {
-      inputsCopy[i] = listWalletUtxos[Number(inputIndex)];
+      const utxoList = isWalletInput ? listWalletUtxos : listContractUtxos
+      inputsCopy[i] = utxoList[Number(inputIndex)];
     }
     setInputs(inputsCopy);
   }
 
+  const functionSelector = (contract: Contract) =>(
+    <Form.Control
+      size="sm"
+      id="artifact-selector"
+      style={{width:"350px", display:"inline-block", marginTop: '10px', marginBottom: '5px'}}
+      as="select"
+    >
+      <option>--- select ---</option> 
+      {contract.artifact.abi.map((abi) => (
+        <option key={abi.name} value={abi.name}>
+          {abi.name}
+        </option>
+      ))}
+    </Form.Control>
+  )
+
   const inputFields = inputs.map((input, index) => (
-    <div  key={`input-${index}`}>
+    <div key={`input-${index}`} style={{marginBottom:"10px"}}>
       {`Input #${index}`}
       <div>
         <Form.Control size="sm" id="artifact-selector" style={{width:"200px", display:"inline-block"}}
@@ -79,7 +101,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           <option value={"contractInput"}>Contract input</option>
         </Form.Control>
         <Form.Control
-          onChange={event => selectInput(index, event.target.value)}
+          onChange={event => selectInput(index, event.target.value, inputTypes[index] === "walletInput")}
           as="select"
           style={{ width: 'calc(50% - 210px)', display: 'inline-block', marginLeft: '10px' }}
           size="sm"
@@ -93,6 +115,12 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           ))}
         </Form.Control>
       </div>
+      { inputs?.[index] && 'contract' in inputs?.[index] && <div>
+        <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract )}
+      </div>}
+      { inputs?.[index] && 'contract' in inputs?.[index] && 
+        <ContractFunction contract={inputs?.[index].contract} abi={inputs?.[index].contract.artifact.abi[0]} wallets={wallets}/>
+      }
     </div>
   ))
 
@@ -247,7 +275,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
 
   function addInput() {
     const inputsCopy = [...inputs]
-    inputsCopy.push({ txid: '', vout: 0, satoshis: 0n, name: ``, isP2pkh: false })
+    inputsCopy.push(undefined)
     setInputs(inputsCopy)
   }
   function removeInput() {
@@ -264,7 +292,8 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
 
       // add inputs to transaction in correct order
       for(const input of inputs){
-        if(input.isP2pkh){
+        if(!input) throw new Error("Undefined input provided")
+        if('walletIndex' in input){
           const walletIndex = input.walletIndex as number
           const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
           transaction.addInput(input, sigTemplate.unlockP2PKH())
@@ -334,7 +363,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
         />}
       </Form>
 
-      <div style={{margin: "10px 0"}}> Add Inputs and Outputs to build the transaction:</div>
+      <div style={{marginBottom: "10px"}}> Add Inputs and Outputs to build the transaction:</div>
 
       <Card style={{ marginBottom: '10px' }}>
           <Card.Header>Inputs{' '}
@@ -358,7 +387,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           </Card.Body>
       </Card>
 
-      <Button variant="secondary" style={{ display: "block" }} size="sm" onClick={() => sendTransaction}>
+      <Button variant="secondary" style={{ display: "block" }} size="sm" onClick={sendTransaction}>
         { provider.network === "mocknet" ? "Evaluate" : "Send" }
       </Button>
     </div>

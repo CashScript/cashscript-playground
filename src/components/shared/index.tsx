@@ -30,8 +30,14 @@ export interface ContractInfo {
 
 export interface NamedUtxo extends Utxo {
   name: string;
-  isP2pkh: boolean;
-  walletIndex?: number;
+}
+
+export interface WalletUtxo extends NamedUtxo {
+  walletIndex: number;
+}
+
+export interface ContractUtxo extends NamedUtxo {
+  contract: Contract;
 }
 
 export interface TinyContractObj {
