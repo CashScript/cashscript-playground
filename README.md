@@ -15,9 +15,7 @@ On the 'Wallets' tab, new key-pairs for testing wallets can be generated with ju
 
 ## Limitations
 
-The playground doesn't currently support combining multiple different smart contracts in one transaction.
-
-Special transaction options such as OP_RETURN or relative timelocks are also not supported by the playground.
+The playground currently does not support special transaction options such as OP_RETURN, relative timelocks or non-standard locking scripts.
 
 ## Disclaimer
 
