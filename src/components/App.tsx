@@ -1,9 +1,9 @@
 // Components
 import React, { useEffect, useState } from 'react';
 import { Artifact, MockNetworkProvider, NetworkProvider } from 'cashscript';
-import Header from './Header'
+import Header from './layout/Header'
 import Main from './Main'
-import Footer from './Footer';
+import Footer from './layout/Footer';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import WalletInfo from './Wallets';
