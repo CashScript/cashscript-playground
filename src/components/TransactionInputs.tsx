@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Contract, Unlocker } from 'cashscript'
+import { AbiFunction, Contract, Unlocker } from 'cashscript'
 import { Form, } from 'react-bootstrap'
 import { ContractInfo, ContractUtxo, Wallet, WalletUtxo } from './shared'
 import ContractFunction from './ContractFunction'
@@ -62,9 +62,9 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
 
   const getAbiFunction = (inputIndex: number) => {
     const input = inputs?.[inputIndex];
-    if (!input || !('contract' in input) || !inputContractFunctions[inputIndex]) throw new Error("No input or contract function selected")
+    if (!input || !('contract' in input) || !inputContractFunctions[inputIndex]) return undefined
     const abi = input.contract.artifact.abi.find(abifunction => abifunction.name === inputContractFunctions[inputIndex])
-    if(!abi) throw new Error("No abi function found")
+    if(!abi) return undefined
     return abi;
   };
 
@@ -143,7 +143,7 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
         <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract, index)}
       </div>}
       { inputs?.[index] && 'contract' in inputs?.[index] && inputContractFunctions[index] && getAbiFunction(index) &&
-        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index)} wallets={wallets} setInputUnlocker={(unlockerArg:Unlocker) => setInputUnlocker(index, unlockerArg)} />
+        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index) as AbiFunction} wallets={wallets} setInputUnlocker={(unlockerArg:Unlocker) => setInputUnlocker(index, unlockerArg)} />
       }
     </div>
   ))

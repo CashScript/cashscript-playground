@@ -53,6 +53,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
             const argsCopy = [...functionArgs];
             argsCopy[i] = readAsType(event.target.value, input.type);
             setFunctionArgs(argsCopy);
+            setInputUnlocker(contract.unlock[abi.name](...argsCopy))
           }}
         />
       )}
