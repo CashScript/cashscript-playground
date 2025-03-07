@@ -108,7 +108,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                 <p>{contractInfo.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</p>
               }
               <strong>Contract size</strong>
-              <p>{contractInfo.contract.bytesize} bytes (max 520), {contractInfo.contract.opcount} opcodes (max 201)</p>
+              <p>{contractInfo.contract.bytesize} bytes (max 1650)</p>
             </div>
           </Card.Body>
         </Card>
