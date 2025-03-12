@@ -1,5 +1,6 @@
 import React from 'react'
 import { Artifact } from 'cashscript'
+import { asmToBytecode } from '@cashscript/utils'
 import { Button } from 'react-bootstrap'
 import FileUploader from './FileUploader'
 
@@ -89,6 +90,7 @@ const ArtifactsInfo: React.FC<Props> = ({ setCode, artifacts, setArtifacts }) =>
               <strong>Last Updated</strong>
               <p>{artifact.updatedAt.split('T')[0]} {artifact.updatedAt.split('T')[1].slice(0,5)}</p>
               <strong>Artifact Bytecode</strong>
+              <div>Bytecode size: {asmToBytecode(artifact.bytecode).length } bytes (without constructor args)</div>
               <details>
                 <summary>
                   show full Bytecode
