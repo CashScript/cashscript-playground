@@ -46,7 +46,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
         No Contracts created yet...
       </p>:null}
       {contracts?.map((contractInfo) => (
-        <Card style={{ marginBottom: '10px' }} key={contractInfo.contract.address}>
+        <Card style={{ marginBottom: '10px' }} key={contractInfo.contract.name + contractInfo.contract.address}>
           <Card.Header style={{ display:"flex", justifyContent:"space-between"}}>
             <div>{contractInfo.contract.name}</div>
             <img src='./trash.svg' onClick={() => removeContract(contractInfo)} style={{padding: "0px 6px", width: "28px", cursor:"pointer"}}/>
