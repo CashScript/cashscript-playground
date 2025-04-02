@@ -52,12 +52,22 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
 
   function createContract() {
     if (!artifact) return
+    if (nameContract == "") {
+      alert("Please provide a name for the contract")
+      return
+    }
+    const nameAlreadyExists = contracts?.some(contractInfo => contractInfo.contract.name == nameContract)
+    if (nameAlreadyExists){
+      alert("Contract with this name already exists!")
+      return
+    }
     try {
       const newContract = new Contract(artifact, constructorArgs, { provider, addressType: contractType })
       newContract.name = nameContract
       const contractInfo = {contract: newContract, utxos: undefined, args: constructorArgs}
       setContracts([contractInfo, ...contracts ?? []])
       alert("created contract!")
+      // will trigger useEffect after setContracts
       setCreatedContract(true)
     } catch (e: any) {
       alert(e.message)
@@ -92,6 +102,11 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
     setCreatedContract(false)
  }, [createdContract]);
 
+  useEffect(() => {
+    resetInputFields()
+    setNameContract(artifact?.contractName ?? "")
+ }, [artifact]);
+
   return (
     <div style={{
       marginTop: "15px"
@@ -102,6 +117,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
         <Form.Control key={`contractName`} size="sm" id={nameContract}
           placeholder={`contractName`}
           aria-label={`contractName`}
+          value={nameContract}
           onChange={(event) => setNameContract(event.target.value)}
         />
       </InputGroup>
