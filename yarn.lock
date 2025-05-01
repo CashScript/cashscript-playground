@@ -70,10 +70,10 @@
   resolved "https://registry.yarnpkg.com/@bitauth/libauth/-/libauth-3.1.0-next.2.tgz#121782b38774d9fba8226406db9b9af0c8d8e464"
   integrity sha512-XRtk9p8UHvtjSPS38rsfHXzaPHG5j9FpN4qHqqGLoAuZYy675PBiOy9zP6ah8lTnnIVaCFl2ekct8w0Hy1oefw==
 
-"@cashscript/utils@^0.11.0-next.3":
-  version "0.11.0-next.3"
-  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.11.0-next.3.tgz#8f571c29e8fadd18ed934f64636ca67b74758282"
-  integrity sha512-r5cmC5v0PrGrjX3y14B8fT8MlucEmGZIZgX8tlO4+t0aoYw/o6AxpxDoCaBxj5JVO5owL9fh98arLGBJYurfCg==
+"@cashscript/utils@^0.11.0-next.4":
+  version "0.11.0-next.4"
+  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.11.0-next.4.tgz#227267de0e3d4f5ee1ba107ad35422ebe462c514"
+  integrity sha512-gXBC+SM/q2jRdZ5nCXb39r3xWktf44NdTOx1k87Qvx7AWm+/oKvENk5BodwSr5UZeG87DeLeB7xViM0um+I/dw==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.2"
 
@@ -1172,24 +1172,24 @@ caniuse-lite@^1.0.30001579:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001625.tgz#ead1b155ea691d6a87938754d3cb119c24465b03"
   integrity sha512-4KE9N2gcRH+HQhpeiRZXd+1niLB/XNLAhSy4z7fI8EzcbcPoAqjNInxVHTiTwWfTIV4w096XG8OtCOCQQKPv3w==
 
-cashc@^0.11.0-next.3:
-  version "0.11.0-next.3"
-  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.11.0-next.3.tgz#f9c0297d74497abc5598741a3b9fa3d0adc88ca6"
-  integrity sha512-fwJYQQrBsWMbZNBIWByk01OD0a7+rFeOJQLQNNiSv/D76M+ePr6uDp/kbqcvy6pHnae44Nt+LfhkWfOYr1HnVw==
+cashc@^0.11.0-next.4:
+  version "0.11.0-next.4"
+  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.11.0-next.4.tgz#bf75faa0cd472f66324cfbcc1bbcfb62155ca0ca"
+  integrity sha512-0xcmn37pNpIvbXx0IW10mgUB5nWEV5+2EU1W/tcUQs2i0wHPjW4q3+PTcawxGHRfXqh1MLWl7SaLj27hrPDxPA==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.2"
-    "@cashscript/utils" "^0.11.0-next.3"
+    "@cashscript/utils" "^0.11.0-next.4"
     antlr4 "^4.13.2"
     commander "^13.1.0"
     semver "^7.6.3"
 
-cashscript@^0.11.0-next.3:
-  version "0.11.0-next.3"
-  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.11.0-next.3.tgz#588ba18a735e4900295eeac07fda4c4b436d1b91"
-  integrity sha512-fHFPFGD8M/2VjV65czUbOdLMOSpUFvDRKPrlqf1fnxT9jKMEM+9o9zYHcjV0NBf1nsoR19tPFvg0fqg2z9PPXA==
+cashscript@^0.11.0-next.4:
+  version "0.11.0-next.4"
+  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.11.0-next.4.tgz#fd8f844a7b9d5bcd408de609dcb9ca7fbdfbe2d9"
+  integrity sha512-q5JFYbUxpnP20erZvsLMkWQ8mZRdQSVPE+rg8jztZf2d39j1h6NFJiouptqhATvX4LQYK3MP8bX8A8loPuSB9g==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.2"
-    "@cashscript/utils" "^0.11.0-next.3"
+    "@cashscript/utils" "^0.11.0-next.4"
     "@electrum-cash/network" "^4.1.1"
     "@mr-zwets/bchn-api-wrapper" "^1.0.1"
     delay "^6.0.0"
