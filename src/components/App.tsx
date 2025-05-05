@@ -11,28 +11,14 @@ import { Wallet, ContractInfo } from './shared';
 import NewContract from './NewContract';
 import Contracts from './Contracts';
 import TransactionBuilder from './TransactionBuilder';
+import { exampleTimeoutContract } from '../exampleContracts/examples';
 
 function App() {
   const [provider, setProvider] = useState<NetworkProvider>(new MockNetworkProvider())
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
   const [contracts, setContracts] = useState<ContractInfo[] | undefined>(undefined)
-  const [code, setCode] = useState<string>(
-`pragma cashscript ~0.11.0;
-    
-contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
-    // Require recipient's signature to match
-    function transfer(sig recipientSig) {
-        require(checkSig(recipientSig, recipient));
-    }
-    
-    // Require timeout time to be reached and sender's signature to match
-    function timeout(sig senderSig) {
-        require(checkSig(senderSig, sender));
-        require(tx.time >= timeout);
-    }
-}
-`);
+  const [code, setCode] = useState<string>(exampleTimeoutContract);
 
   useEffect(() => {
     updateAllUtxosContracts()

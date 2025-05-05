@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Artifact, Contract, ElectrumNetworkProvider, MockNetworkProvider, Network, NetworkProvider } from 'cashscript';
+import { Artifact, Contract, ElectrumNetworkProvider, Network, NetworkProvider } from 'cashscript';
 import { compileString } from 'cashc';
 import { RowFlex, ContractInfo, TinyContractObj } from './shared';
 import Editor from './Editor';
 import ArtifactsInfo from './ArtifactsInfo';
+import {
+  exampleTimeoutContract,
+  exampleEscrowContract,
+  exampleStramingMecenasContract,
+  exampleDexContract
+} from '../exampleContracts/examples';
 
 interface Props {
   code: string
@@ -20,7 +26,7 @@ const Main: React.FC<Props> = ({
   code, setCode, artifacts, setArtifacts, setContracts, updateAllUtxosContracts, provider, setProvider
 }) => {
 
-  const [initializeContracts, setInitializeContracts] = useState<number>(0);
+  const [initializeContracts, setInitializeContracts] = useState<0|1|2>(0);
 
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
@@ -29,19 +35,30 @@ const Main: React.FC<Props> = ({
     const networkLocalStorage = localStorage.getItem("network");
     // If code exits in local storage, set it as new code
     if (codeLocalStorage) setCode(codeLocalStorage);
-    if (artifactsLocalStorage){
+    if (artifactsLocalStorage && JSON.parse(artifactsLocalStorage).length){
       try{
          setArtifacts(JSON.parse(artifactsLocalStorage));
       } catch(error){ console.log(error) }
+    } else {
+      // add default example contracts to local storage
+      const artifactExampleTimeout = compileString(exampleTimeoutContract)
+      const artifactExampleEscrow = compileString(exampleEscrowContract)
+      const artifactExampleStramingMecenas = compileString(exampleStramingMecenasContract)
+      const artifactExampleDex = compileString(exampleDexContract)
+      const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
+      setArtifacts(defaultArtifacts)
+      localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts , null, 2));
     }
     if (networkLocalStorage && networkLocalStorage != "mocknet"){
       const newProvider = new ElectrumNetworkProvider(networkLocalStorage as Network)
       setProvider(newProvider)
     }
+    // set initializeContracts to 1 when local storage has contracts which need to be loaded
     if (contractsLocalStorage) setInitializeContracts(1)
   }, [])
 
   useEffect(() => {
+    // only run this logic when initializeContracts is 1 to load contracts from local storage
     if(initializeContracts != 1) return
     const contractsStringLocalStorage = localStorage.getItem("contracts");
     if(!contractsStringLocalStorage) return
@@ -66,13 +83,13 @@ const Main: React.FC<Props> = ({
     }).filter(item => item != undefined) as ContractInfo[]
     setContracts(newContracts);
     setInitializeContracts(2)
-  },[initializeContracts])
+  },[initializeContracts, artifacts, provider])
 
   useEffect(() => {
+    // only run this logic when initializeContracts is 2 to updateAllUtxosContracts
     if(initializeContracts != 2) return
     updateAllUtxosContracts()
-    setInitializeContracts(0)
-  })
+  },[initializeContracts])
 
   function compile() {
     try {
