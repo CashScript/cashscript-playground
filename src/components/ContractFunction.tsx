@@ -14,8 +14,9 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
   const [functionArgs, setFunctionArgs] = useState<FunctionArgument[]>([])
 
   useEffect(() => {
-    // Set empty strings as default values
-    const newArgs = abi?.inputs.map(() => '') || [];
+    // Set default placeholder values for function arguments
+    const newArgs = abi?.inputs.map((functionArg) => functionArg.type == 'int' ? 0n : (
+      functionArg.type == 'bool' ? false :'')) || [];
     setFunctionArgs(newArgs);
     setInputUnlocker(contract.unlock[abi.name](...newArgs));
   }, [abi])
