@@ -15,8 +15,20 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
 
   useEffect(() => {
     // Set default placeholder values for function arguments
-    const newArgs = abi?.inputs.map((functionArg) => functionArg.type == 'int' ? 0n : (
-      functionArg.type == 'bool' ? false :'')) || [];
+    const newArgs = abi?.inputs.map((functionArg) => {
+      switch (functionArg.type) {
+        case 'int': return 0n;
+        case 'bool': return false;
+        case 'bytes': return '';
+        default:
+          // Handle bytesX types (e.g., bytes20, bytes32)
+          if (functionArg.type.startsWith('bytes')) {
+            const len = Number(functionArg.type.slice(5));
+            if (len) return '00'.repeat(len);
+          }
+          return '';
+      }
+    }) || [];
     setFunctionArgs(newArgs);
     setInputUnlocker(contract.unlock[abi.name](...newArgs));
   }, [abi])
