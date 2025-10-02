@@ -38,7 +38,7 @@ const NewContract: React.FC<Props> = ({ artifacts, provider, setProvider, contra
 
   function changeNetwork(newNetwork: Network){
     const newprovider = newNetwork == "mocknet" ? 
-      new MockNetworkProvider() : new ElectrumNetworkProvider(newNetwork)
+      new MockNetworkProvider({ updateUtxoSet: false }) : new ElectrumNetworkProvider(newNetwork)
     setProvider(newprovider)
     localStorage.setItem("network", newNetwork)
   }

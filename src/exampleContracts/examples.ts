@@ -1,4 +1,4 @@
-export const exampleTimeoutContract = `pragma cashscript ~0.11.0;
+export const exampleTimeoutContract = `pragma cashscript ~0.12.0;
 
 // see https://cashscript.org/docs/basics/getting-started#writing-your-first-contract
 
@@ -16,7 +16,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 }
 `
 
-export const exampleEscrowContract = `pragma cashscript ~0.11.0;
+export const exampleEscrowContract = `pragma cashscript ~0.12.0;
 
 // see https://cashscript.org/docs/guides/covenants#restricting-p2pkh-recipients
     
@@ -40,7 +40,7 @@ contract Escrow(bytes20 arbiter, bytes20 buyer, bytes20 seller) {
 }
 `
 
-export const exampleStramingMecenasContract = `pragma cashscript ~0.11.0;
+export const exampleStramingMecenasContract = `pragma cashscript ~0.12.0;
 
 // see https://cashscript.org/docs/guides/covenants#keeping-local-state-in-nfts
     
@@ -100,7 +100,7 @@ contract StreamingMecenas(
 }
 `
 
-export const exampleDexContract = `pragma cashscript ~0.11.0;
+export const exampleDexContract = `pragma cashscript ~0.12.0;
 
 // see https://cashscript.org/docs/language/examples#amm-dex
 

@@ -14,7 +14,7 @@ import TransactionBuilder from './TransactionBuilder';
 import { exampleTimeoutContract } from '../exampleContracts/examples';
 
 function App() {
-  const [provider, setProvider] = useState<NetworkProvider>(new MockNetworkProvider())
+  const [provider, setProvider] = useState<NetworkProvider>(new MockNetworkProvider({ updateUtxoSet: false }))
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [artifacts, setArtifacts] = useState<Artifact[] | undefined>(undefined);
   const [contracts, setContracts] = useState<ContractInfo[] | undefined>(undefined)
