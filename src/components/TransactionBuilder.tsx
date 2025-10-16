@@ -68,7 +68,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
       // check for mocknet
       if(provider.network == "mocknet"){
         try{
-          await transaction.debug()
+          transaction.debug()
           alert(`Transaction evalution passed! see Bitauth IDE link in console`)
         } catch(error) {
           const errorMessage = typeof error == "string" ? error : (error as Error)?.message
@@ -76,7 +76,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           console.error(errorMessage)
           alert(`Transaction evalution failed with the following message: \n\n${cashscriptError} See Bitauth IDE link in console`)
         }
-        console.log(`Bitauth IDE link: ${transaction.bitauthUri()}`)
+        console.log(`Bitauth IDE link: ${transaction.getBitauthUri()}`)
       } else {
         const { txid } = await transaction.send()
         alert(`Transaction successfully sent! see explorer link in console`)
