@@ -53,7 +53,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
           </Card.Header>
           <Card.Body>
             <div style={{ margin: '5px', width: '100%' }}>
-              <strong>Contract type:</strong>
+              <strong>Contract type: </strong>
               <span>{contractInfo.contract.addressType}</span><br/>
               <strong>Contract address</strong>
               <CopyText>{contractInfo.contract.address}</CopyText>
@@ -108,7 +108,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                 <p>{contractInfo.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</p>
               }
               <strong>Contract size</strong>
-              <p>{contractInfo.contract.bytesize} bytes (max 1650)</p>
+              <p>{contractInfo.contract.bytesize} bytes (max 10,000)</p>
             </div>
           </Card.Body>
         </Card>
