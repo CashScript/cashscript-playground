@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ControlledEditor, monaco } from '@monaco-editor/react'
+import MonacoEditor, { loader } from '@monaco-editor/react'
 import { Button, Form } from 'react-bootstrap'
 import { ColumnFlex, RowFlex, CompilerVersion } from './shared'
 import { setupCashScriptLanguage, CASHSCRIPT_LANGUAGE_ID } from '@/editor/cashscript'
@@ -19,13 +19,13 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
 
   // Initialize CashScript language support
   useEffect(() => {
-    monaco.init().then((monacoInstance: typeof Monaco) => {
+    loader.init().then((monacoInstance: typeof Monaco) => {
       setupCashScriptLanguage(monacoInstance)
       setIsLanguageReady(true)
     })
   }, [])
 
-  function handleEditorDidMount() {
+  function handleEditorMount() {
     setIsEditorReady(true)
   }
 
@@ -34,12 +34,12 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
       id="editor"
       style={{ flex: 3, margin: '16px', border: '2px solid black', background: 'white' }}
     >
-      <ControlledEditor
+      <MonacoEditor
         language={isLanguageReady ? CASHSCRIPT_LANGUAGE_ID : 'plaintext'}
         value={code}
         theme="light"
-        onChange={(ev: any, code?: string) => setCode(code ?? "")}
-        editorDidMount={handleEditorDidMount}
+        onChange={(value) => setCode(value ?? "")}
+        onMount={handleEditorMount}
       />
       <RowFlex style={{ margin: '20px auto', alignItems: 'center', gap: '12px' }}>
         <Form.Select
