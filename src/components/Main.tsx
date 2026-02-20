@@ -41,13 +41,15 @@ const Main: React.FC<Props> = ({
       } catch(error){ console.log(error) }
     } else {
       // add default example contracts to local storage
-      const artifactExampleTimeout = compileString(exampleTimeoutContract)
-      const artifactExampleEscrow = compileString(exampleEscrowContract)
-      const artifactExampleStramingMecenas = compileString(exampleStramingMecenasContract)
-      const artifactExampleDex = compileString(exampleDexContract)
-      const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
-      setArtifacts(defaultArtifacts)
-      localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts , null, 2));
+      try {
+        const artifactExampleTimeout = compileString(exampleTimeoutContract)
+        const artifactExampleEscrow = compileString(exampleEscrowContract)
+        const artifactExampleStramingMecenas = compileString(exampleStramingMecenasContract)
+        const artifactExampleDex = compileString(exampleDexContract)
+        const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
+        setArtifacts(defaultArtifacts)
+        localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts , null, 2));
+      } catch(error) { console.log(error) }
     }
     if (networkLocalStorage && networkLocalStorage != "mocknet"){
       const newProvider = new ElectrumNetworkProvider(networkLocalStorage as Network)

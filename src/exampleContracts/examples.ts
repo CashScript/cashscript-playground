@@ -88,7 +88,7 @@ contract StreamingMecenas(
             require(tx.outputs[1].lockingBytecode == tx.inputs[0].lockingBytecode);
 
             // Update the block height of the previous pledge, kept in the NFT commitment
-            bytes blockHeightNewPledge = bytes8(tx.locktime);
+            bytes blockHeightNewPledge = toPaddedBytes(tx.locktime, 8);
             require(tx.outputs[1].nftCommitment == blockHeightNewPledge);
         }
     }
