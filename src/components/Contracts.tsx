@@ -17,14 +17,15 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
 
   const removeContract = (contractInfo: ContractInfo) => {
     const contractToRemove = contractInfo.contract
-    const contractToRemoveAddress = contractToRemove.address;
-    const newContracts = contracts?.filter(contractInfo => contractInfo.contract.address !== contractToRemoveAddress)
+    const newContracts = contracts?.filter(ci => ci.contract.name !== contractToRemove.name)
     setContracts(newContracts)
   }
 
   const addRandomUtxo = (contractInfo:ContractInfo) => {
     if(!(provider instanceof MockNetworkProvider)) return
-    provider.addUtxo(contractInfo.contract.address, randomUtxo())
+    const contract = contractInfo.contract as any
+    const address = contract.contractType === 'p2s' ? contract.lockingBytecode : contract.address
+    provider.addUtxo(address, randomUtxo())
     updateUtxosContract(contractInfo.contract.name)
   }
 
@@ -45,8 +46,11 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
       {contracts == undefined ? <p>
         No Contracts created yet...
       </p>:null}
-      {contracts?.map((contractInfo) => (
-        <Card style={{ marginBottom: '10px' }} key={contractInfo.contract.name + contractInfo.contract.address}>
+      {contracts?.map((contractInfo) => {
+        const contract = contractInfo.contract as any
+        const isP2s = contract.contractType === 'p2s'
+        return (
+        <Card style={{ marginBottom: '10px' }} key={contractInfo.contract.name + (isP2s ? contract.lockingBytecode : contract.address)}>
           <Card.Header style={{ display:"flex", justifyContent:"space-between"}}>
             <div>{contractInfo.contract.name}</div>
             <img src='./trash.svg' onClick={() => removeContract(contractInfo)} style={{padding: "0px 6px", width: "28px", cursor:"pointer"}}/>
@@ -54,24 +58,31 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
           <Card.Body>
             <div style={{ margin: '5px', width: '100%' }}>
               <strong>Contract type: </strong>
-              <span>{contractInfo.contract.addressType}</span><br/>
-              <strong>Contract address</strong>
-              <CopyText>{contractInfo.contract.address}</CopyText>
-              <strong>Contract token address</strong>
-              <CopyText>{contractInfo.contract.tokenAddress}</CopyText>
+              <span>{contract.contractType}</span><br/>
+              {!isP2s && <>
+                <strong>Contract address</strong>
+                <CopyText>{contract.address}</CopyText>
+                <strong>Contract token address</strong>
+                <CopyText>{contract.tokenAddress}</CopyText>
+              </>}
+              <strong>Contract locking bytecode</strong>
+              <CopyText>{contract.lockingBytecode}</CopyText>
               <strong>Contract artifact</strong>
               <p>{contractInfo.contract.artifact.contractName}</p>
               <strong>Contract arguments</strong>
-              <details>
-                <summary>Details</summary>
-                  <div>
-                    {contractInfo.args.map((arg, index) => (<div key={`${contractInfo.contract.name}-arg-${index}`}>
-                        {contractInfo.contract.artifact.constructorInputs[index]?.type} {contractInfo.contract.artifact.constructorInputs[index]?.name + ": "} 
-                        {typeof arg == "bigint" ? arg.toString() : null}
-                        {typeof arg == "string" || typeof arg == "number" ? arg : null}
-                    </div>))}
-                  </div>
-              </details>
+              <p>{contractInfo.args.length} {contractInfo.args.length === 1 ? "argument" : "arguments"}</p>
+              {contractInfo.args.length > 0 && (
+                <details>
+                  <summary>Details</summary>
+                    <div>
+                      {contractInfo.args.map((arg, index) => (<div key={`${contractInfo.contract.name}-arg-${index}`}>
+                          {contractInfo.contract.artifact.constructorInputs[index]?.type} {contractInfo.contract.artifact.constructorInputs[index]?.name + ": "}
+                          {typeof arg == "bigint" ? arg.toString() : null}
+                          {typeof arg == "string" || typeof arg == "number" ? arg : null}
+                      </div>))}
+                    </div>
+                </details>
+              )}
               <strong>Contract utxos</strong>
               {contractInfo?.utxos == undefined? 
                 <p>loading ...</p>:
@@ -98,7 +109,7 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                   </div>
                   <details style={{maxWidth: "50%"}}>
                     <summary>Create custom utxo</summary>
-                    <CreateUtxo provider={provider} address={contractInfo.contract.address} 
+                    <CreateUtxo provider={provider} address={isP2s ? contract.lockingBytecode : contract.address}
                       updateUtxos={() => updateUtxosContract(contractInfo.contract.name)}/>
                   </details>
                 </div>) : null}
@@ -108,11 +119,12 @@ const Contracts: React.FC<Props> = ({ provider, contracts, setContracts, updateU
                 <p>{contractInfo.utxos?.reduce((acc, utxo) => acc + utxo.satoshis, 0n).toString()} satoshis</p>
               }
               <strong>Contract size</strong>
-              <p>{contractInfo.contract.bytesize} bytes (max 10,000)</p>
+              <p>{contractInfo.contract.bytesize} bytes (max {isP2s ? '201' : '10,000'} bytes)</p>
             </div>
           </Card.Body>
         </Card>
-      ))}
+        )
+      })}
     </div>
   )
 }

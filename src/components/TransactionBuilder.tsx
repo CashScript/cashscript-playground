@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { NetworkProvider, Recipient, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
+import { NetworkProvider, Output, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
 import { Wallet, ContractInfo, ExplorerString, ContractUtxo, WalletUtxo } from './shared'
 import { Button, Card, Form } from 'react-bootstrap'
 import TransactionOutputs from './TransactionOutputs'
@@ -19,7 +19,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
 
   const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
   const [inputUnlockers, setInputUnlockers] = useState<Unlocker[]>([])
-  const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
+  const [outputs, setOutputs] = useState<Output[]>([{ to: '', amount: 0n }])
 
   function addOutput() {
     const outputsCopy = [...outputs]

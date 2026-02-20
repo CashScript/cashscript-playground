@@ -71,8 +71,8 @@ const Main: React.FC<Props> = ({
         if(typeof arg == "string" && arg.startsWith("bigint")) return BigInt(arg.slice(6))
           return arg
       })
-      const addressType = contractType ?? "p2sh32"
-      const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider, addressType})
+      const resolvedContractType = contractType ?? "p2sh32"
+      const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider, contractType: resolvedContractType})
       newContract.name = contractName
       const contractInfo: ContractInfo = {
         contract: newContract,

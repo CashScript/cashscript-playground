@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Contract, SignatureTemplate, Utxo, ConstructorArgument, Network } from 'cashscript';
+import { Contract, SignatureTemplate, Utxo, ConstructorArgument, Network, ContractType } from 'cashscript';
 import { decodeCashAddress, decodeCashAddressFormatWithoutPrefix } from '@bitauth/libauth';
 
 export const ColumnFlex = styled.div`
@@ -42,7 +42,7 @@ export interface ContractUtxo extends NamedUtxo {
 
 export interface TinyContractObj {
   contractName: string
-  contractType: "p2sh32" | "p2sh20"
+  contractType: ContractType
   artifactName: string
   network: Network
   args: (string | ConstructorArgument)[]
@@ -112,6 +112,18 @@ export function readAsConstructorType(value: string, type: string) {
   } else {
     return value;
   }
+}
+
+export function isHexString(value: string): boolean {
+  return /^[0-9a-fA-F]+$/.test(value) && value.length % 2 === 0 && value.length > 0
+}
+
+export function hexToUint8Array(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16)
+  }
+  return bytes
 }
 
 export const ExplorerString = {
