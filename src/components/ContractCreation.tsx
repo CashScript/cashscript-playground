@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Artifact, Contract, ConstructorArgument, NetworkProvider } from 'cashscript'
+import { Artifact, Contract, ConstructorArgument, NetworkProvider, ContractType } from 'cashscript'
 import { InputGroup, Form, Button } from 'react-bootstrap'
 import { readAsConstructorType, ContractInfo, TinyContractObj } from './shared'
 
@@ -14,7 +14,7 @@ interface Props {
 const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, provider, updateUtxosContract}) => {
   const [constructorArgs, setConstructorArgs] = useState<ConstructorArgument[]>([])
   const [nameContract, setNameContract] = useState<string>("");
-  const [contractType, setContractType] = useState<"p2sh32" | "p2sh20">("p2sh32");
+  const [contractType, setContractType] = useState<ContractType>("p2sh32");
   const [createdContract, setCreatedContract] = useState(false);
 
   const resetInputFields = () => {
@@ -62,7 +62,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       return
     }
     try {
-      const newContract = new Contract(artifact, constructorArgs, { provider, addressType: contractType })
+      const newContract = new Contract(artifact, constructorArgs, { provider, contractType })
       newContract.name = nameContract
       const contractInfo = {contract: newContract, utxos: undefined, args: constructorArgs}
       setContracts([contractInfo, ...contracts ?? []])
@@ -84,7 +84,7 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
       )
       const tinyContractObj: TinyContractObj = {
         contractName: contract.name,
-        contractType: contract.addressType,
+        contractType: contract.contractType,
         artifactName: contract.artifact.contractName,
         network: contract.provider.network,
         args: strifiedArgs
@@ -122,13 +122,14 @@ const ContractCreation: React.FC<Props> = ({ artifact, contracts, setContracts, 
         />
       </InputGroup>
       <p>Contract Type:</p>
-      <Form.Control size="sm" id="network-selector" style={{width: "350px"}}
+      <Form.Control size="sm" id="contractType-selector" style={{width: "350px"}}
         as="select"
-        value={provider.network}
-        onChange={(event) => setContractType(event.target.value as "p2sh32" | "p2sh20")}
+        value={contractType}
+        onChange={(event) => setContractType(event.target.value as ContractType)}
       >
         <option value="p2sh32">p2sh32 (default)</option>
         <option value="p2sh20">p2sh20</option>
+        <option value="p2s">p2s</option>
       </Form.Control>
       <p>Initialise contract by providing contract arguments:</p>
       {constructorForm}

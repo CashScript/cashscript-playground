@@ -70,10 +70,10 @@
   resolved "https://registry.yarnpkg.com/@bitauth/libauth/-/libauth-3.1.0-next.8.tgz#d130e5db6c3c8b24731c8d04c4091be07f48b0ee"
   integrity sha512-Pm+Ju+YP3JeBLLTiVrBnia2wwE4G17r4XqpvPRMcklElJTe8J6x3JgKRg1by0Xm3ZY6UFxACkEAoSA+x419/zA==
 
-"@cashscript/utils@^0.12.0":
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.12.0.tgz#d4e96428ecb09792fb87970f4675214d7e54f409"
-  integrity sha512-25sJQuEUBeZ3BwCRJ3bruqsyP/9P1VLy9gnqObB/Uz2rzW9OAmDQ5gDsx9ABywazoXmq5/mQ+gQBwlqt9qpgmA==
+"@cashscript/utils@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.13.0.tgz#726eaece71a2212af58f86fbc9d3769d6070ebd8"
+  integrity sha512-58haS9On+nStA4LeTa03KFx6JcZlIiiHPDLwXGkYWs7M08rW16vsO70+NTBipGRFfpIFeSmq2tHJ72iI8GHJrg==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
 
@@ -472,11 +472,6 @@
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/@monsterbitar/isomorphic-ws/-/isomorphic-ws-5.3.1.tgz#acd6be86c7568682d8146f8b5fadbec74bf8789e"
   integrity sha512-BWfWUffbg3uO4K6Cyokg9ff43lPaXAOZcCnNe1lcjCjUMDVrRAb5qEHG5qeJp3ud2SPYbORaNsls5as6SR3oig==
-
-"@mr-zwets/bchn-api-wrapper@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@mr-zwets/bchn-api-wrapper/-/bchn-api-wrapper-1.0.1.tgz#1ecd9fca91ed7e33df9769e243ae04871d2d356f"
-  integrity sha512-EyKT6zgXh31JqTRsi+KCX04WPDjIqs80nfsafrKiUZTg8FgWzql1wSyYdggmeByB74yLHD0LouC40S8PMmvcZA==
 
 "@next/env@15.5.9":
   version "15.5.9"
@@ -1187,27 +1182,26 @@ caniuse-lite@^1.0.30001579:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001625.tgz#ead1b155ea691d6a87938754d3cb119c24465b03"
   integrity sha512-4KE9N2gcRH+HQhpeiRZXd+1niLB/XNLAhSy4z7fI8EzcbcPoAqjNInxVHTiTwWfTIV4w096XG8OtCOCQQKPv3w==
 
-cashc@^0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.12.0.tgz#1e0674d569c5ae4119226032b792b226cf39457c"
-  integrity sha512-Cns6Xi+sRbURn7j8OwTAsVOp16BgUN3EmPNXMAj8DWhyofhJSPzkxtvynvKH10N1yDQBU8/Y9X/pz7JRA90UIg==
+cashc@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.13.0.tgz#c625d36d733cd9934388e0cab5d13d7427c174af"
+  integrity sha512-j+DIpH1uIqseE6Xb1235MBRpt3vUNIAICreKfTLYKKhJMgXjjacc0oxPu+bWzCsNIoPJQ0O7W3eZAiS974w82w==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.12.0"
+    "@cashscript/utils" "^0.13.0"
     antlr4 "^4.13.2"
     commander "^14.0.0"
     semver "^7.7.2"
 
-cashscript@^0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.12.0.tgz#66225524eb94fa657b4c68ac90e786d4348a848b"
-  integrity sha512-pdrBjdiBka8g/jVCtaku08R2xoFCMo2GG/pdVf/z+b95Yd0H1ioFSMlp9mx1xuxeYbvZx85ZGk643CAFm+Kzgg==
+cashscript@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.13.0.tgz#a2a76d88e1eae0e9d0292768969a665fa69fa847"
+  integrity sha512-UCtJI+Rn/UaiqQ15e7DzjQ9+f8/AQCIFdapzGmMh3J44LCcZymFlFCyg9MNesk00PfPYFwusCc9neS78VBdcpA==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.12.0"
+    "@cashscript/utils" "^0.13.0"
     "@electrum-cash/network" "^4.1.3"
-    "@mr-zwets/bchn-api-wrapper" "^1.0.1"
-    pako "^2.1.0"
+    fflate "^0.8.2"
     semver "^7.7.2"
 
 chalk@^2.0.0:
@@ -1986,6 +1980,11 @@ fastq@^1.6.0:
   integrity sha512-wBrocU2LCXXa+lWBt8RoIRD89Fi8OdABODa/kEnyeyjS5aZO5/GNvI5sEINADqP/h8M29UHTHUb53sUu5Ihqdw==
   dependencies:
     reusify "^1.0.4"
+
+fflate@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/fflate/-/fflate-0.8.2.tgz#fc8631f5347812ad6028bbe4a2308b2792aa1dea"
+  integrity sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==
 
 file-entry-cache@^8.0.0:
   version "8.0.0"
@@ -3002,11 +3001,6 @@ p-locate@^5.0.0:
   integrity sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==
   dependencies:
     p-limit "^3.0.2"
-
-pako@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
-  integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
 
 parent-module@^1.0.0:
   version "1.0.1"

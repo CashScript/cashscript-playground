@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { NetworkProvider, Recipient, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
+import { NetworkProvider, Output, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
 import { Wallet, ContractInfo, ExplorerString, ContractUtxo, WalletUtxo } from './shared'
 import { Button, Card, Form } from 'react-bootstrap'
 import TransactionOutputs from './TransactionOutputs'
@@ -16,10 +16,15 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
 
   const [enableLocktime, setEnableLocktime] = useState<Boolean>(false)
   const [locktime, setLocktime] = useState<String>("")
+  const [allowImplicitFungibleTokenBurn, setAllowImplicitFungibleTokenBurn] = useState<boolean>(false)
+  const [enableMaxFeeSatoshis, setEnableMaxFeeSatoshis] = useState<boolean>(false)
+  const [maximumFeeSatoshis, setMaximumFeeSatoshis] = useState<string>("")
+  const [enableMaxFeeSatsPerByte, setEnableMaxFeeSatsPerByte] = useState<boolean>(false)
+  const [maximumFeeSatsPerByte, setMaximumFeeSatsPerByte] = useState<string>("")
 
   const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
   const [inputUnlockers, setInputUnlockers] = useState<Unlocker[]>([])
-  const [outputs, setOutputs] = useState<Recipient[]>([{ to: '', amount: 0n }])
+  const [outputs, setOutputs] = useState<Output[]>([{ to: '', amount: 0n }])
 
   function addOutput() {
     const outputsCopy = [...outputs]
@@ -47,7 +52,12 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
     // try to send transaction and alert result
     try {
       // start constructing transaction
-      const transaction = new TransactionBuilder({provider})
+      const transaction = new TransactionBuilder({
+        provider,
+        allowImplicitFungibleTokenBurn,
+        ...(enableMaxFeeSatoshis && maximumFeeSatoshis ? { maximumFeeSatoshis: BigInt(maximumFeeSatoshis) } : {}),
+        ...(enableMaxFeeSatsPerByte && maximumFeeSatsPerByte ? { maximumFeeSatsPerByte: Number(maximumFeeSatsPerByte) } : {}),
+      })
 
       // add inputs to transaction in the user-defined order
       inputs.forEach((input, inputIndex) => {
@@ -116,7 +126,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           style={{ display: "inline-block" }}
           onChange={() => setEnableLocktime(!enableLocktime)}
         />
-        
+
         { enableLocktime && <Form.Control size="sm"
           placeholder="locktime"
           aria-label="locktime"
@@ -148,6 +158,52 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
             <TransactionOutputs outputs={outputs} setOutputs={setOutputs}/>
           </Card.Body>
       </Card>
+
+      <details style={{ marginBottom: '10px' }}>
+        <summary>TransactionBuilder Options</summary>
+        <Form style={{ marginTop: '10px' }}>
+          <Form.Check
+            type="switch"
+            id={"allowImplicitFungibleTokenBurn"}
+            label="Allow Implicit Fungible Token Burn (disables safety check)"
+            className='primary'
+            style={{ marginBottom: '8px' }}
+            onChange={() => setAllowImplicitFungibleTokenBurn(!allowImplicitFungibleTokenBurn)}
+          />
+          <Form.Check
+            type="switch"
+            id={"enableMaxFeeSatoshis"}
+            label="Maximum Fee Limit (satoshis)"
+            className='primary'
+            style={{ marginBottom: '8px' }}
+            onChange={() => setEnableMaxFeeSatoshis(!enableMaxFeeSatoshis)}
+          />
+          {enableMaxFeeSatoshis && <Form.Control
+            size="sm"
+            type="text"
+            placeholder="Maximum fee in satoshis"
+            style={{ width: '350px', marginBottom: '8px' }}
+            value={maximumFeeSatoshis}
+            onChange={(e) => setMaximumFeeSatoshis(e.target.value)}
+          />}
+          <Form.Check
+            type="switch"
+            id={"enableMaxFeeSatsPerByte"}
+            label="Maximum Fee Limit (sats/byte)"
+            className='primary'
+            style={{ marginBottom: '8px' }}
+            onChange={() => setEnableMaxFeeSatsPerByte(!enableMaxFeeSatsPerByte)}
+          />
+          {enableMaxFeeSatsPerByte && <Form.Control
+            size="sm"
+            type="text"
+            placeholder="Maximum fee in sats/byte"
+            style={{ width: '350px', marginBottom: '8px' }}
+            value={maximumFeeSatsPerByte}
+            onChange={(e) => setMaximumFeeSatsPerByte(e.target.value)}
+          />}
+        </Form>
+      </details>
 
       <Button variant="secondary" style={{ display: "block" }} size="sm" onClick={sendTransaction}>
         { provider.network === "mocknet" ? "Evaluate" : "Send" }

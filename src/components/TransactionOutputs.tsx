@@ -1,10 +1,11 @@
 import React, {useState} from 'react'
-import { Recipient } from 'cashscript'
+import { Output } from 'cashscript'
 import { Form, InputGroup } from 'react-bootstrap'
+import { hexToUint8Array, isHexString } from './shared'
 
 interface Props {
-  outputs: Recipient[]
-  setOutputs: (outputs: Recipient[]) => void
+  outputs: Output[]
+  setOutputs: (outputs: Output[]) => void
 }
 
 const TransactionOutputs: React.FC<Props> = ({ outputs, setOutputs }) => {
@@ -90,12 +91,13 @@ const TransactionOutputs: React.FC<Props> = ({ outputs, setOutputs }) => {
       <div>
         <InputGroup>
           <Form.Control size="sm"
-            placeholder="Receiver address"
-            aria-label="Receiver address"
+            placeholder="Receiver address or locking bytecode (hex)"
+            aria-label="Receiver address or locking bytecode"
             onChange={(event) => {
               const outputsCopy = [...outputs]
               const output = outputsCopy[index]
-              output.to = event.target.value
+              const value = event.target.value
+              output.to = isHexString(value) ? hexToUint8Array(value) : value
               outputsCopy[index] = output
               setOutputs(outputsCopy)
             }}

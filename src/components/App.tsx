@@ -31,7 +31,8 @@ function App() {
     if (!currentContract) return
     // create a separate lists for utxos and mutate entry
     const utxosList = contracts.map(contract => contract.utxos ?? [])
-    const contractUtxos = await provider.getUtxos(currentContract.address);
+    // works for all contract types (p2sh20, p2sh32, p2s)
+    const contractUtxos = await currentContract.getUtxos();
     utxosList[contractIndex] = contractUtxos
     // map is the best way to deep clone array of complex objects
     const newContracts: ContractInfo[] = contracts.map((contractInfo,index) => (
@@ -44,7 +45,8 @@ function App() {
     if(!contracts) return
 
     const utxosPromises = contracts.map(contractInfo => {
-      const contractUtxos = provider.getUtxos(contractInfo.contract.address);
+      // works for all contract types (p2sh20, p2sh32, p2s)
+      const contractUtxos = contractInfo.contract.getUtxos();
       return contractUtxos ?? []
     })
     const utxosContracts = await Promise.all(utxosPromises)
