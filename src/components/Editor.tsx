@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import { ControlledEditor } from '@monaco-editor/react'
+import React, { useState, useEffect } from 'react'
+import MonacoEditor, { loader } from '@monaco-editor/react'
 import { Button, Form } from 'react-bootstrap'
 import { ColumnFlex, RowFlex, CompilerVersion } from './shared'
+import { setupCashScriptLanguage, setCashScriptCompilerVersion, CASHSCRIPT_LANGUAGE_ID, CASHSCRIPT_THEME_ID } from '@/editor/cashscript'
+import type * as Monaco from 'monaco-editor'
 
 interface Props {
   code: string
@@ -13,8 +15,23 @@ interface Props {
 
 const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setCompilerVersion }) => {
   const [isEditorReady, setIsEditorReady] = useState(false)
+  const [isLanguageReady, setIsLanguageReady] = useState(false)
 
-  function handleEditorDidMount() {
+  // Initialize CashScript language support
+  useEffect(() => {
+    loader.init().then((monacoInstance: typeof Monaco) => {
+      setupCashScriptLanguage(monacoInstance)
+      setIsLanguageReady(true)
+    })
+  }, [])
+
+  // Keep the language providers in sync with the selected compiler version so
+  // completions and hovers reflect the features available in that version.
+  useEffect(() => {
+    setCashScriptCompilerVersion(compilerVersion)
+  }, [compilerVersion])
+
+  function handleEditorMount() {
     setIsEditorReady(true)
   }
 
@@ -23,12 +40,12 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
       id="editor"
       style={{ flex: 3, margin: '16px', border: '2px solid black', background: 'white' }}
     >
-      <ControlledEditor
-        language="sol"
+      <MonacoEditor
+        language={isLanguageReady ? CASHSCRIPT_LANGUAGE_ID : 'plaintext'}
         value={code}
-        theme="light"
-        onChange={(ev: any, code?: string) => setCode(code?? "") }
-        editorDidMount={handleEditorDidMount}
+        theme={isLanguageReady ? CASHSCRIPT_THEME_ID : 'light'}
+        onChange={(value) => setCode(value ?? "")}
+        onMount={handleEditorMount}
       />
       <RowFlex style={{ margin: '20px auto', alignItems: 'center', gap: '12px' }}>
         <Form.Select
@@ -48,7 +65,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
           style={{
             borderRadius: '30px',
             width: '150px',
-        }}>
+          }}>
           Compile
         </Button>
       </RowFlex>
