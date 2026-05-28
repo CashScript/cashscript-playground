@@ -2,6 +2,7 @@ import type * as Monaco from 'monaco-editor';
 import { CASHSCRIPT_LANGUAGE_ID } from './languageDefinition';
 import {
   globalFunctions,
+  casts,
   typeKeywords,
   instantiations,
   timeUnits,
@@ -11,10 +12,13 @@ import {
   inputProperties,
   outputProperties,
   thisProperties,
+  arrayProperties,
+  consoleProperties,
   bytesMethods,
   globalObjects,
   CompletionItemData,
 } from './completionData';
+import { isAvailableInVersion } from './version';
 import { extractVariables, ExtractedVariable } from './variableExtractor';
 
 // Build lookup maps for efficient hover lookup
@@ -23,6 +27,7 @@ const hoverDataMap = new Map<string, CompletionItemData>();
 function buildHoverDataMap(): void {
   const allItems: CompletionItemData[] = [
     ...globalFunctions,
+    ...casts,
     ...typeKeywords,
     ...instantiations,
     ...timeUnits,
@@ -45,6 +50,8 @@ const txPropertyMap = new Map(txProperties.map(p => [p.label, p]));
 const inputPropertyMap = new Map(inputProperties.map(p => [p.label, p]));
 const outputPropertyMap = new Map(outputProperties.map(p => [p.label, p]));
 const thisPropertyMap = new Map(thisProperties.map(p => [p.label, p]));
+const arrayPropertyMap = new Map(arrayProperties.map(p => [p.label, p]));
+const consolePropertyMap = new Map(consoleProperties.map(p => [p.label, p]));
 
 export function registerHoverProvider(monaco: typeof Monaco): void {
   monaco.languages.registerHoverProvider(CASHSCRIPT_LANGUAGE_ID, {
@@ -101,6 +108,14 @@ function getHoverContent(
     }
   }
 
+  // tx.inputs.property / tx.outputs.property (array members, e.g. .length)
+  if (/tx\.(?:inputs|outputs)\s*\.\s*$/.test(lineUntilWord)) {
+    const prop = arrayPropertyMap.get(word);
+    if (prop) {
+      return formatHoverContent(prop);
+    }
+  }
+
   // tx.property
   if (/\btx\s*\.\s*$/.test(lineUntilWord)) {
     const prop = txPropertyMap.get(word);
@@ -117,18 +132,50 @@ function getHoverContent(
     }
   }
 
-  // bytes methods (after any identifier followed by dot, excluding tx/this)
-  if (/\b\w+\s*\.\s*$/.test(lineUntilWord) && !/\b(?:tx|this)\s*\.\s*$/.test(lineUntilWord)) {
+  // console.member
+  if (/\bconsole\s*\.\s*$/.test(lineUntilWord)) {
+    const prop = consolePropertyMap.get(word);
+    if (prop) {
+      return formatHoverContent(prop);
+    }
+  }
+
+  // bytes methods (after any identifier followed by dot, excluding tx/this/console)
+  if (/\b\w+\s*\.\s*$/.test(lineUntilWord) && !/\b(?:tx|this|console)\s*\.\s*$/.test(lineUntilWord)) {
     const method = hoverDataMap.get(word);
     if (method && (method.kind === 'Method' || method.kind === 'Property')) {
       return formatHoverContent(method);
     }
   }
 
-  // Check for global items
+  // Check for global items (gated by the selected compiler version)
   const globalItem = hoverDataMap.get(word);
-  if (globalItem) {
+  if (globalItem && isAvailableInVersion(globalItem.minVersion, globalItem.maxVersion)) {
     return formatHoverContent(globalItem);
+  }
+
+  // Fixed-width bytesN types and unsafe_bytesN casts are parameterised by N, so
+  // they're kept out of completions to reduce clutter. They're still valid and
+  // hoverable, so synthesize a hover for any concrete N here.
+  const unsafeBytesNMatch = word.match(/^unsafe_bytes([1-9]|[12][0-9]|3[0-2])$/);
+  if (unsafeBytesNMatch && isAvailableInVersion('0.13.0')) {
+    const n = unsafeBytesNMatch[1];
+    return formatHoverContent({
+      label: word,
+      kind: 'Function',
+      detail: `unsafe_bytes${n}(any v) -> bytes${n}`,
+      documentation: `Unsafe cast to a bytes sequence of ${n} bytes. Skips the runtime length check — the caller is responsible for guaranteeing the value is exactly ${n} bytes.`,
+    });
+  }
+
+  const bytesNMatch = word.match(/^bytes([1-9]|[12][0-9]|3[0-2])$/);
+  if (bytesNMatch) {
+    return formatHoverContent({
+      label: word,
+      kind: 'Keyword',
+      detail: `Fixed ${bytesNMatch[1]}-byte array`,
+      documentation: `Fixed-length ${bytesNMatch[1]}-byte array.`,
+    });
   }
 
   // Check for user-declared variables

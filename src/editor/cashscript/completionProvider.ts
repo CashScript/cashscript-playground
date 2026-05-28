@@ -2,6 +2,7 @@ import type * as Monaco from 'monaco-editor';
 import { CASHSCRIPT_LANGUAGE_ID } from './languageDefinition';
 import {
   globalFunctions,
+  casts,
   typeKeywords,
   instantiations,
   timeUnits,
@@ -11,11 +12,14 @@ import {
   inputProperties,
   outputProperties,
   thisProperties,
+  arrayProperties,
+  consoleProperties,
   bytesMethods,
   globalObjects,
   createCompletionItem,
   CompletionItemData,
 } from './completionData';
+import { isAvailableInVersion } from './version';
 import { getAvailableVariables, ExtractedVariable } from './variableExtractor';
 
 export function registerCompletionProvider(monaco: typeof Monaco): void {
@@ -49,9 +53,10 @@ export function registerCompletionProvider(monaco: typeof Monaco): void {
         };
       }
 
-      // Standard completions
+      // Standard completions, filtered by the selected compiler version.
       const allCompletions: CompletionItemData[] = [
         ...globalFunctions,
+        ...casts,
         ...typeKeywords,
         ...keywords,
         ...timeUnits,
@@ -60,6 +65,7 @@ export function registerCompletionProvider(monaco: typeof Monaco): void {
       ];
 
       for (const item of allCompletions) {
+        if (!isAvailableInVersion(item.minVersion, item.maxVersion)) continue;
         suggestions.push(createCompletionItem(item, range, monaco));
       }
 
@@ -94,6 +100,11 @@ function handleDotCompletion(
     return outputProperties.map(item => createCompletionItem(item, range, monaco));
   }
 
+  // Check for tx.inputs. or tx.outputs. (array members, e.g. .length)
+  if (/tx\.(?:inputs|outputs)\s*\.\s*\w*$/.test(lineUntilPosition)) {
+    return arrayProperties.map(item => createCompletionItem(item, range, monaco));
+  }
+
   // Check for tx.
   if (/\btx\s*\.\s*\w*$/.test(lineUntilPosition)) {
     return txProperties.map(item => createCompletionItem(item, range, monaco));
@@ -102,6 +113,11 @@ function handleDotCompletion(
   // Check for this.
   if (/\bthis\s*\.\s*\w*$/.test(lineUntilPosition)) {
     return thisProperties.map(item => createCompletionItem(item, range, monaco));
+  }
+
+  // Check for console.
+  if (/\bconsole\s*\.\s*\w*$/.test(lineUntilPosition)) {
+    return consoleProperties.map(item => createCompletionItem(item, range, monaco));
   }
 
   // Check for bytes methods (identifier followed by dot)

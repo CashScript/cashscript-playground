@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import MonacoEditor, { loader } from '@monaco-editor/react'
 import { Button, Form } from 'react-bootstrap'
 import { ColumnFlex, RowFlex, CompilerVersion } from './shared'
-import { setupCashScriptLanguage, CASHSCRIPT_LANGUAGE_ID } from '@/editor/cashscript'
+import { setupCashScriptLanguage, setCashScriptCompilerVersion, CASHSCRIPT_LANGUAGE_ID, CASHSCRIPT_THEME_ID } from '@/editor/cashscript'
 import type * as Monaco from 'monaco-editor'
 
 interface Props {
@@ -25,6 +25,12 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
     })
   }, [])
 
+  // Keep the language providers in sync with the selected compiler version so
+  // completions and hovers reflect the features available in that version.
+  useEffect(() => {
+    setCashScriptCompilerVersion(compilerVersion)
+  }, [compilerVersion])
+
   function handleEditorMount() {
     setIsEditorReady(true)
   }
@@ -37,7 +43,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
       <MonacoEditor
         language={isLanguageReady ? CASHSCRIPT_LANGUAGE_ID : 'plaintext'}
         value={code}
-        theme="light"
+        theme={isLanguageReady ? CASHSCRIPT_THEME_ID : 'light'}
         onChange={(value) => setCode(value ?? "")}
         onMount={handleEditorMount}
       />

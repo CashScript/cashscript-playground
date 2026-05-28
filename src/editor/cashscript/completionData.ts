@@ -6,6 +6,12 @@ export interface CompletionItemData {
   detail: string;
   documentation: string;
   insertText?: string;
+  // Compiler version range in which this item is available. minVersion is the
+  // version it was introduced; maxVersion is the last version it exists in
+  // (e.g. a feature removed in 0.13 would set maxVersion: '0.12.0'). Either
+  // bound may be omitted; an item with neither exists in every version.
+  minVersion?: string;
+  maxVersion?: string;
 }
 
 // Global functions
@@ -97,13 +103,65 @@ export const globalFunctions: CompletionItemData[] = [
     documentation: 'Returns the double SHA-256 hash of the input (HASH256).',
     insertText: 'hash256(${1:data})',
   },
+  // Utility functions
+  {
+    label: 'toPaddedBytes',
+    kind: 'Function',
+    detail: 'toPaddedBytes(int value, int size) -> bytes',
+    documentation: 'Converts an integer `value` to a bytes sequence of length `size`, padded with zero-bytes. Fails at runtime if the integer does not fit into `size` bytes. (Replaces the old `bytes4(int)` / `bytes(int, 4)` padding casts.)',
+    insertText: 'toPaddedBytes(${1:value}, ${2:size})',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'date',
+    kind: 'Function',
+    detail: 'date(string dateString) -> int',
+    documentation: 'Converts a date string (e.g. "2024-01-01T00:00:00") to a Unix timestamp at compile time.',
+    insertText: 'date(${1:dateString})',
+  },
   // Require
   {
     label: 'require',
     kind: 'Function',
-    detail: 'require(bool condition)',
-    documentation: 'Requires that the condition evaluates to true. If not, the transaction fails.',
+    detail: 'require(bool condition, string debugMessage?)',
+    documentation: 'Requires that the condition evaluates to true, failing script execution otherwise. The optional `debugMessage` is surfaced during debug evaluation and has no effect in production.',
     insertText: 'require(${1:condition});',
+  },
+];
+
+// Semantic-only casts. Available from CashScript 0.13.0 onwards.
+export const casts: CompletionItemData[] = [
+  {
+    label: 'unsafe_int',
+    kind: 'Function',
+    detail: 'unsafe_int(any v) -> int',
+    documentation: 'Unsafe cast to int: reinterprets the value without runtime type enforcement. The caller is responsible for ensuring the value is a valid Script number.',
+    insertText: 'unsafe_int(${1:value})',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'unsafe_bool',
+    kind: 'Function',
+    detail: 'unsafe_bool(any v) -> bool',
+    documentation: 'Unsafe cast to bool: reinterprets the value without coercing to 1 / 0. The caller is responsible for ensuring the value is already a valid boolean.',
+    insertText: 'unsafe_bool(${1:value})',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'unsafe_byte',
+    kind: 'Function',
+    detail: 'unsafe_byte(any v) -> bytes1',
+    documentation: 'Unsafe cast to a single byte. No runtime length enforcement.',
+    insertText: 'unsafe_byte(${1:value})',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'unsafe_bytes',
+    kind: 'Function',
+    detail: 'unsafe_bytes(any v) -> bytes',
+    documentation: 'Unsafe cast to unbounded bytes. No runtime length or type enforcement. Use `unsafe_bytesN` (e.g. `unsafe_bytes4`) to cast to a fixed length. (Replaces the old `bytes4(bytes)` truncation cast.)',
+    insertText: 'unsafe_bytes(${1:value})',
+    minVersion: '0.13.0',
   },
 ];
 
@@ -134,16 +192,10 @@ export const typeKeywords: CompletionItemData[] = [
     documentation: 'Variable-length byte array.',
   },
   {
-    label: 'bytes20',
+    label: 'byte',
     kind: 'Keyword',
-    detail: 'Fixed 20-byte array',
-    documentation: 'Fixed-length 20-byte array. Commonly used for hash160 outputs.',
-  },
-  {
-    label: 'bytes32',
-    kind: 'Keyword',
-    detail: 'Fixed 32-byte array',
-    documentation: 'Fixed-length 32-byte array. Commonly used for sha256/hash256 outputs.',
+    detail: 'Single-byte array',
+    documentation: 'Alias for bytes1, a fixed-length single-byte array.',
   },
   {
     label: 'pubkey',
@@ -165,17 +217,9 @@ export const typeKeywords: CompletionItemData[] = [
   },
 ];
 
-// Generate bytes1-bytes32
-for (let i = 1; i <= 32; i++) {
-  if (i !== 20 && i !== 32) { // Skip 20 and 32, already added
-    typeKeywords.push({
-      label: `bytes${i}`,
-      kind: 'Keyword',
-      detail: `Fixed ${i}-byte array`,
-      documentation: `Fixed-length ${i}-byte array.`,
-    });
-  }
-}
+// Note: the fixed-width bytesN types (bytes1-bytes32) are intentionally left out
+// of completions to avoid cluttering the suggestion list — `bytes` covers the
+// common case and bytesN are still highlighted and hoverable (see hoverProvider).
 
 // Instantiation types
 export const instantiations: CompletionItemData[] = [
@@ -283,8 +327,8 @@ export const keywords: CompletionItemData[] = [
     label: 'pragma',
     kind: 'Keyword',
     detail: 'Pragma directive',
-    documentation: 'Specifies the CashScript version. Example: pragma cashscript ^0.10.0;',
-    insertText: 'pragma cashscript ^${1:0.10.0};',
+    documentation: 'Specifies the CashScript version. Example: pragma cashscript ^0.13.0;',
+    insertText: 'pragma cashscript ^${1:0.13.0};',
   },
   {
     label: 'contract',
@@ -313,6 +357,30 @@ export const keywords: CompletionItemData[] = [
     detail: 'Else clause',
     documentation: 'Executes code if the previous if condition was false.',
     insertText: 'else {\n\t$0\n}',
+  },
+  {
+    label: 'for',
+    kind: 'Keyword',
+    detail: 'For loop',
+    documentation: 'Repeats a block a bounded number of times. Loops must have a compile-time bound.',
+    insertText: 'for (int ${1:i} = ${2:0}; ${1:i} < ${3:n}; ${1:i}++) {\n\t$0\n}',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'while',
+    kind: 'Keyword',
+    detail: 'While loop',
+    documentation: 'Repeats a block while the condition holds. Loops must have a compile-time bound.',
+    insertText: 'while (${1:condition}) {\n\t$0\n}',
+    minVersion: '0.13.0',
+  },
+  {
+    label: 'do',
+    kind: 'Keyword',
+    detail: 'Do-while loop',
+    documentation: 'Repeats a block at least once, then while the condition holds.',
+    insertText: 'do {\n\t$0\n} while (${1:condition});',
+    minVersion: '0.13.0',
   },
   {
     label: 'constant',
@@ -474,6 +542,12 @@ export const thisProperties: CompletionItemData[] = [
     detail: 'this.activeBytecode -> bytes',
     documentation: 'The full locking bytecode of the contract.',
   },
+  {
+    label: 'age',
+    kind: 'Property',
+    detail: 'this.age -> int',
+    documentation: 'Relative age (sequence-number) check. `require(this.age >= N)` enforces that this input is at least `N` blocks or seconds old (BIP68).',
+  },
 ];
 
 // bytes methods
@@ -493,10 +567,38 @@ export const bytesMethods: CompletionItemData[] = [
     insertText: 'reverse()',
   },
   {
+    label: 'slice',
+    kind: 'Method',
+    detail: 'bytes.slice(int start, int end) -> bytes',
+    documentation: 'Returns a new sequence containing the elements from `start` (inclusive) to `end` (exclusive).',
+    insertText: 'slice(${1:start}, ${2:end})',
+  },
+  {
     label: 'length',
     kind: 'Property',
     detail: 'bytes.length -> int',
     documentation: 'The length of the byte array.',
+  },
+];
+
+// Properties available on the tx.inputs / tx.outputs arrays themselves.
+export const arrayProperties: CompletionItemData[] = [
+  {
+    label: 'length',
+    kind: 'Property',
+    detail: 'tx.inputs.length / tx.outputs.length -> int',
+    documentation: 'The number of inputs or outputs in the current transaction.',
+  },
+];
+
+// console.* members (debug-only, no effect in production).
+export const consoleProperties: CompletionItemData[] = [
+  {
+    label: 'log',
+    kind: 'Method',
+    detail: 'console.log(...args)',
+    documentation: 'Logs primitive data or variable values to the debug console. Has no effect in production.',
+    insertText: 'log(${1:args})',
   },
 ];
 
@@ -513,6 +615,12 @@ export const globalObjects: CompletionItemData[] = [
     kind: 'Module',
     detail: 'Contract introspection',
     documentation: 'Access contract properties like this.activeInputIndex and this.activeBytecode.',
+  },
+  {
+    label: 'console',
+    kind: 'Module',
+    detail: 'Debug logging',
+    documentation: 'Debug-only logging. Use console.log(...) to inspect values during evaluation.',
   },
 ];
 

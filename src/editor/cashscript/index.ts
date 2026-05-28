@@ -1,9 +1,11 @@
 import type * as Monaco from 'monaco-editor';
-import { registerCashScriptLanguage, CASHSCRIPT_LANGUAGE_ID } from './languageDefinition';
+import { registerCashScriptLanguage, applyMonarchForVersion, CASHSCRIPT_LANGUAGE_ID, CASHSCRIPT_THEME_ID } from './languageDefinition';
 import { registerCompletionProvider } from './completionProvider';
 import { registerHoverProvider } from './hoverProvider';
+import { setCashScriptCompilerVersion, onCashScriptCompilerVersionChange } from './version';
 
-export { CASHSCRIPT_LANGUAGE_ID };
+export { CASHSCRIPT_LANGUAGE_ID, CASHSCRIPT_THEME_ID, setCashScriptCompilerVersion };
+export type { CashScriptVersion } from './version';
 
 /**
  * Sets up the CashScript language support for Monaco editor.
@@ -29,4 +31,9 @@ export function setupCashScriptLanguage(monaco: typeof Monaco): void {
 
   // Register hover provider
   registerHoverProvider(monaco);
+
+  // Highlighting is registered statically, so re-tokenize when the selected
+  // compiler version changes (completions/hover read the version live and need
+  // no re-registration).
+  onCashScriptCompilerVersionChange((version) => applyMonarchForVersion(monaco, version));
 }
