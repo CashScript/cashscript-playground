@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Artifact, Contract, ElectrumNetworkProvider, Network, NetworkProvider } from 'cashscript';
 import { compileString } from 'cashc';
-import { RowFlex, ContractInfo, TinyContractObj } from './shared';
+import { compileString as compileStringV012 } from 'cashc-v0.12';
+import { RowFlex, ContractInfo, TinyContractObj, CompilerVersion } from './shared';
 import Editor from './Editor';
 import ArtifactsInfo from './ArtifactsInfo';
 import {
@@ -27,6 +28,7 @@ const Main: React.FC<Props> = ({
 }) => {
 
   const [initializeContracts, setInitializeContracts] = useState<0|1|2>(0);
+  const [compilerVersion, setCompilerVersion] = useState<CompilerVersion>('0.13.0');
 
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
@@ -96,7 +98,8 @@ const Main: React.FC<Props> = ({
   function compile() {
     try {
       localStorage.setItem("code", code);
-      const newArtifact = compileString(code);
+      const compileWithVersion = compilerVersion === '0.12.0' ? compileStringV012 : compileString;
+      const newArtifact = compileWithVersion(code);
       const nameNewArtifact = newArtifact.contractName
       const sameArifactExists = artifacts?.find(artifact => nameNewArtifact === artifact.contractName)
       if(sameArifactExists){
@@ -118,7 +121,13 @@ const Main: React.FC<Props> = ({
       paddingTop: '0px',
       height: 'calc(100vh - 140px)'
     }}>
-      <Editor code={code} setCode={setCode} compile={compile}/>
+      <Editor
+        code={code}
+        setCode={setCode}
+        compile={compile}
+        compilerVersion={compilerVersion}
+        setCompilerVersion={setCompilerVersion}
+      />
       <ArtifactsInfo setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts}/>
     </RowFlex>
   )

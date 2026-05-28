@@ -11,6 +11,8 @@ export const RowFlex = styled.div`
   flex-direction: row;
 `
 
+export type CompilerVersion = '0.12.0' | '0.13.0'
+
 export interface Wallet {
   walletName: string
   privKey: Uint8Array
