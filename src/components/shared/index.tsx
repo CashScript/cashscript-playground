@@ -11,8 +11,6 @@ export const RowFlex = styled.div`
   flex-direction: row;
 `
 
-export type CompilerVersion = '0.12.0' | '0.13.0'
-
 export interface Wallet {
   walletName: string
   privKey: Uint8Array
@@ -52,10 +50,10 @@ export interface TinyContractObj {
 
 export function readAsType(value: string, type: string) {
   if (type === 'int') {
-    try{
-      if(value == "-") return "" // don't error on minus sign
+    try {
+      if (value == "-") return "" // don't error on minus sign
       return BigInt(value);
-    } catch(error){ 
+    } catch (error) {
       alert("Should only have numbers in the integer field")
     }
     return ""
@@ -72,7 +70,7 @@ export function readAsType(value: string, type: string) {
 
     if (value.startsWith('bitcoincash:') || value.startsWith('bchtest:')) {
       addressInfo = decodeCashAddress(value);
-    } else if(value.startsWith('q') || value.startsWith('p')) {
+    } else if (value.startsWith('q') || value.startsWith('p')) {
       addressInfo = decodeCashAddressFormatWithoutPrefix(value, ['bitcoincash', 'bchtest']);
     }
 
@@ -88,10 +86,10 @@ export function readAsType(value: string, type: string) {
 
 export function readAsConstructorType(value: string, type: string) {
   if (type === 'int') {
-    try{
-      if(value == "-") return "" // don't error on minus sign
+    try {
+      if (value == "-") return "" // don't error on minus sign
       return BigInt(value);
-    } catch(error){ 
+    } catch (error) {
       alert("Should only have numbers in the integer field")
     }
     return ""
@@ -102,7 +100,7 @@ export function readAsConstructorType(value: string, type: string) {
 
     if (value.startsWith('bitcoincash:') || value.startsWith('bchtest:')) {
       addressInfo = decodeCashAddress(value);
-    } else if(value.startsWith('q') || value.startsWith('p')) {
+    } else if (value.startsWith('q') || value.startsWith('p')) {
       addressInfo = decodeCashAddressFormatWithoutPrefix(value, ['bitcoincash', 'bchtest']);
     }
 

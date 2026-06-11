@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import MonacoEditor, { loader } from '@monaco-editor/react'
 import { Button, Form } from 'react-bootstrap'
-import { ColumnFlex, RowFlex, CompilerVersion } from './shared'
+import { ColumnFlex, RowFlex } from './shared'
 import { setupCashScriptLanguage, setCashScriptCompilerVersion, CASHSCRIPT_LANGUAGE_ID, CASHSCRIPT_THEME_ID } from '@/editor/cashscript'
+import { getCashScriptDiagnostics } from '@/editor/cashscript/diagnostics'
 import type * as Monaco from 'monaco-editor'
-
+import type { CashScriptVersion } from '@/editor/cashscript/version'
 interface Props {
   code: string
   setCode: (value: string) => void
   compile: () => void,
-  compilerVersion: CompilerVersion
-  setCompilerVersion: (version: CompilerVersion) => void
+  compilerVersion: CashScriptVersion
+  setCompilerVersion: (version: CashScriptVersion) => void
 }
+
+const CASHSCRIPT_MARKER_OWNER = 'cashscript-compiler';
 
 const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setCompilerVersion }) => {
   const [isEditorReady, setIsEditorReady] = useState(false)
   const [isLanguageReady, setIsLanguageReady] = useState(false)
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
+  const monacoRef = useRef<typeof Monaco | null>(null)
 
   // Initialize CashScript language support
   useEffect(() => {
@@ -31,7 +36,41 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
     setCashScriptCompilerVersion(compilerVersion)
   }, [compilerVersion])
 
-  function handleEditorMount() {
+  useEffect(() => {
+    if (!isEditorReady) return undefined;
+
+    const monaco = monacoRef.current;
+    const model = editorRef.current?.getModel();
+    if (!monaco || !model) return undefined;
+
+    const validationTimeout = setTimeout(() => {
+      const diagnostics = getCashScriptDiagnostics(code, compilerVersion);
+      const markers = diagnostics.map((diagnostic) => ({
+        ...diagnostic,
+        severity: monaco.MarkerSeverity.Error,
+        source: 'cashc',
+      }));
+
+      monaco.editor.setModelMarkers(model, CASHSCRIPT_MARKER_OWNER, markers);
+    }, 750);
+
+    return () => clearTimeout(validationTimeout);
+  }, [code, compilerVersion, isEditorReady])
+
+  useEffect(() => {
+    return () => {
+      const monaco = monacoRef.current;
+      const model = editorRef.current?.getModel();
+      if (monaco && model) monaco.editor.setModelMarkers(model, CASHSCRIPT_MARKER_OWNER, []);
+    };
+  }, [])
+
+  function handleEditorMount(
+    editor: Monaco.editor.IStandaloneCodeEditor,
+    monaco: typeof Monaco,
+  ) {
+    editorRef.current = editor
+    monacoRef.current = monaco
     setIsEditorReady(true)
   }
 
@@ -52,11 +91,11 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
           aria-label="Compiler version"
           value={compilerVersion}
           disabled={!isEditorReady}
-          onChange={(e) => setCompilerVersion(e.target.value as CompilerVersion)}
+          onChange={(e) => setCompilerVersion(e.target.value as CashScriptVersion)}
           style={{ width: '170px', borderRadius: '30px' }}
         >
-          <option value="0.13.0">cashc v0.13</option>
-          <option value="0.12.0">cashc v0.12</option>
+          <option value="0.13">cashc v0.13</option>
+          <option value="0.12">cashc v0.12</option>
         </Form.Select>
         <Button
           variant="secondary"

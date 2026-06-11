@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Artifact, Contract, ElectrumNetworkProvider, Network, NetworkProvider } from 'cashscript';
-import { compileString } from 'cashc';
-import { compileString as compileStringV012 } from 'cashc-v0.12';
-import { RowFlex, ContractInfo, TinyContractObj, CompilerVersion } from './shared';
+import { compileCashScript } from '@/editor/cashscript/diagnostics';
+import { RowFlex, ContractInfo, TinyContractObj } from './shared';
 import Editor from './Editor';
 import ArtifactsInfo from './ArtifactsInfo';
 import {
@@ -11,6 +10,7 @@ import {
   exampleStramingMecenasContract,
   exampleDexContract
 } from '../exampleContracts/examples';
+import type { CashScriptVersion } from '@/editor/cashscript/version';
 
 interface Props {
   code: string
@@ -27,8 +27,8 @@ const Main: React.FC<Props> = ({
   code, setCode, artifacts, setArtifacts, setContracts, updateAllUtxosContracts, provider, setProvider
 }) => {
 
-  const [initializeContracts, setInitializeContracts] = useState<0|1|2>(0);
-  const [compilerVersion, setCompilerVersion] = useState<CompilerVersion>('0.13.0');
+  const [initializeContracts, setInitializeContracts] = useState<0 | 1 | 2>(0);
+  const [compilerVersion, setCompilerVersion] = useState<CashScriptVersion>('0.13');
 
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
@@ -37,23 +37,23 @@ const Main: React.FC<Props> = ({
     const networkLocalStorage = localStorage.getItem("network");
     // If code exits in local storage, set it as new code
     if (codeLocalStorage) setCode(codeLocalStorage);
-    if (artifactsLocalStorage && JSON.parse(artifactsLocalStorage).length){
-      try{
-         setArtifacts(JSON.parse(artifactsLocalStorage));
-      } catch(error){ console.log(error) }
+    if (artifactsLocalStorage && JSON.parse(artifactsLocalStorage).length) {
+      try {
+        setArtifacts(JSON.parse(artifactsLocalStorage));
+      } catch (error) { console.log(error) }
     } else {
       // add default example contracts to local storage
       try {
-        const artifactExampleTimeout = compileString(exampleTimeoutContract)
-        const artifactExampleEscrow = compileString(exampleEscrowContract)
-        const artifactExampleStramingMecenas = compileString(exampleStramingMecenasContract)
-        const artifactExampleDex = compileString(exampleDexContract)
+        const artifactExampleTimeout = compileCashScript(exampleTimeoutContract, '0.13')
+        const artifactExampleEscrow = compileCashScript(exampleEscrowContract, '0.13')
+        const artifactExampleStramingMecenas = compileCashScript(exampleStramingMecenasContract, '0.13')
+        const artifactExampleDex = compileCashScript(exampleDexContract, '0.13')
         const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
         setArtifacts(defaultArtifacts)
-        localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts , null, 2));
-      } catch(error) { console.log(error) }
+        localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts, null, 2));
+      } catch (error) { console.log(error) }
     }
-    if (networkLocalStorage && networkLocalStorage != "mocknet"){
+    if (networkLocalStorage && networkLocalStorage != "mocknet") {
       const newProvider = new ElectrumNetworkProvider(networkLocalStorage as Network)
       setProvider(newProvider)
     }
@@ -63,20 +63,20 @@ const Main: React.FC<Props> = ({
 
   useEffect(() => {
     // only run this logic when initializeContracts is 1 to load contracts from local storage
-    if(initializeContracts != 1) return
+    if (initializeContracts != 1) return
     const contractsStringLocalStorage = localStorage.getItem("contracts");
-    if(!contractsStringLocalStorage) return
+    if (!contractsStringLocalStorage) return
     const contractsLocalStorage: TinyContractObj[] = JSON.parse(contractsStringLocalStorage)
     const newContracts = contractsLocalStorage.map(tinyContractObj => {
-      const {contractName, artifactName, args, contractType} = tinyContractObj
+      const { contractName, artifactName, args, contractType } = tinyContractObj
       const matchingArtifact = artifacts?.find(artifact => artifact.contractName == artifactName)
-      if(!matchingArtifact) return
+      if (!matchingArtifact) return
       const unstringifiedArgs = args.map(arg => {
-        if(typeof arg == "string" && arg.startsWith("bigint")) return BigInt(arg.slice(6))
-          return arg
+        if (typeof arg == "string" && arg.startsWith("bigint")) return BigInt(arg.slice(6))
+        return arg
       })
       const resolvedContractType = contractType ?? "p2sh32"
-      const newContract = new Contract(matchingArtifact, unstringifiedArgs, {provider, contractType: resolvedContractType})
+      const newContract = new Contract(matchingArtifact, unstringifiedArgs, { provider, contractType: resolvedContractType })
       newContract.name = contractName
       const contractInfo: ContractInfo = {
         contract: newContract,
@@ -87,28 +87,27 @@ const Main: React.FC<Props> = ({
     }).filter(item => item != undefined) as ContractInfo[]
     setContracts(newContracts);
     setInitializeContracts(2)
-  },[initializeContracts, artifacts, provider])
+  }, [initializeContracts, artifacts, provider])
 
   useEffect(() => {
     // only run this logic when initializeContracts is 2 to updateAllUtxosContracts
-    if(initializeContracts != 2) return
+    if (initializeContracts != 2) return
     updateAllUtxosContracts()
-  },[initializeContracts])
+  }, [initializeContracts])
 
   function compile() {
     try {
       localStorage.setItem("code", code);
-      const compileWithVersion = compilerVersion === '0.12.0' ? compileStringV012 : compileString;
-      const newArtifact = compileWithVersion(code);
+      const newArtifact = compileCashScript(code, compilerVersion);
       const nameNewArtifact = newArtifact.contractName
       const sameArifactExists = artifacts?.find(artifact => nameNewArtifact === artifact.contractName)
-      if(sameArifactExists){
+      if (sameArifactExists) {
         const confirmOverwrite = confirm("About to overwite existing artifact with same name")
-        if(!confirmOverwrite) return
+        if (!confirmOverwrite) return
       }
       const otherArtifacts = artifacts?.filter(artifact => artifact.contractName !== nameNewArtifact)
       const newArtifacts = [newArtifact, ...otherArtifacts ?? []]
-      localStorage.setItem("artifacts", JSON.stringify(newArtifacts , null, 2));
+      localStorage.setItem("artifacts", JSON.stringify(newArtifacts, null, 2));
       setArtifacts(newArtifacts);
     } catch (e: any) {
       alert(e.message);
@@ -128,7 +127,7 @@ const Main: React.FC<Props> = ({
         compilerVersion={compilerVersion}
         setCompilerVersion={setCompilerVersion}
       />
-      <ArtifactsInfo setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts}/>
+      <ArtifactsInfo setCode={setCode} artifacts={artifacts} setArtifacts={setArtifacts} />
     </RowFlex>
   )
 }

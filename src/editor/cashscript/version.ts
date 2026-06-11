@@ -7,9 +7,9 @@
 // versions, which avoids re-registering providers (Monaco can't cleanly
 // unregister them) while still gating version-specific language features.
 
-export type CashScriptVersion = '0.12.0' | '0.13.0';
+export type CashScriptVersion = '0.12' | '0.13';
 
-let currentVersion: CashScriptVersion = '0.13.0';
+let currentVersion: CashScriptVersion = '0.13';
 
 // Listeners notified when the selected version changes. Used by the highlighting
 // layer, which (unlike completions/hover) is registered statically and must be
