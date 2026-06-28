@@ -94,7 +94,7 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
           onChange={(e) => setCompilerVersion(e.target.value as CashScriptVersion)}
           style={{ width: '170px', borderRadius: '30px' }}
         >
-          <option value="0.13">cashc v0.13</option>
+          <option value="0.14">cashc v0.14</option>
           <option value="0.12">cashc v0.12</option>
         </Form.Select>
         <Button

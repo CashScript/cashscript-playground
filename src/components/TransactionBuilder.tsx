@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useCallback, useMemo} from 'react'
 import { NetworkProvider, Output, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
 import { Wallet, ContractInfo, ExplorerString, ContractUtxo, WalletUtxo } from './shared'
 import { Button, Card, Form } from 'react-bootstrap'
@@ -48,32 +48,51 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
     setInputs(inputsCopy)
   }
 
-  async function sendTransaction() {  
+  // Construct a TransactionBuilder from the current inputs, outputs and options.
+  // Shared by sendTransaction and the live fee calculation. Throws if the
+  // transaction is incomplete (e.g. an undefined input or missing unlocker).
+  const buildTransaction = useCallback(() => {
+    // start constructing transaction
+    const transaction = new TransactionBuilder({
+      provider,
+      allowImplicitFungibleTokenBurn,
+      ...(enableMaxFeeSatoshis && maximumFeeSatoshis ? { maximumFeeSatoshis: BigInt(maximumFeeSatoshis) } : {}),
+      ...(enableMaxFeeSatsPerByte && maximumFeeSatsPerByte ? { maximumFeeSatsPerByte: Number(maximumFeeSatsPerByte) } : {}),
+    })
+
+    // add inputs to transaction in the user-defined order
+    inputs.forEach((input, inputIndex) => {
+      if(!input) throw new Error("Undefined input provided")
+      if('walletIndex' in input){
+        const walletIndex = input.walletIndex
+        const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
+        transaction.addInput(input, sigTemplate.unlockP2PKH())
+      } else {
+        const inputUnlocker = inputUnlockers[inputIndex]
+        if(!inputUnlocker) throw new Error("Missing unlocker for input")
+        transaction.addInput(input, inputUnlocker)
+      }
+    })
+
+    transaction.addOutputs(outputs)
+    if(enableLocktime) transaction.setLocktime(Number(locktime))
+    return transaction
+  }, [provider, wallets, allowImplicitFungibleTokenBurn, enableMaxFeeSatoshis, maximumFeeSatoshis, enableMaxFeeSatsPerByte, maximumFeeSatsPerByte, inputs, inputUnlockers, outputs, enableLocktime, locktime])
+
+  // Reactively calculate the transaction fee and fee rate as the user edits the
+  // inputs/outputs. Returns null while the transaction can't yet be built.
+  const feeData = useMemo(() => {
+    try {
+      return buildTransaction().calculateTransactionFee()
+    } catch {
+      return null
+    }
+  }, [buildTransaction])
+
+  async function sendTransaction() {
     // try to send transaction and alert result
     try {
-      // start constructing transaction
-      const transaction = new TransactionBuilder({
-        provider,
-        allowImplicitFungibleTokenBurn,
-        ...(enableMaxFeeSatoshis && maximumFeeSatoshis ? { maximumFeeSatoshis: BigInt(maximumFeeSatoshis) } : {}),
-        ...(enableMaxFeeSatsPerByte && maximumFeeSatsPerByte ? { maximumFeeSatsPerByte: Number(maximumFeeSatsPerByte) } : {}),
-      })
-
-      // add inputs to transaction in the user-defined order
-      inputs.forEach((input, inputIndex) => {
-        if(!input) throw new Error("Undefined input provided")
-        if('walletIndex' in input){
-          const walletIndex = input.walletIndex
-          const sigTemplate = new SignatureTemplate(wallets[walletIndex].privKey)
-          transaction.addInput(input, sigTemplate.unlockP2PKH())
-        } else {
-          const inputUnlocker = inputUnlockers[inputIndex]
-          transaction.addInput(input, inputUnlocker)
-        }
-      })
-
-      transaction.addOutputs(outputs)
-      if(enableLocktime) transaction.setLocktime(Number(locktime))
+      const transaction = buildTransaction()
 
       // check for mocknet
       if(provider.network == "mocknet"){
@@ -204,6 +223,19 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           />}
         </Form>
       </details>
+
+      <div style={{ marginBottom: '10px' }}>
+        {feeData ? (
+          <span>
+            Calculated fee: <strong>{feeData.feeSats.toString()} sats</strong>
+            {' '}(<strong>{feeData.feeSatsPerByte.toFixed(2)} sats/byte</strong>)
+          </span>
+        ) : (
+          <span style={{ color: '#888' }}>
+            Calculated fee: add valid inputs and outputs to calculate the fee
+          </span>
+        )}
+      </div>
 
       <Button variant="secondary" style={{ display: "block" }} size="sm" onClick={sendTransaction}>
         { provider.network === "mocknet" ? "Evaluate" : "Send" }

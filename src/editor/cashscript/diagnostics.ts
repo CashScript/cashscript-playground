@@ -62,7 +62,7 @@ export interface CashScriptDiagnostic {
 }
 
 const compileStringByVersion: Record<CashScriptVersion, CompileStringWithErrorListener> = {
-  '0.13': compileString,
+  '0.14': compileString,
   '0.12': compileStringV012,
 };
 
