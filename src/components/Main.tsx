@@ -28,7 +28,7 @@ const Main: React.FC<Props> = ({
 }) => {
 
   const [initializeContracts, setInitializeContracts] = useState<0 | 1 | 2>(0);
-  const [compilerVersion, setCompilerVersion] = useState<CashScriptVersion>('0.13');
+  const [compilerVersion, setCompilerVersion] = useState<CashScriptVersion>('0.14');
 
   useEffect(() => {
     const codeLocalStorage = localStorage.getItem("code");
@@ -44,10 +44,10 @@ const Main: React.FC<Props> = ({
     } else {
       // add default example contracts to local storage
       try {
-        const artifactExampleTimeout = compileCashScript(exampleTimeoutContract, '0.13')
-        const artifactExampleEscrow = compileCashScript(exampleEscrowContract, '0.13')
-        const artifactExampleStramingMecenas = compileCashScript(exampleStramingMecenasContract, '0.13')
-        const artifactExampleDex = compileCashScript(exampleDexContract, '0.13')
+        const artifactExampleTimeout = compileCashScript(exampleTimeoutContract, '0.14')
+        const artifactExampleEscrow = compileCashScript(exampleEscrowContract, '0.14')
+        const artifactExampleStramingMecenas = compileCashScript(exampleStramingMecenasContract, '0.14')
+        const artifactExampleDex = compileCashScript(exampleDexContract, '0.14')
         const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
         setArtifacts(defaultArtifacts)
         localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts, null, 2));
