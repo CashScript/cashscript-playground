@@ -9,14 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cashscript/utils": "^0.14.0-next.1",
+    "@cashscript/utils": "^0.14.0-next.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@monaco-editor/react": "^4.7.0",
     "bootstrap": "^5.3.7",
-    "cashc": "^0.14.0-next.1",
+    "cashc": "^0.14.0-next.2",
     "cashc-v0.12": "npm:cashc@^0.12.2",
-    "cashscript": "^0.14.0-next.1",
+    "cashscript": "^0.14.0-next.2",
     "next": "15.5.9",
     "react": "18.2.0",
     "react-bootstrap": "^2.10.10",
