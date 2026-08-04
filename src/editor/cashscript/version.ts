@@ -7,7 +7,7 @@
 // versions, which avoids re-registering providers (Monaco can't cleanly
 // unregister them) while still gating version-specific language features.
 
-export type CashScriptVersion = '0.12' | '0.14';
+export type CashScriptVersion = '0.12' | '0.13' | '0.14';
 
 let currentVersion: CashScriptVersion = '0.14';
 

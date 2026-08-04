@@ -19,10 +19,13 @@ import {
   CompletionItemData,
 } from './completionData';
 import { isAvailableInVersion } from './version';
-import { extractVariables, ExtractedVariable } from './variableExtractor';
+import { extractVariables, extractGlobalFunctions, ExtractedVariable, ExtractedFunction } from './variableExtractor';
 
-// Build lookup maps for efficient hover lookup
-const hoverDataMap = new Map<string, CompletionItemData>();
+// Build lookup maps for efficient hover lookup. A label can appear multiple
+// times with different version ranges (e.g. the pragma snippet per compiler
+// version), so each label maps to all its variants and lookups pick the first
+// variant available in the selected compiler version.
+const hoverDataMap = new Map<string, CompletionItemData[]>();
 
 function buildHoverDataMap(): void {
   const allItems: CompletionItemData[] = [
@@ -38,12 +41,24 @@ function buildHoverDataMap(): void {
   ];
 
   for (const item of allItems) {
-    hoverDataMap.set(item.label, item);
+    const existing = hoverDataMap.get(item.label);
+    if (existing) {
+      existing.push(item);
+    } else {
+      hoverDataMap.set(item.label, [item]);
+    }
   }
 }
 
 // Build the map once
 buildHoverDataMap();
+
+// Returns the hover item for a label that is available in the selected
+// compiler version, if any.
+function getAvailableHoverItem(label: string): CompletionItemData | undefined {
+  const items = hoverDataMap.get(label);
+  return items?.find(item => isAvailableInVersion(item.minVersion, item.maxVersion));
+}
 
 // Create maps for contextual properties
 const txPropertyMap = new Map(txProperties.map(p => [p.label, p]));
@@ -142,15 +157,15 @@ function getHoverContent(
 
   // bytes methods (after any identifier followed by dot, excluding tx/this/console)
   if (/\b\w+\s*\.\s*$/.test(lineUntilWord) && !/\b(?:tx|this|console)\s*\.\s*$/.test(lineUntilWord)) {
-    const method = hoverDataMap.get(word);
+    const method = getAvailableHoverItem(word);
     if (method && (method.kind === 'Method' || method.kind === 'Property')) {
       return formatHoverContent(method);
     }
   }
 
   // Check for global items (gated by the selected compiler version)
-  const globalItem = hoverDataMap.get(word);
-  if (globalItem && isAvailableInVersion(globalItem.minVersion, globalItem.maxVersion)) {
+  const globalItem = getAvailableHoverItem(word);
+  if (globalItem) {
     return formatHoverContent(globalItem);
   }
 
@@ -176,6 +191,14 @@ function getHoverContent(
       detail: `Fixed ${bytesNMatch[1]}-byte array`,
       documentation: `Fixed-length ${bytesNMatch[1]}-byte array.`,
     });
+  }
+
+  // Check for user-defined global functions (0.14+)
+  if (isAvailableInVersion('0.14.0')) {
+    const userFunction = extractGlobalFunctions(sourceCode).find(fn => fn.name === word);
+    if (userFunction) {
+      return formatGlobalFunctionHover(userFunction);
+    }
   }
 
   // Check for user-declared variables
@@ -208,6 +231,15 @@ function formatHoverContent(item: CompletionItemData): Monaco.IMarkdownString[] 
   return contents;
 }
 
+function formatGlobalFunctionHover(fn: ExtractedFunction): Monaco.IMarkdownString[] {
+  const returnsSuffix = fn.returnTypes ? ` returns (${fn.returnTypes})` : '';
+
+  return [
+    { value: `\`\`\`cashscript\nfunction ${fn.name}(${fn.parameters})${returnsSuffix}\n\`\`\`` },
+    { value: 'User-defined function' },
+  ];
+}
+
 function formatVariableHover(variable: ExtractedVariable): Monaco.IMarkdownString[] {
   const contents: Monaco.IMarkdownString[] = [];
 
@@ -216,6 +248,8 @@ function formatVariableHover(variable: ExtractedVariable): Monaco.IMarkdownStrin
     scopeDescription = 'Contract parameter';
   } else if (variable.scope === 'function') {
     scopeDescription = `Parameter of function \`${variable.functionName}\``;
+  } else if (variable.scope === 'global') {
+    scopeDescription = 'Global constant';
   } else {
     scopeDescription = 'Local variable';
   }

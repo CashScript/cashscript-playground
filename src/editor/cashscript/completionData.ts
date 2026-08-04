@@ -323,12 +323,40 @@ export const valueUnits: CompletionItemData[] = [
 
 // Keywords
 export const keywords: CompletionItemData[] = [
+  // The pragma snippet should suggest a version constraint matching the
+  // selected compiler, so there is one gated variant per supported compiler.
+  {
+    label: 'pragma',
+    kind: 'Keyword',
+    detail: 'Pragma directive',
+    documentation: 'Specifies the CashScript version. Example: pragma cashscript ^0.12.0;',
+    insertText: 'pragma cashscript ^${1:0.12.0};',
+    maxVersion: '0.12',
+  },
   {
     label: 'pragma',
     kind: 'Keyword',
     detail: 'Pragma directive',
     documentation: 'Specifies the CashScript version. Example: pragma cashscript ^0.13.0;',
     insertText: 'pragma cashscript ^${1:0.13.0};',
+    minVersion: '0.13.0',
+    maxVersion: '0.13',
+  },
+  {
+    label: 'pragma',
+    kind: 'Keyword',
+    detail: 'Pragma directive',
+    documentation: 'Specifies the CashScript version. Example: pragma cashscript ^0.14.0;',
+    insertText: 'pragma cashscript ^${1:0.14.0};',
+    minVersion: '0.14.0',
+  },
+  {
+    label: 'import',
+    kind: 'Keyword',
+    detail: 'Import directive',
+    documentation: 'Imports top-level functions and constants from another CashScript file, making them available as if they were declared locally. Import directives must appear at the top of the file, after any pragma directives. Paths starting with `./`, `../` or `/` are resolved relative to the importing file; bare specifiers (e.g. `"pkg/math.cash"`) are resolved from `node_modules`.',
+    insertText: 'import "${1:./file.cash}";',
+    minVersion: '0.14.0',
   },
   {
     label: 'contract',
@@ -343,6 +371,14 @@ export const keywords: CompletionItemData[] = [
     detail: 'Function definition',
     documentation: 'Defines a new function within a contract.',
     insertText: 'function ${1:functionName}(${2:params}) {\n\t$0\n}',
+  },
+  {
+    label: 'function',
+    kind: 'Keyword',
+    detail: 'Global function definition (with return values)',
+    documentation: 'Defines a reusable top-level function, declared outside the contract. It can perform `require` checks and return one or more values with a `returns (...)` clause, and can be called from contract functions or other top-level functions.',
+    insertText: 'function ${1:functionName}(${2:params}) returns (${3:int}) {\n\treturn $0;\n}',
+    minVersion: '0.14.0',
   },
   {
     label: 'if',
@@ -386,7 +422,30 @@ export const keywords: CompletionItemData[] = [
     label: 'constant',
     kind: 'Keyword',
     detail: 'Constant modifier',
-    documentation: 'Declares a compile-time constant value.',
+    documentation: 'Declares a compile-time constant value. From 0.14 constants can also be declared at the top level of a file (e.g. `int constant FEE = 1000;`) and shared between functions and contracts.',
+  },
+  {
+    label: 'return',
+    kind: 'Keyword',
+    detail: 'Return statement',
+    documentation: 'Returns one or more comma-separated values from a user-defined function. A value-returning function must end with a single `return` statement — early or conditional returns are not allowed.',
+    insertText: 'return ${1:value};',
+    minVersion: '0.14.0',
+  },
+  {
+    label: 'returns',
+    kind: 'Keyword',
+    detail: 'Return type declaration',
+    documentation: 'Declares the return type(s) of a user-defined function, e.g. `function double(int a) returns (int)`. Multiple return values are declared as `returns (T1, T2, ...)` and destructured at the call site: `int q, int r = divmod(a, b);`.',
+    insertText: 'returns (${1:int}) ',
+    minVersion: '0.14.0',
+  },
+  {
+    label: 'unused',
+    kind: 'Keyword',
+    detail: 'Unused modifier',
+    documentation: 'Marks a parameter or variable as intentionally unused, suppressing the unused-symbol compiler warning.',
+    minVersion: '0.14.0',
   },
   {
     label: 'true',
