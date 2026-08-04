@@ -20,7 +20,7 @@ import {
   CompletionItemData,
 } from './completionData';
 import { isAvailableInVersion } from './version';
-import { getAvailableVariables, ExtractedVariable } from './variableExtractor';
+import { getAvailableVariables, extractGlobalFunctions, ExtractedVariable, ExtractedFunction } from './variableExtractor';
 
 export function registerCompletionProvider(monaco: typeof Monaco): void {
   monaco.languages.registerCompletionItemProvider(CASHSCRIPT_LANGUAGE_ID, {
@@ -76,6 +76,13 @@ export function registerCompletionProvider(monaco: typeof Monaco): void {
 
       for (const variable of userVariables) {
         suggestions.push(createVariableCompletionItem(variable, range, monaco));
+      }
+
+      // Add user-defined global functions (0.14+)
+      if (isAvailableInVersion('0.14.0')) {
+        for (const fn of extractGlobalFunctions(sourceCode)) {
+          suggestions.push(createGlobalFunctionCompletionItem(fn, range, monaco));
+        }
       }
 
       return { suggestions };
@@ -146,16 +153,43 @@ function createVariableCompletionItem(
     scopeLabel = ' (contract parameter)';
   } else if (variable.scope === 'function') {
     scopeLabel = ` (${variable.functionName} parameter)`;
+  } else if (variable.scope === 'global') {
+    scopeLabel = ' (global constant)';
   } else {
     scopeLabel = ' (local variable)';
   }
 
   return {
     label: variable.name,
-    kind: monaco.languages.CompletionItemKind.Variable,
+    kind: variable.scope === 'global'
+      ? monaco.languages.CompletionItemKind.Constant
+      : monaco.languages.CompletionItemKind.Variable,
     detail: `${variable.type} ${variable.name}${scopeLabel}`,
-    documentation: `User-declared variable of type ${variable.type}.`,
+    documentation: variable.scope === 'global'
+      ? `User-declared global constant of type ${variable.type}.`
+      : `User-declared variable of type ${variable.type}.`,
     insertText: variable.name,
+    range,
+  };
+}
+
+/**
+ * Creates a completion item for a user-defined global function (0.14+).
+ */
+function createGlobalFunctionCompletionItem(
+  fn: ExtractedFunction,
+  range: Monaco.IRange,
+  monaco: typeof Monaco
+): Monaco.languages.CompletionItem {
+  const returnsSuffix = fn.returnTypes ? ` returns (${fn.returnTypes})` : '';
+
+  return {
+    label: fn.name,
+    kind: monaco.languages.CompletionItemKind.Function,
+    detail: `${fn.name}(${fn.parameters})${returnsSuffix}`,
+    documentation: 'User-defined function.',
+    insertText: `${fn.name}(\${1})`,
+    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
     range,
   };
 }

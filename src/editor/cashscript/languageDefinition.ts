@@ -21,10 +21,13 @@ interface CashScriptMonarchLanguage extends Monaco.languages.IMonarchLanguage {
 // gated by version the same way completions/hover are: features added in 0.13
 // (loops, unsafe casts, toPaddedBytes, and the bitwise-inversion / shift /
 // compound-assignment / increment operators) are only highlighted under a 0.13+
-// compiler. (bytesN remains a valid type in every version — only its *cast*
-// form was removed in 0.13 — so the bytesN tokens are highlighted throughout.)
+// compiler, and features added in 0.14 (imports, user-defined functions with
+// return values, and the unused modifier) only under a 0.14+ compiler.
+// (bytesN remains a valid type in every version — only its *cast* form was
+// removed in 0.13 — so the bytesN tokens are highlighted throughout.)
 function buildMonarchLanguage(version: string): CashScriptMonarchLanguage {
   const since013 = isAvailableInVersion('0.13.0', undefined, version);
+  const since014 = isAvailableInVersion('0.14.0', undefined, version);
 
   return {
     defaultToken: '',
@@ -35,6 +38,8 @@ function buildMonarchLanguage(version: string): CashScriptMonarchLanguage {
       'if', 'else', 'require', 'new', 'constant',
       // Loops (0.13+)
       ...(since013 ? ['for', 'while', 'do'] : []),
+      // Imports, user-defined functions and the unused modifier (0.14+)
+      ...(since014 ? ['import', 'return', 'returns', 'unused'] : []),
     ],
 
     typeKeywords: [

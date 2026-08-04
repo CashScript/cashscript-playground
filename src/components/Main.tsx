@@ -8,6 +8,7 @@ import {
   exampleTimeoutContract,
   exampleEscrowContract,
   exampleStramingMecenasContract,
+  exampleSharedFunctionsContract,
   exampleDexContract
 } from '../exampleContracts/examples';
 import type { CashScriptVersion } from '@/editor/cashscript/version';
@@ -47,8 +48,9 @@ const Main: React.FC<Props> = ({
         const artifactExampleTimeout = compileCashScript(exampleTimeoutContract, '0.14')
         const artifactExampleEscrow = compileCashScript(exampleEscrowContract, '0.14')
         const artifactExampleStramingMecenas = compileCashScript(exampleStramingMecenasContract, '0.14')
+        const artifactExampleSharedFunctions = compileCashScript(exampleSharedFunctionsContract, '0.14')
         const artifactExampleDex = compileCashScript(exampleDexContract, '0.14')
-        const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleDex]
+        const defaultArtifacts = [artifactExampleTimeout, artifactExampleEscrow, artifactExampleStramingMecenas, artifactExampleSharedFunctions, artifactExampleDex]
         setArtifacts(defaultArtifacts)
         localStorage.setItem("artifacts", JSON.stringify(defaultArtifacts, null, 2));
       } catch (error) { console.log(error) }
