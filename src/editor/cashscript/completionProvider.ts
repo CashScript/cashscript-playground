@@ -82,6 +82,13 @@ export function registerCompletionProvider(monaco: typeof Monaco): void {
       if (isAvailableInVersion('0.14.0')) {
         for (const fn of extractGlobalFunctions(sourceCode)) {
           suggestions.push(createGlobalFunctionCompletionItem(fn, range, monaco));
+
+          // A call to a function with multiple return values only exists as the
+          // right hand side of a tuple assignment, so offer that whole statement
+          const returnTypes = splitReturnTypes(fn);
+          if (returnTypes.length > 1) {
+            suggestions.push(createDestructuringCompletionItem(fn, returnTypes, range, monaco));
+          }
         }
       }
 
@@ -192,4 +199,41 @@ function createGlobalFunctionCompletionItem(
     insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
     range,
   };
+}
+
+/**
+ * Creates a completion item that destructures the results of a user-defined
+ * function with multiple return values (0.14+) into fresh variables.
+ */
+function createDestructuringCompletionItem(
+  fn: ExtractedFunction,
+  returnTypes: string[],
+  range: Monaco.IRange,
+  monaco: typeof Monaco
+): Monaco.languages.CompletionItem {
+  const targets = returnTypes
+    .map((type, index) => `${type} \${${index + 1}:value${index + 1}}`)
+    .join(', ');
+
+  return {
+    label: `${fn.name} (destructure)`,
+    // Keep the plain function name as the filter, so this variant shows up
+    // alongside the call completion while typing the function name.
+    filterText: fn.name,
+    kind: monaco.languages.CompletionItemKind.Snippet,
+    detail: `${returnTypes.join(', ')} = ${fn.name}(${fn.parameters})`,
+    documentation: 'Destructures the return values of this user-defined function into new variables. A target without a type reassigns an existing variable instead, e.g. `(current, next) = nextFib(current, next);`.',
+    insertText: `${targets} = ${fn.name}(\${${returnTypes.length + 1}});`,
+    insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+    range,
+  };
+}
+
+/**
+ * Splits a function's `returns (...)` clause into its individual types.
+ */
+function splitReturnTypes(fn: ExtractedFunction): string[] {
+  if (!fn.returnTypes) return [];
+
+  return fn.returnTypes.split(',').map(type => type.trim()).filter(Boolean);
 }

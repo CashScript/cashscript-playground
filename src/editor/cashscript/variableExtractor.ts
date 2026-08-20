@@ -74,6 +74,39 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
     }
   }
 
+  // Extract declarations made inside tuple assignments, in both the bare and
+  // the parenthesised form:
+  //   bytes a, bytes b = x.split(2);
+  //   (int quotient, int remainder) = divmod(a, b);
+  // Since 0.14 a target without a type reassigns an existing variable instead
+  // of declaring a new one, and both kinds can be mixed in one assignment
+  // (e.g. `(int fresh, current, next) = step(current, next);`). Only the typed
+  // targets declare a variable here — untyped ones are picked up at their own
+  // declaration.
+  const tupleTargetPattern = `(?:${typePattern}\\s+)?\\w+`;
+  const tupleAssignmentRegex = new RegExp(
+    // Anchored on a statement boundary so comma-separated *argument* lists
+    // (e.g. `f(a, b)`) and parameter lists are not mistaken for targets.
+    `(?:^|[;{})])\\s*\\(?\\s*(${tupleTargetPattern}(?:\\s*,\\s*${tupleTargetPattern})+)\\s*\\)?\\s*=(?!=)`,
+    'g',
+  );
+  const declarationTargetRegex = new RegExp(`^(${typePattern})\\s+(\\w+)$`);
+  let tupleMatch;
+  while ((tupleMatch = tupleAssignmentRegex.exec(codeWithoutComments)) !== null) {
+    const scope = braceDepthAt(codeWithoutComments, tupleMatch.index) === 0 ? 'global' : 'local';
+
+    for (const target of tupleMatch[1].split(',')) {
+      const declaration = target.trim().match(declarationTargetRegex);
+      if (!declaration) continue;
+
+      const [, varType, varName] = declaration;
+      // Avoid duplicates
+      if (variables.some(v => v.name === varName)) continue;
+
+      variables.push({ name: varName, type: varType, scope });
+    }
+  }
+
   return variables;
 }
 

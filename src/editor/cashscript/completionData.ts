@@ -436,7 +436,7 @@ export const keywords: CompletionItemData[] = [
     label: 'returns',
     kind: 'Keyword',
     detail: 'Return type declaration',
-    documentation: 'Declares the return type(s) of a user-defined function, e.g. `function double(int a) returns (int)`. Multiple return values are declared as `returns (T1, T2, ...)` and destructured at the call site: `int q, int r = divmod(a, b);`.',
+    documentation: 'Declares the return type(s) of a user-defined function, e.g. `function double(int a) returns (int)`. Multiple return values are declared as `returns (T1, T2, ...)` and destructured at the call site, into fresh variables (`int q, int r = divmod(a, b);`), into existing ones (`(current, next) = nextFib(current, next);`), or a mix of both (`(int fresh, current, next) = step(current, next);`).',
     insertText: 'returns (${1:int}) ',
     minVersion: '0.14.0',
   },
