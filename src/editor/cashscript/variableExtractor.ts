@@ -1,8 +1,15 @@
 export interface ExtractedVariable {
   name: string;
   type: string;
-  scope: 'contract' | 'function' | 'local';
+  scope: 'contract' | 'function' | 'local' | 'global';
   functionName?: string;
+}
+
+// A user-defined global (top-level) function, introduced in CashScript 0.14.
+export interface ExtractedFunction {
+  name: string;
+  parameters: string;
+  returnTypes?: string;
 }
 
 /**
@@ -46,11 +53,13 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
     });
   }
 
-  // Extract local variable declarations
-  // Pattern: type varName = expression;
+  // Extract local variable declarations and top-level (global) constants
+  // Pattern: type [constant|unused] varName = expression;
   // CashScript types: int, bool, string, bytes, bytes1-32, pubkey, sig, datasig
+  // Declarations at brace depth 0 are global constants (0.14+); anything deeper
+  // is a local variable.
   const typePattern = '(?:int|bool|string|bytes(?:[1-9]|[12][0-9]|3[0-2])?|pubkey|sig|datasig)';
-  const localVarRegex = new RegExp(`(${typePattern})\\s+(\\w+)\\s*=`, 'g');
+  const localVarRegex = new RegExp(`(${typePattern})\\s+(?:(?:constant|unused)\\s+)*(\\w+)\\s*=`, 'g');
   let localMatch;
   while ((localMatch = localVarRegex.exec(codeWithoutComments)) !== null) {
     const varType = localMatch[1];
@@ -60,12 +69,84 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
       variables.push({
         name: varName,
         type: varType,
-        scope: 'local',
+        scope: braceDepthAt(codeWithoutComments, localMatch.index) === 0 ? 'global' : 'local',
       });
     }
   }
 
+  // Extract declarations made inside tuple assignments, in both the bare and
+  // the parenthesised form:
+  //   bytes a, bytes b = x.split(2);
+  //   (int quotient, int remainder) = divmod(a, b);
+  // Since 0.14 a target without a type reassigns an existing variable instead
+  // of declaring a new one, and both kinds can be mixed in one assignment
+  // (e.g. `(int fresh, current, next) = step(current, next);`). Only the typed
+  // targets declare a variable here — untyped ones are picked up at their own
+  // declaration.
+  const tupleTargetPattern = `(?:${typePattern}\\s+)?\\w+`;
+  const tupleAssignmentRegex = new RegExp(
+    // Anchored on a statement boundary so comma-separated *argument* lists
+    // (e.g. `f(a, b)`) and parameter lists are not mistaken for targets.
+    `(?:^|[;{})])\\s*\\(?\\s*(${tupleTargetPattern}(?:\\s*,\\s*${tupleTargetPattern})+)\\s*\\)?\\s*=(?!=)`,
+    'g',
+  );
+  const declarationTargetRegex = new RegExp(`^(${typePattern})\\s+(\\w+)$`);
+  let tupleMatch;
+  while ((tupleMatch = tupleAssignmentRegex.exec(codeWithoutComments)) !== null) {
+    const scope = braceDepthAt(codeWithoutComments, tupleMatch.index) === 0 ? 'global' : 'local';
+
+    for (const target of tupleMatch[1].split(',')) {
+      const declaration = target.trim().match(declarationTargetRegex);
+      if (!declaration) continue;
+
+      const [, varType, varName] = declaration;
+      // Avoid duplicates
+      if (variables.some(v => v.name === varName)) continue;
+
+      variables.push({ name: varName, type: varType, scope });
+    }
+  }
+
   return variables;
+}
+
+/**
+ * Extracts user-defined global functions (CashScript 0.14+): function
+ * definitions at the top level of the file, outside any contract block.
+ */
+export function extractGlobalFunctions(sourceCode: string): ExtractedFunction[] {
+  const codeWithoutComments = removeComments(sourceCode);
+  const functions: ExtractedFunction[] = [];
+
+  const functionRegex = /function\s+(\w+)\s*\(([^)]*)\)\s*(?:returns\s*\(([^)]*)\))?/g;
+  let match;
+  while ((match = functionRegex.exec(codeWithoutComments)) !== null) {
+    // Contract functions live at brace depth 1 (inside the contract block);
+    // global functions are declared at depth 0.
+    if (braceDepthAt(codeWithoutComments, match.index) !== 0) continue;
+
+    functions.push({
+      name: match[1],
+      parameters: match[2].trim(),
+      returnTypes: match[3]?.trim(),
+    });
+  }
+
+  return functions;
+}
+
+/**
+ * Returns the brace nesting depth at the given index. Used to tell top-level
+ * definitions (depth 0) apart from definitions inside a contract or function
+ * body. Braces inside string literals are a known, acceptable inaccuracy.
+ */
+function braceDepthAt(code: string, index: number): number {
+  let depth = 0;
+  for (let i = 0; i < index; i++) {
+    if (code[i] === '{') depth++;
+    else if (code[i] === '}') depth--;
+  }
+  return depth;
 }
 
 /**
@@ -85,9 +166,9 @@ function parseParameters(paramString: string): Array<{ name: string; type: strin
     const trimmed = part.trim();
     if (!trimmed) continue;
 
-    // Pattern: type name (possibly with array brackets)
-    // Examples: "int amount", "bytes32 hash", "pubkey[] keys"
-    const match = trimmed.match(/^(\w+(?:\[\])?)\s+(\w+)$/);
+    // Pattern: type [constant|unused] name (possibly with array brackets)
+    // Examples: "int amount", "bytes32 hash", "pubkey[] keys", "int unused x"
+    const match = trimmed.match(/^(\w+(?:\[\])?)\s+(?:(?:constant|unused)\s+)*(\w+)$/);
     if (match) {
       params.push({
         type: match[1],
@@ -117,8 +198,9 @@ function removeComments(code: string): string {
 export function getCurrentFunctionContext(sourceCode: string, offset: number): string | undefined {
   const codeBeforeCursor = sourceCode.substring(0, offset);
 
-  // Find all function declarations before the cursor
-  const functionRegex = /function\s+(\w+)\s*\([^)]*\)\s*\{/g;
+  // Find all function declarations before the cursor. Global functions (0.14+)
+  // may declare return types between the parameter list and the body.
+  const functionRegex = /function\s+(\w+)\s*\([^)]*\)\s*(?:returns\s*\([^)]*\)\s*)?\{/g;
   let lastFunctionName: string | undefined;
   let lastFunctionStart = -1;
   let match;
@@ -156,8 +238,8 @@ export function getAvailableVariables(
   const currentFunction = getCurrentFunctionContext(sourceCode, offset);
 
   return allVariables.filter(variable => {
-    // Contract-level variables are always available
-    if (variable.scope === 'contract') {
+    // Contract-level variables and global constants are always available
+    if (variable.scope === 'contract' || variable.scope === 'global') {
       return true;
     }
 

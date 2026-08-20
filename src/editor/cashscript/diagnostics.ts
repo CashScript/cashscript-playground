@@ -1,5 +1,6 @@
 import type { Artifact } from 'cashscript';
 import { compileString } from 'cashc';
+import { compileString as compileStringV013 } from 'cashc-v0.13';
 import { compileString as compileStringV012 } from 'cashc-v0.12';
 import type { CashScriptVersion } from './version';
 
@@ -62,7 +63,8 @@ export interface CashScriptDiagnostic {
 }
 
 const compileStringByVersion: Record<CashScriptVersion, CompileStringWithErrorListener> = {
-  '0.13': compileString,
+  '0.14': compileString,
+  '0.13': compileStringV013,
   '0.12': compileStringV012,
 };
 

@@ -1,4 +1,4 @@
-export const exampleTimeoutContract = `pragma cashscript ~0.13.0;
+export const exampleTimeoutContract = `pragma cashscript ^0.14.0;
 
 // see https://cashscript.org/docs/basics/getting-started#writing-your-first-contract
 
@@ -16,7 +16,7 @@ contract TransferWithTimeout(pubkey sender, pubkey recipient, int timeout) {
 }
 `
 
-export const exampleEscrowContract = `pragma cashscript ~0.13.0;
+export const exampleEscrowContract = `pragma cashscript ^0.14.0;
 
 // see https://cashscript.org/docs/guides/covenants#restricting-p2pkh-recipients
     
@@ -40,7 +40,7 @@ contract Escrow(bytes20 arbiter, bytes20 buyer, bytes20 seller) {
 }
 `
 
-export const exampleStramingMecenasContract = `pragma cashscript ~0.13.0;
+export const exampleStramingMecenasContract = `pragma cashscript ^0.14.0;
 
 // see https://cashscript.org/docs/guides/covenants#keeping-local-state-in-nfts
     
@@ -100,7 +100,56 @@ contract StreamingMecenas(
 }
 `
 
-export const exampleDexContract = `pragma cashscript ~0.13.0;
+export const exampleSharedFunctionsContract = `pragma cashscript ^0.14.0;
+
+// New in CashScript 0.14: reusable user-defined functions, global constants and
+// multiple return values destructured at the call site
+// see https://cashscript.org/docs/language/contracts#user-defined-functions
+
+int constant MINER_FEE = 1000;
+
+// Reusable function returning the input value remaining after the miner fee
+function remainingValue() returns (int) {
+    return tx.inputs[this.activeInputIndex].value - MINER_FEE;
+}
+
+// Reusable void function requiring that an output sends to a P2PKH recipient
+function requireSendsToRecipient(int outputIndex, bytes20 recipientPkh, int amount) {
+    bytes25 recipientLock = new LockingBytecodeP2PKH(recipientPkh);
+    require(tx.outputs[outputIndex].lockingBytecode == recipientLock);
+    require(tx.outputs[outputIndex].value >= amount);
+}
+
+// Reusable function returning multiple values: the running total of the output
+// values, and the largest output value seen so far
+function addOutput(int outputIndex, int runningTotal, int runningLargest) returns (int, int) {
+    int outputValue = tx.outputs[outputIndex].value;
+    return runningTotal + outputValue, max(runningLargest, outputValue);
+}
+
+contract SharedFunctions(bytes20 ownerPkh) {
+    function spend(pubkey pk, sig s) {
+        int total = 0;
+        int largest = 0;
+
+        // Multiple return values are destructured at the call site. A target without
+        // a type reassigns an existing variable rather than declaring a new one,
+        // which is what keeps the loop-carried state updated across iterations
+        for (int i = 0; i < tx.outputs.length; i++) {
+            (total, largest) = addOutput(i, total, largest);
+        }
+
+        // The owner has to receive the largest output, and no value may be burned
+        requireSendsToRecipient(0, ownerPkh, largest);
+        require(total == remainingValue());
+
+        require(hash160(pk) == ownerPkh);
+        require(checkSig(s, pk));
+    }
+}
+`
+
+export const exampleDexContract = `pragma cashscript ^0.14.0;
 
 // see https://cashscript.org/docs/language/examples#amm-dex
 
