@@ -102,7 +102,8 @@ contract StreamingMecenas(
 
 export const exampleSharedFunctionsContract = `pragma cashscript ^0.14.0;
 
-// New in CashScript 0.14: reusable user-defined functions and global constants
+// New in CashScript 0.14: reusable user-defined functions, global constants and
+// multiple return values destructured at the call site
 // see https://cashscript.org/docs/language/contracts#user-defined-functions
 
 int constant MINER_FEE = 1000;
@@ -119,10 +120,28 @@ function requireSendsToRecipient(int outputIndex, bytes20 recipientPkh, int amou
     require(tx.outputs[outputIndex].value >= amount);
 }
 
+// Reusable function returning multiple values: the running total of the output
+// values, and the largest output value seen so far
+function addOutput(int outputIndex, int runningTotal, int runningLargest) returns (int, int) {
+    int outputValue = tx.outputs[outputIndex].value;
+    return runningTotal + outputValue, max(runningLargest, outputValue);
+}
+
 contract SharedFunctions(bytes20 ownerPkh) {
     function spend(pubkey pk, sig s) {
-        // Send the remaining value back to the owner
-        requireSendsToRecipient(0, ownerPkh, remainingValue());
+        int total = 0;
+        int largest = 0;
+
+        // Multiple return values are destructured at the call site. A target without
+        // a type reassigns an existing variable rather than declaring a new one,
+        // which is what keeps the loop-carried state updated across iterations
+        for (int i = 0; i < tx.outputs.length; i++) {
+            (total, largest) = addOutput(i, total, largest);
+        }
+
+        // The owner has to receive the largest output, and no value may be burned
+        requireSendsToRecipient(0, ownerPkh, largest);
+        require(total == remainingValue());
 
         require(hash160(pk) == ownerPkh);
         require(checkSig(s, pk));
