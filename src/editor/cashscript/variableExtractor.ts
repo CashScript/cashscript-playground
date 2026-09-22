@@ -3,6 +3,9 @@ export interface ExtractedVariable {
   type: string;
   scope: 'contract' | 'function' | 'local' | 'global';
   functionName?: string;
+  // Declared with the `unused` modifier (0.14+): the value is dropped right
+  // after its declaration and cannot be referenced later.
+  unused: boolean;
 }
 
 // A user-defined global (top-level) function, introduced in CashScript 0.14.
@@ -32,6 +35,7 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
         name: param.name,
         type: param.type,
         scope: 'contract',
+        unused: param.unused,
       });
     });
   }
@@ -49,6 +53,7 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
         type: param.type,
         scope: 'function',
         functionName,
+        unused: param.unused,
       });
     });
   }
@@ -59,17 +64,19 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
   // Declarations at brace depth 0 are global constants (0.14+); anything deeper
   // is a local variable.
   const typePattern = '(?:int|bool|string|bytes(?:[1-9]|[12][0-9]|3[0-2])?|pubkey|sig|datasig)';
-  const localVarRegex = new RegExp(`(${typePattern})\\s+(?:(?:constant|unused)\\s+)*(\\w+)\\s*=`, 'g');
+  // Captures the (possibly empty) run of modifiers between a type and a name
+  const modifiersPattern = '((?:(?:constant|unused)\\s+)*)';
+  const localVarRegex = new RegExp(`(${typePattern})\\s+${modifiersPattern}(\\w+)\\s*=`, 'g');
   let localMatch;
   while ((localMatch = localVarRegex.exec(codeWithoutComments)) !== null) {
-    const varType = localMatch[1];
-    const varName = localMatch[2];
+    const [, varType, modifiers, varName] = localMatch;
     // Avoid duplicates
     if (!variables.some(v => v.name === varName)) {
       variables.push({
         name: varName,
         type: varType,
         scope: braceDepthAt(codeWithoutComments, localMatch.index) === 0 ? 'global' : 'local',
+        unused: hasUnusedModifier(modifiers),
       });
     }
   }
@@ -82,15 +89,16 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
   // of declaring a new one, and both kinds can be mixed in one assignment
   // (e.g. `(int fresh, current, next) = step(current, next);`). Only the typed
   // targets declare a variable here — untyped ones are picked up at their own
-  // declaration.
-  const tupleTargetPattern = `(?:${typePattern}\\s+)?\\w+`;
+  // declaration. Newly declared targets accept the same modifiers as regular
+  // declarations (e.g. `bytes unused ignored, bytes constant tail = x.split(4);`).
+  const tupleTargetPattern = `(?:${typePattern}\\s+(?:(?:constant|unused)\\s+)*)?\\w+`;
   const tupleAssignmentRegex = new RegExp(
     // Anchored on a statement boundary so comma-separated *argument* lists
     // (e.g. `f(a, b)`) and parameter lists are not mistaken for targets.
     `(?:^|[;{})])\\s*\\(?\\s*(${tupleTargetPattern}(?:\\s*,\\s*${tupleTargetPattern})+)\\s*\\)?\\s*=(?!=)`,
     'g',
   );
-  const declarationTargetRegex = new RegExp(`^(${typePattern})\\s+(\\w+)$`);
+  const declarationTargetRegex = new RegExp(`^(${typePattern})\\s+${modifiersPattern}(\\w+)$`);
   let tupleMatch;
   while ((tupleMatch = tupleAssignmentRegex.exec(codeWithoutComments)) !== null) {
     const scope = braceDepthAt(codeWithoutComments, tupleMatch.index) === 0 ? 'global' : 'local';
@@ -99,11 +107,11 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
       const declaration = target.trim().match(declarationTargetRegex);
       if (!declaration) continue;
 
-      const [, varType, varName] = declaration;
+      const [, varType, modifiers, varName] = declaration;
       // Avoid duplicates
       if (variables.some(v => v.name === varName)) continue;
 
-      variables.push({ name: varName, type: varType, scope });
+      variables.push({ name: varName, type: varType, scope, unused: hasUnusedModifier(modifiers) });
     }
   }
 
@@ -150,10 +158,18 @@ function braceDepthAt(code: string, index: number): number {
 }
 
 /**
+ * Whether a run of declaration modifiers (e.g. `constant unused `) includes
+ * the `unused` modifier.
+ */
+function hasUnusedModifier(modifiers: string): boolean {
+  return /\bunused\b/.test(modifiers);
+}
+
+/**
  * Parses a parameter list string into individual parameters.
  */
-function parseParameters(paramString: string): Array<{ name: string; type: string }> {
-  const params: Array<{ name: string; type: string }> = [];
+function parseParameters(paramString: string): Array<{ name: string; type: string; unused: boolean }> {
+  const params: Array<{ name: string; type: string; unused: boolean }> = [];
 
   if (!paramString.trim()) {
     return params;
@@ -168,11 +184,12 @@ function parseParameters(paramString: string): Array<{ name: string; type: strin
 
     // Pattern: type [constant|unused] name (possibly with array brackets)
     // Examples: "int amount", "bytes32 hash", "pubkey[] keys", "int unused x"
-    const match = trimmed.match(/^(\w+(?:\[\])?)\s+(?:(?:constant|unused)\s+)*(\w+)$/);
+    const match = trimmed.match(/^(\w+(?:\[\])?)\s+((?:(?:constant|unused)\s+)*)(\w+)$/);
     if (match) {
       params.push({
         type: match[1],
-        name: match[2],
+        name: match[3],
+        unused: hasUnusedModifier(match[2]),
       });
     }
   }
@@ -238,6 +255,10 @@ export function getAvailableVariables(
   const currentFunction = getCurrentFunctionContext(sourceCode, offset);
 
   return allVariables.filter(variable => {
+    // Variables marked `unused` are dropped right after their declaration and
+    // cannot be referenced anywhere
+    if (variable.unused) return false;
+
     // Contract-level variables and global constants are always available
     if (variable.scope === 'contract' || variable.scope === 'global') {
       return true;

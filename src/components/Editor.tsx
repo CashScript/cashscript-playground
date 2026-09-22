@@ -45,9 +45,9 @@ const Editor: React.FC<Props> = ({ code, setCode, compile, compilerVersion, setC
 
     const validationTimeout = setTimeout(() => {
       const diagnostics = getCashScriptDiagnostics(code, compilerVersion);
-      const markers = diagnostics.map((diagnostic) => ({
+      const markers = diagnostics.map(({ severity, ...diagnostic }) => ({
         ...diagnostic,
-        severity: monaco.MarkerSeverity.Error,
+        severity: severity === 'warning' ? monaco.MarkerSeverity.Warning : monaco.MarkerSeverity.Error,
         source: 'cashc',
       }));
 

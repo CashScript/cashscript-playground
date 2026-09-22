@@ -254,8 +254,12 @@ function formatVariableHover(variable: ExtractedVariable): Monaco.IMarkdownStrin
     scopeDescription = 'Local variable';
   }
 
+  if (variable.unused) {
+    scopeDescription += ', marked `unused` (dropped right after its declaration, so it cannot be referenced)';
+  }
+
   contents.push({
-    value: `\`\`\`cashscript\n${variable.type} ${variable.name}\n\`\`\``,
+    value: `\`\`\`cashscript\n${variable.type}${variable.unused ? ' unused' : ''} ${variable.name}\n\`\`\``,
   });
 
   contents.push({

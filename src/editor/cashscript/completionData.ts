@@ -444,7 +444,7 @@ export const keywords: CompletionItemData[] = [
     label: 'unused',
     kind: 'Keyword',
     detail: 'Unused modifier',
-    documentation: 'Marks a parameter or variable as intentionally unused, suppressing the unused-symbol compiler warning.',
+    documentation: 'Marks a parameter, variable or newly declared tuple destructuring target as intentionally unused, silencing the compiler warning for unused variables. The value is dropped from the stack right after its declaration and cannot be referenced later, and no parameter type enforcement is generated for unused parameters. Example: `bytes unused ignored, bytes tail = x.split(4);`.',
     minVersion: '0.14.0',
   },
   {
