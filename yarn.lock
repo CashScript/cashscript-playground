@@ -84,10 +84,10 @@
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
 
-"@cashscript/utils@^0.14.0-next.4":
-  version "0.14.0-next.4"
-  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.14.0-next.4.tgz#12cf9b5a54eda301f925baf1b804d0f22bf19b18"
-  integrity sha512-ZNoE+yWOWNklJ42tbnaC14XGGzvYF6bN67PeEBrWGctO6mJheEX4BiNEiiIxh4AeGwLCQC93Hs7nWUvIqnuFXw==
+"@cashscript/utils@^0.14.0-next.5":
+  version "0.14.0-next.5"
+  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.14.0-next.5.tgz#e8a73821e0ba215c44dda84fb0c040c92f00c83d"
+  integrity sha512-rYiuUXFuPadzjA/uBbaihqsXAZOWsiyLd0RNe6RoGqzyOYge5b9Fvc44xq3RjqzEKrel9Gpw9Qox9e+F8t8YQg==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
 
@@ -1218,24 +1218,24 @@ caniuse-lite@^1.0.30001579:
     commander "^14.0.0"
     semver "^7.7.2"
 
-cashc@^0.14.0-next.4:
-  version "0.14.0-next.4"
-  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.14.0-next.4.tgz#f3c643e6d4507612743b678e27f4805de906542c"
-  integrity sha512-25fUFqXYI7cJQSgkOOEfoM+CDhXhH6m5OzxF1T3apsF7q13eptR4yyZF99k50hRU11Si5TWy60G/T2ceJeA8wQ==
+cashc@^0.14.0-next.5:
+  version "0.14.0-next.5"
+  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.14.0-next.5.tgz#cb74ef59397ad5a63983351a31ffc863e32b6544"
+  integrity sha512-BhiiGVwl+gx5R2GNXWKlXsPEQ7jP0Y+JDlIOslXeel400GBJ93c9ZeA2T7FTc5i2LN9J9B44qrKJnidRhmNwdw==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.14.0-next.4"
+    "@cashscript/utils" "^0.14.0-next.5"
     antlr4 "^4.13.2"
     commander "^14.0.0"
     semver "^7.8.5"
 
-cashscript@^0.14.0-next.4:
-  version "0.14.0-next.4"
-  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.14.0-next.4.tgz#f96271fca62b829e2ada2ef10fcf8b79af62346e"
-  integrity sha512-GyAbIz1FigR5t3FcsdqdI9byKQ1inVxTBUU2z9UAAeqbfmyzq8bvxRse6ULww20WufvgDCzPFepDLO/7mdWIAQ==
+cashscript@^0.14.0-next.5:
+  version "0.14.0-next.5"
+  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.14.0-next.5.tgz#594fb81f3dcd6ce5594b22b9cebf481e80e097ac"
+  integrity sha512-STzi0aJIwMwXggR7GI1GPa9vvpX51OI9doIFBLqI9zUzH89337zgADTKQ9lPJkcBHatE67y7kCV0/e8SRUmlNQ==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.14.0-next.4"
+    "@cashscript/utils" "^0.14.0-next.5"
     "@electrum-cash/network" "^4.2.2"
     fflate "^0.8.3"
     semver "^7.8.5"

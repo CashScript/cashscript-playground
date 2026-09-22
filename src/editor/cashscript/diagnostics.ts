@@ -1,5 +1,5 @@
 import type { Artifact } from 'cashscript';
-import { compileString } from 'cashc';
+import { compileString, type CashScriptWarning } from 'cashc';
 import { compileString as compileStringV013 } from 'cashc-v0.13';
 import { compileString as compileStringV012 } from 'cashc-v0.12';
 import type { CashScriptVersion } from './version';
@@ -15,13 +15,14 @@ interface CashScriptErrorListener {
   ): void;
 }
 
-interface CompileOptionsWithErrorListener {
+interface CompileOptionsWithListeners {
   errorListener?: CashScriptErrorListener;
+  warningListener?: (warning: CashScriptWarning) => void;
 }
 
-type CompileStringWithErrorListener = (
+type CompileStringWithListeners = (
   code: string,
-  compilerOptions?: CompileOptionsWithErrorListener,
+  compilerOptions?: CompileOptionsWithListeners,
 ) => Artifact;
 
 interface SourcePoint {
@@ -54,18 +55,22 @@ interface CompilerErrorLike {
   };
 }
 
+export type CashScriptDiagnosticSeverity = 'error' | 'warning';
+
 export interface CashScriptDiagnostic {
   message: string;
+  severity: CashScriptDiagnosticSeverity;
   startLineNumber: number;
   startColumn: number;
   endLineNumber: number;
   endColumn: number;
 }
 
-const compileStringByVersion: Record<CashScriptVersion, CompileStringWithErrorListener> = {
+// Only v0.14 compilers support warnings, so we don't forward warningListener to earlier compilers.
+const compileStringByVersion: Record<CashScriptVersion, CompileStringWithListeners> = {
   '0.14': compileString,
-  '0.13': compileStringV013,
-  '0.12': compileStringV012,
+  '0.13': (code, { errorListener } = {}) => compileStringV013(code, { errorListener }),
+  '0.12': (code, { errorListener } = {}) => compileStringV012(code, { errorListener }),
 };
 
 export function compileCashScript(code: string, compilerVersion: CashScriptVersion): Artifact {
@@ -77,17 +82,23 @@ export function getCashScriptDiagnostics(
   compilerVersion: CashScriptVersion,
 ): CashScriptDiagnostic[] {
   const errorListener = new SafeErrorListener();
+  const warnings: CashScriptDiagnostic[] = [];
+  const warningListener = (warning: CashScriptWarning): void => {
+    warnings.push(diagnosticFromCompilerWarning(warning));
+  };
 
   try {
-    compileStringByVersion[compilerVersion](code, { errorListener });
+    compileStringByVersion[compilerVersion](code, { errorListener, warningListener });
   } catch (error) {
     const syntaxDiagnostics = errorListener.getDiagnostics();
     if (syntaxDiagnostics.length > 0) return syntaxDiagnostics;
 
-    return [diagnosticFromCompilerError(error, code)];
+    // Warnings are emitted by an earlier compiler pass than most semantic
+    // errors, so the warnings gathered before the error still apply.
+    return [diagnosticFromCompilerError(error), ...warnings];
   }
 
-  return errorListener.getDiagnostics();
+  return [...errorListener.getDiagnostics(), ...warnings];
 }
 
 class SafeErrorListener implements CashScriptErrorListener {
@@ -111,6 +122,7 @@ class SafeErrorListener implements CashScriptErrorListener {
 
     this.diagnostics.push({
       message: capitalisedMessage,
+      severity: 'error',
       ...pointToMarkerRange(tokenRange.start, tokenRange.end),
     });
   }
@@ -151,10 +163,26 @@ function tokenLengthFromSymbol(token: OffendingTokenLike): number | undefined {
   return undefined;
 }
 
-function diagnosticFromCompilerError(error: unknown, code: string): CashScriptDiagnostic {
-  const originalMessage = error instanceof Error ? error.message : String(error);
-  const message = withoutLocationSuffix(originalMessage);
+function diagnosticFromCompilerError(error: unknown): CashScriptDiagnostic {
+  const message = error instanceof Error ? error.message : String(error);
   const location = (error as CompilerErrorLike | null | undefined)?.node?.location;
+
+  return diagnosticFromLocatedMessage(message, location, 'error');
+}
+
+function diagnosticFromCompilerWarning(warning: CashScriptWarning): CashScriptDiagnostic {
+  return diagnosticFromLocatedMessage(warning.message, warning.node.location, 'warning');
+}
+
+// Compiler errors and warnings carry the location of the offending AST node
+// (when available) and append that same location to their message. The marker
+// is anchored on the node's location, falling back to the one in the message.
+function diagnosticFromLocatedMessage(
+  originalMessage: string,
+  location: SourceLocation | undefined,
+  severity: CashScriptDiagnosticSeverity,
+): CashScriptDiagnostic {
+  const message = withoutLocationSuffix(originalMessage);
   const messageLocation = originalMessage.match(/\bat Line (\d+), Column (\d+)$/);
   const fallbackPoint = messageLocation
     ? { line: Number(messageLocation[1]), column: Number(messageLocation[2]) }
@@ -162,6 +190,7 @@ function diagnosticFromCompilerError(error: unknown, code: string): CashScriptDi
 
   return {
     message,
+    severity,
     ...pointToMarkerRange(
       location?.start ?? fallbackPoint,
       location?.end ?? location?.start ?? fallbackPoint,
@@ -172,7 +201,7 @@ function diagnosticFromCompilerError(error: unknown, code: string): CashScriptDi
 function pointToMarkerRange(
   start: SourcePoint,
   end: SourcePoint,
-): Omit<CashScriptDiagnostic, 'message'> {
+): Omit<CashScriptDiagnostic, 'message' | 'severity'> {
   const startPosition = pointToMarkerPosition(start);
   const endPosition = pointToMarkerPosition(end);
 
@@ -192,8 +221,8 @@ function pointToMarkerPosition(point: SourcePoint): { lineNumber: number; column
 }
 
 function expandEmptyMarkerRange(
-  range: Omit<CashScriptDiagnostic, 'message'>,
-): Omit<CashScriptDiagnostic, 'message'> {
+  range: Omit<CashScriptDiagnostic, 'message' | 'severity'>,
+): Omit<CashScriptDiagnostic, 'message' | 'severity'> {
   if (
     range.endLineNumber > range.startLineNumber
     || (
