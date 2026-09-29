@@ -7,11 +7,26 @@ interface Props {
   contract: Contract
   abi: AbiFunction
   wallets: Wallet[]
-  setInputUnlocker: (unlocker: Unlocker) => void
+  setInputUnlocker: (unlocker: Unlocker | undefined) => void
 }
 
 const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnlocker }) => {
   const [functionArgs, setFunctionArgs] = useState<FunctionArgument[]>([])
+  const [unlockerError, setUnlockerError] = useState<string | undefined>(undefined)
+
+  // The SDK validates the arguments when the unlocker is created, and since 0.14 it rejects
+  // invalid hex strings and pubkeys that are not 33 or 65 bytes. Arguments are incomplete while
+  // they are being typed (and a pubkey starts out empty), so an invalid argument clears the
+  // input's unlocker and is reported below the arguments instead of throwing.
+  function updateUnlocker(args: FunctionArgument[]) {
+    try {
+      setInputUnlocker(contract.unlock[abi.name](...args))
+      setUnlockerError(undefined)
+    } catch (error) {
+      setInputUnlocker(undefined)
+      setUnlockerError(error instanceof Error ? error.message : String(error))
+    }
+  }
 
   useEffect(() => {
     // Set default placeholder values for function arguments
@@ -30,7 +45,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
       }
     }) || [];
     setFunctionArgs(newArgs);
-    setInputUnlocker(contract.unlock[abi.name](...newArgs));
+    updateUnlocker(newArgs);
   }, [abi])
 
 
@@ -42,7 +57,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
       argsCopy[i] = new SignatureTemplate(wallets[Number(walletIndex)].privKey);
     }
     setFunctionArgs(argsCopy);
-    setInputUnlocker(contract.unlock[abi.name](...argsCopy));
+    updateUnlocker(argsCopy);
   }
 
   const argumentFields = abi?.inputs.map((input, i) => (
@@ -66,7 +81,7 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
             const argsCopy = [...functionArgs];
             argsCopy[i] = readAsType(event.target.value, input.type);
             setFunctionArgs(argsCopy);
-            setInputUnlocker(contract.unlock[abi.name](...argsCopy))
+            updateUnlocker(argsCopy)
           }}
         />
       )}
@@ -85,6 +100,11 @@ const ContractFunction: React.FC<Props> = ({ contract, abi, wallets, setInputUnl
             <div>
               {argumentFields}
             </div>
+            {unlockerError && (
+              <div style={{ marginTop: '5px', color: '#b02a37', fontSize: '0.875em' }}>
+                Invalid arguments: {unlockerError}
+              </div>
+            )}
           </Card.Body>
         </Card>
       }

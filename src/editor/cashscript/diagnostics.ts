@@ -48,8 +48,11 @@ interface OffendingTokenLike {
   stop?: number;
 }
 
+// Most compiler errors carry the offending AST node, while a ParseError thrown
+// after parsing (e.g. for an odd-length hex literal) carries a location instead.
 interface CompilerErrorLike {
   message?: string;
+  location?: SourceLocation;
   node?: {
     location?: SourceLocation;
   };
@@ -165,7 +168,8 @@ function tokenLengthFromSymbol(token: OffendingTokenLike): number | undefined {
 
 function diagnosticFromCompilerError(error: unknown): CashScriptDiagnostic {
   const message = error instanceof Error ? error.message : String(error);
-  const location = (error as CompilerErrorLike | null | undefined)?.node?.location;
+  const compilerError = error as CompilerErrorLike | null | undefined;
+  const location = compilerError?.node?.location ?? compilerError?.location;
 
   return diagnosticFromLocatedMessage(message, location, 'error');
 }

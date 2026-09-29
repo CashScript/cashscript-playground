@@ -84,10 +84,10 @@
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
 
-"@cashscript/utils@^0.14.0-next.5":
-  version "0.14.0-next.5"
-  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.14.0-next.5.tgz#e8a73821e0ba215c44dda84fb0c040c92f00c83d"
-  integrity sha512-rYiuUXFuPadzjA/uBbaihqsXAZOWsiyLd0RNe6RoGqzyOYge5b9Fvc44xq3RjqzEKrel9Gpw9Qox9e+F8t8YQg==
+"@cashscript/utils@^0.14.0-next.7":
+  version "0.14.0-next.7"
+  resolved "https://registry.yarnpkg.com/@cashscript/utils/-/utils-0.14.0-next.7.tgz#b8906fd10d4e644298b83016f01cbb981b43b7d2"
+  integrity sha512-Tx6eBSANII+CeCL8qwL4j4SlInOvQxkm4GOVcqxHL+oHKaJqeGi2ZIzJgTB+KCeFUCHVBGOvPqqHoi9fFAVw8A==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
 
@@ -98,24 +98,31 @@
   dependencies:
     debug "^4.3.7"
 
-"@electrum-cash/network@^4.2.2":
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/@electrum-cash/network/-/network-4.2.2.tgz#867b849938d196e887d56cf2cbecb8a1f2c9ea71"
-  integrity sha512-v2Wwt2o0VBBALPArx2dJEDvSqewKjiTW5KAd+jEXxxgdSxFygjJIrFcXryKOCv2CDbpE5+lXAogPAjx6FqW/nw==
+"@electrum-cash/network@^4.4.0":
+  version "4.4.8"
+  resolved "https://registry.yarnpkg.com/@electrum-cash/network/-/network-4.4.8.tgz#22a0e75e83a129c5a019cc8ae78f7c74cb1f2eef"
+  integrity sha512-fo/03qopaYdweO3JO5J2OL3gQz7fyil8NJaKg8Kid2bmF4uYulVuu9Q1W1bi4lRql5Dq9q7Z9LByShTi6pRbFg==
   dependencies:
     "@electrum-cash/debug-logs" "^1.0.0"
-    "@electrum-cash/web-socket" "^1.2.3"
+    "@electrum-cash/socket" "^4.1.0"
+    "@electrum-cash/web-socket" "^4.1.0"
     async-mutex "^0.5.0"
     debug "^4.3.2"
     eventemitter3 "^5.0.1"
     lossless-json "^4.0.1"
 
-"@electrum-cash/web-socket@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@electrum-cash/web-socket/-/web-socket-1.2.3.tgz#473b6ddb4dba513e1c4e62b163da219205e7b31b"
-  integrity sha512-sFWujTt98mvsMvE6gWjG44evkF3PcZhG1JffkkEUAVan+c9X51wkiWr3hkjPeIW0WfNpMTrFkvpGqVYmRj1RCA==
+"@electrum-cash/socket@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@electrum-cash/socket/-/socket-4.1.0.tgz#ad89d874c299546a06d65a4d21743aec286f1825"
+  integrity sha512-3FNCuD3KpKxfjsbmrjSvIYHfRzHFk9tAYzqztu4RNT1bUP3wkF6Yaq6foTuy9MDgc1FW/CxdAV7viGc3WzNt+A==
+
+"@electrum-cash/web-socket@^4.1.0":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@electrum-cash/web-socket/-/web-socket-4.1.1.tgz#e31d8423da4fb4e3b0bb706d9f9623a8124c81d4"
+  integrity sha512-UOvjUGZ9OqwMcXOlI1miDQTEfxam2EZVQbDwg6ZziS2KyNoag50xmdVQX3wOGAfsGEjQbFYVuy5EpRrKJP5/iA==
   dependencies:
     "@electrum-cash/debug-logs" "^1.0.0"
+    "@electrum-cash/socket" "^4.1.0"
     "@monsterbitar/isomorphic-ws" "^5.3.0"
     "@types/ws" "^8.5.5"
     async-mutex "^0.5.0"
@@ -1218,25 +1225,25 @@ caniuse-lite@^1.0.30001579:
     commander "^14.0.0"
     semver "^7.7.2"
 
-cashc@^0.14.0-next.5:
-  version "0.14.0-next.5"
-  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.14.0-next.5.tgz#cb74ef59397ad5a63983351a31ffc863e32b6544"
-  integrity sha512-BhiiGVwl+gx5R2GNXWKlXsPEQ7jP0Y+JDlIOslXeel400GBJ93c9ZeA2T7FTc5i2LN9J9B44qrKJnidRhmNwdw==
+cashc@^0.14.0-next.7:
+  version "0.14.0-next.7"
+  resolved "https://registry.yarnpkg.com/cashc/-/cashc-0.14.0-next.7.tgz#125dd0d4185c3a57f26d841798d373b3200d6254"
+  integrity sha512-+gZ3odRiMF56Tq5tDE7o3UKxnP7rYMKSJDJamkbR6El817twhPZKCbaUw2dw9TExaT7mp6QqQgYJEWXLsdCD0A==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.14.0-next.5"
+    "@cashscript/utils" "^0.14.0-next.7"
     antlr4 "^4.13.2"
     commander "^14.0.0"
     semver "^7.8.5"
 
-cashscript@^0.14.0-next.5:
-  version "0.14.0-next.5"
-  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.14.0-next.5.tgz#594fb81f3dcd6ce5594b22b9cebf481e80e097ac"
-  integrity sha512-STzi0aJIwMwXggR7GI1GPa9vvpX51OI9doIFBLqI9zUzH89337zgADTKQ9lPJkcBHatE67y7kCV0/e8SRUmlNQ==
+cashscript@^0.14.0-next.7:
+  version "0.14.0-next.7"
+  resolved "https://registry.yarnpkg.com/cashscript/-/cashscript-0.14.0-next.7.tgz#66db3a8ec2bc344829a9f004ca564c77fb0045de"
+  integrity sha512-JlL+yDa5VpxLZBFGrW6cxU+pwJ79sijGdkpZuwXT7NY+8zSxBVNZFUvt6UfwwfDXA5dy/W2wIrpccBcYhNmNHQ==
   dependencies:
     "@bitauth/libauth" "^3.1.0-next.8"
-    "@cashscript/utils" "^0.14.0-next.5"
-    "@electrum-cash/network" "^4.2.2"
+    "@cashscript/utils" "^0.14.0-next.7"
+    "@electrum-cash/network" "^4.4.0"
     fflate "^0.8.3"
     semver "^7.8.5"
 

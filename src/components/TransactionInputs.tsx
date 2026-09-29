@@ -9,8 +9,8 @@ interface Props {
   setInputs: (inputs: (WalletUtxo | ContractUtxo | undefined)[]) => void
   wallets: Wallet[]
   contracts: ContractInfo[] | undefined
-  inputUnlockers: Unlocker[]
-  setInputUnlockers: (unlockers: Unlocker[]) => void
+  inputUnlockers: (Unlocker | undefined)[]
+  setInputUnlockers: (unlockers: (Unlocker | undefined)[]) => void
 }
 
 const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contracts, inputUnlockers, setInputUnlockers }) => {
@@ -48,7 +48,7 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
     updateUtxos()
   }, [wallets, contracts])
 
-  function setInputUnlocker(i: number, unlocker: Unlocker) {
+  function setInputUnlocker(i: number, unlocker: Unlocker | undefined) {
     const inputUnlockersCopy = [...inputUnlockers]
     inputUnlockersCopy[i] = unlocker
     setInputUnlockers(inputUnlockersCopy)
@@ -143,7 +143,7 @@ const TransactionInputs: React.FC<Props> = ({ inputs, setInputs, wallets, contra
         <span style={{margin: "0px 4px"}}>Select Contract Function:</span> {functionSelector(inputs?.[index].contract, index)}
       </div>}
       { inputs?.[index] && 'contract' in inputs?.[index] && inputContractFunctions[index] && getAbiFunction(index) &&
-        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index) as AbiFunction} wallets={wallets} setInputUnlocker={(unlockerArg:Unlocker) => setInputUnlocker(index, unlockerArg)} />
+        <ContractFunction contract={inputs?.[index].contract} abi={getAbiFunction(index) as AbiFunction} wallets={wallets} setInputUnlocker={(unlockerArg: Unlocker | undefined) => setInputUnlocker(index, unlockerArg)} />
       }
     </div>
   ))
