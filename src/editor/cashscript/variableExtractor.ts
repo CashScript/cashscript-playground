@@ -87,7 +87,7 @@ export function extractVariables(sourceCode: string): ExtractedVariable[] {
   //   (int quotient, int remainder) = divmod(a, b);
   // Since 0.14 a target without a type reassigns an existing variable instead
   // of declaring a new one, and both kinds can be mixed in one assignment
-  // (e.g. `(int fresh, current, next) = step(current, next);`). Only the typed
+  // (e.g. `(current, next, int fresh) = step(current, next);`). Only the typed
   // targets declare a variable here — untyped ones are picked up at their own
   // declaration. Newly declared targets accept the same modifiers as regular
   // declarations (e.g. `bytes unused ignored, bytes constant tail = x.split(4);`).

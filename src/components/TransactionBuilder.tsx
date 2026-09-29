@@ -23,7 +23,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
   const [maximumFeeSatsPerByte, setMaximumFeeSatsPerByte] = useState<string>("")
 
   const [inputs, setInputs] = useState<(WalletUtxo | ContractUtxo | undefined)[]>([undefined])
-  const [inputUnlockers, setInputUnlockers] = useState<Unlocker[]>([])
+  const [inputUnlockers, setInputUnlockers] = useState<(Unlocker | undefined)[]>([])
   const [outputs, setOutputs] = useState<Output[]>([{ to: '', amount: 0n }])
 
   function addOutput() {
@@ -80,14 +80,18 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
   }, [provider, wallets, allowImplicitFungibleTokenBurn, enableMaxFeeSatoshis, maximumFeeSatoshis, enableMaxFeeSatsPerByte, maximumFeeSatsPerByte, inputs, inputUnlockers, outputs, enableLocktime, locktime])
 
   // Reactively calculate the transaction fee and fee rate as the user edits the
-  // inputs/outputs. Returns null while the transaction can't yet be built.
-  const feeData = useMemo(() => {
+  // inputs/outputs. While the transaction can't be built, the reason is kept so it
+  // can be shown once every input and output is filled in (e.g. a locktime or an
+  // argument that the SDK rejects), rather than for a transaction still being entered.
+  const feeResult = useMemo(() => {
     try {
-      return buildTransaction().calculateTransactionFee()
-    } catch {
-      return null
+      return { feeData: buildTransaction().calculateTransactionFee() }
+    } catch (error) {
+      return { error: error instanceof Error ? error.message : String(error) }
     }
   }, [buildTransaction])
+  const { feeData } = feeResult
+  const isTransactionFilledIn = inputs.every(Boolean) && outputs.every((output) => output.to)
 
   async function sendTransaction() {
     // try to send transaction and alert result
@@ -233,6 +237,7 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
         ) : (
           <span style={{ color: '#888' }}>
             Calculated fee: add valid inputs and outputs to calculate the fee
+            {isTransactionFilledIn && feeResult.error && ` (${feeResult.error})`}
           </span>
         )}
       </div>
