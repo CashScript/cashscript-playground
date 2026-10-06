@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useMemo} from 'react'
-import { NetworkProvider, Output, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
+import { FailedTransactionError, NetworkProvider, Output, SignatureTemplate, TransactionBuilder, Unlocker } from 'cashscript'
 import { Wallet, ContractInfo, ExplorerString, ContractUtxo, WalletUtxo } from './shared'
 import { Button, Card, Form } from 'react-bootstrap'
 import TransactionOutputs from './TransactionOutputs'
@@ -105,9 +105,10 @@ const TransactionBuilderPage: React.FC<Props> = ({ provider, wallets, contracts,
           alert(`Transaction evalution passed! see Bitauth IDE link in console`)
         } catch(error) {
           const errorMessage = typeof error == "string" ? error : (error as Error)?.message
-          const cashscriptError = errorMessage.split("Bitauth")[0]
+          // The reason is the error message without the appended Bitauth URI warning and link
+          const cashscriptError = error instanceof FailedTransactionError ? error.reason : errorMessage
           console.error(errorMessage)
-          alert(`Transaction evalution failed with the following message: \n\n${cashscriptError} See Bitauth IDE link in console`)
+          alert(`Transaction evalution failed with the following message: \n\n${cashscriptError}\n\nSee Bitauth IDE link in console`)
         }
         console.log(`Bitauth IDE link: ${transaction.getBitauthUri()}`)
       } else {
